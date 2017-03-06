@@ -1,5 +1,8 @@
 /main
 /build
+/bak
+/bak2
+/test
 *.dat
 *.tmp*
 *.out
