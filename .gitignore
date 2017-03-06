@@ -9,5 +9,6 @@
 *.o
 *.mod
 *.i90
+tags
 
 .DS_Store
