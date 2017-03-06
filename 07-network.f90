@@ -8,11 +8,13 @@ module mo_network
         integer :: cory, iround(free)
         real(8) :: l0, lvec(free)
         real(8) :: ks
+        real(8) :: Bi, Gi, Gixy, Gis
     end type
 
     type tpnetwork
         integer :: nsps, max_of_springs
         integer :: natom
+        real(8) :: mb, mg, mgs, mgxy
         type(tpspring), allocatable, dimension(:) :: sps
     end type
 
@@ -93,6 +95,10 @@ contains
                     sps(nsps).lvec   = dra
                     sps(nsps).l0     = sqrt(rij2)
                     sps(nsps).ks     = 1.d0
+                    sps(nsps).Bi     = 0.d0
+                    sps(nsps).Gi     = 0.d0
+                    sps(nsps).Gis    = 0.d0
+                    sps(nsps).Gixy   = 0.d0
 
                 end do
             end do
@@ -299,5 +305,145 @@ contains
 
     end function calc_len
 
+    subroutine calc_Bi( tcon, tnetwork, test )
+        implicit none
+
+        ! para list
+        type(tpcon),     intent(in)    :: tcon
+        type(tpnetwork), intent(inout) :: tnetwork
+        real(8),         intent(in)    :: test
+
+        ! local
+        integer :: ii, i, j
+        real(8) :: ks, Es, lnow, l0, Bi, sumEs
+
+        sumEs = 0.d0
+
+        associate(                 &
+            nsps => tnetwork.nsps, &
+            sps  => tnetwork.sps,  &
+            mb   => tnetwork.mb    &
+            )
+            
+            do ii=1, nsps
+
+                i = sps(ii).i
+                j = sps(ii).j
+
+                l0 = sps(ii).l0
+                ks = sps(ii).ks
+
+                lnow = calc_len( tcon, ii, tnetwork )
+                Es = 0.5d0 * ks * ( lnow - l0 )**2
+                sumEs = sumEs + Es
+
+                ! B = 1/4 * sum( T[1:free,1:free] )
+                ! Es = 1/2 * Bv ( 2 dl/l )**2
+                Bi = 2.d0 * Es / ( 2.d0 * test )**2
+
+                sps(ii).Bi = Bi
+
+            end do
+
+            mb = 2.d0 * sumEs / ( 2.d0 * test )**2 * product(tcon.lainv)
+
+        end associate
+
+    end subroutine
+
+    subroutine calc_Gis( tcon, tnetwork, test )
+        implicit none
+
+        ! para list
+        type(tpcon),     intent(in)    :: tcon
+        type(tpnetwork), intent(inout) :: tnetwork
+        real(8),         intent(in)    :: test
+        
+        ! local
+        integer :: ii, i, j
+        real(8) :: ks, Es, lnow, l0, Gis, sumEs
+
+        sumEs = 0.d0
+
+        associate(                 &
+            nsps => tnetwork.nsps, &
+            sps  => tnetwork.sps,  &
+            mgs  => tnetwork.mgs   &
+            )
+            
+            do ii=1, nsps
+
+                i = sps(ii).i
+                j = sps(ii).j
+
+                l0 = sps(ii).l0
+                ks = sps(ii).ks
+
+                lnow = calc_len( tcon, ii, tnetwork )
+                Es = 0.5d0 * ks * ( lnow - l0 )**2
+                sumEs = sumEs + Es
+
+                ! Gs = T_xyxy
+                ! Es = 1/2 * Gv strain**2
+                Gis = 2.d0 * Es / test**2
+
+                sps(ii).Gis = Gis
+
+            end do
+
+            mgs = 2.d0 * sumEs / test**2 * product(tcon.lainv)
+
+        end associate
+
+        
+    end subroutine
+
+    subroutine calc_Gixy( tcon, tnetwork, test )
+        implicit none
+
+        ! para list
+        type(tpcon),     intent(in)    :: tcon
+        type(tpnetwork), intent(inout) :: tnetwork
+        real(8),         intent(in)    :: test
+        
+        ! local
+        integer :: ii, i, j
+        real(8) :: ks, Es, lnow, l0, Gixy, sumEs
+
+        sumEs = 0.d0
+
+        associate(                 &
+            nsps => tnetwork.nsps, &
+            sps  => tnetwork.sps,  &
+            mgxy => tnetwork.mgxy  &
+            )
+            
+            do ii=1, nsps
+
+                i = sps(ii).i
+                j = sps(ii).j
+
+                l0 = sps(ii).l0
+                ks = sps(ii).ks
+
+                lnow = calc_len( tcon, ii, tnetwork )
+                Es = 0.5d0 * ks * ( lnow - l0 )**2
+                sumEs = sumEs + Es
+
+                ! Gs = 1/4 [ T_xxxx + T_yyyy - 2T_xxyy ]
+                ! Es = 1/2 [] * test**2 * v
+                !    = 2 * Gs * v * test**2
+                Gixy = 0.5d0 * Es / test**2
+
+                sps(ii).Gis = Gixy
+
+            end do
+
+            mgxy = 0.5d0 * sumEs / test**2 * product(tcon.lainv)
+
+        end associate
+
+        
+    end subroutine
 
 end module
