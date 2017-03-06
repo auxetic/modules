@@ -1,0 +1,10 @@
+/main
+/build
+*.dat
+*.tmp*
+*.out
+*.o
+*.mod
+*.i90
+
+.DS_Store
