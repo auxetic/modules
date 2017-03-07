@@ -62,6 +62,9 @@ program main
         call calc_gixy( confire2, net, testp )
         print*, net.mb, net.mgs, net.mgxy
 
+        ! corr
+
+
     end do
 
 
