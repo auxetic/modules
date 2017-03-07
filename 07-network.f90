@@ -8,11 +8,14 @@ module mo_network
         integer :: cory, iround(free)
         real(8) :: l0, lvec(free)
         real(8) :: ks
+        real(8) :: Bi, Gi, Gixy, Gis
     end type
 
     type tpnetwork
         integer :: nsps, max_of_springs
         integer :: natom
+        real(8) :: mb, mg, mgs, mgxy
+        real(8) :: bcorr, gcorr, kscorr, ksmeancorr
         type(tpspring), allocatable, dimension(:) :: sps
     end type
 
@@ -93,6 +96,10 @@ contains
                     sps(nsps).lvec   = dra
                     sps(nsps).l0     = sqrt(rij2)
                     sps(nsps).ks     = 1.d0
+                    sps(nsps).Bi     = 0.d0
+                    sps(nsps).Gi     = 0.d0
+                    sps(nsps).Gis    = 0.d0
+                    sps(nsps).Gixy   = 0.d0
 
                 end do
             end do
@@ -192,8 +199,8 @@ contains
 !        end do
         do i=1, tnetwork.nsps
             itemp = floor( rand(0)*tnetwork.nsps ) + 1
-            tnetwork.sps(i).ks = 1.0 + tanh( ktan * ( calc_len( tcon, itemp, tnetwork ) - 1.d0 ) )
-!           tnetwork.sps(i).ks = 1.0 + tanh( ktan * ( tnetwork.sps(i).l0 - 1.d0 ) )
+!           tnetwork.sps(i).ks = 1.0 + tanh( ktan * ( calc_len( tcon, itemp, tnetwork ) - 1.d0 ) )
+            tnetwork.sps(i).ks = 1.0 + tanh( ktan * ( tnetwork.sps(i).l0 - 1.d0 ) )
         end do
 
 !       h = 0.1d0
@@ -299,5 +306,212 @@ contains
 
     end function calc_len
 
+    subroutine calc_Bi( tcon, tnetwork, test )
+        implicit none
+
+        ! para list
+        type(tpcon),     intent(in)    :: tcon
+        type(tpnetwork), intent(inout) :: tnetwork
+        real(8),         intent(in)    :: test
+
+        ! local
+        integer :: ii, i, j
+        real(8) :: ks, Es, lnow, l0, Bi, sumEs
+
+        sumEs = 0.d0
+
+        associate(                 &
+            nsps => tnetwork.nsps, &
+            sps  => tnetwork.sps,  &
+            mb   => tnetwork.mb    &
+            )
+            
+            do ii=1, nsps
+
+                i = sps(ii).i
+                j = sps(ii).j
+
+                l0 = sps(ii).l0
+                ks = sps(ii).ks
+
+                lnow = calc_len( tcon, ii, tnetwork )
+                Es = 0.5d0 * ks * ( lnow - l0 )**2
+                sumEs = sumEs + Es
+
+                ! B = 1/4 * sum( T[1:free,1:free] )
+                ! Es = 1/2 * Bv ( 2 dl/l )**2
+                Bi = 2.d0 * Es / ( 2.d0 * test )**2
+
+                sps(ii).Bi = Bi
+
+            end do
+
+            mb = 2.d0 * sumEs / ( 2.d0 * test )**2 * product(tcon.lainv)
+
+        end associate
+
+    end subroutine
+
+    subroutine calc_Gis( tcon, tnetwork, test )
+        implicit none
+
+        ! para list
+        type(tpcon),     intent(in)    :: tcon
+        type(tpnetwork), intent(inout) :: tnetwork
+        real(8),         intent(in)    :: test
+        
+        ! local
+        integer :: ii, i, j
+        real(8) :: ks, Es, lnow, l0, Gis, sumEs
+
+        sumEs = 0.d0
+
+        associate(                 &
+            nsps => tnetwork.nsps, &
+            sps  => tnetwork.sps,  &
+            mgs  => tnetwork.mgs   &
+            )
+            
+            do ii=1, nsps
+
+                i = sps(ii).i
+                j = sps(ii).j
+
+                l0 = sps(ii).l0
+                ks = sps(ii).ks
+
+                lnow = calc_len( tcon, ii, tnetwork )
+                Es = 0.5d0 * ks * ( lnow - l0 )**2
+                sumEs = sumEs + Es
+
+                ! Gs = T_xyxy
+                ! Es = 1/2 * Gv strain**2
+                Gis = 2.d0 * Es / test**2
+
+                sps(ii).Gis = Gis
+
+            end do
+
+            mgs = 2.d0 * sumEs / test**2 * product(tcon.lainv)
+
+        end associate
+
+        
+    end subroutine
+
+    subroutine calc_Gixy( tcon, tnetwork, test )
+        implicit none
+
+        ! para list
+        type(tpcon),     intent(in)    :: tcon
+        type(tpnetwork), intent(inout) :: tnetwork
+        real(8),         intent(in)    :: test
+        
+        ! local
+        integer :: ii, i, j
+        real(8) :: ks, Es, lnow, l0, Gixy, sumEs
+
+        sumEs = 0.d0
+
+        associate(                 &
+            nsps => tnetwork.nsps, &
+            sps  => tnetwork.sps,  &
+            mgxy => tnetwork.mgxy, &
+            mgs  => tnetwork.mgs,  &
+            mg   => tnetwork.mg    &
+            )
+            
+            do ii=1, nsps
+
+                i = sps(ii).i
+                j = sps(ii).j
+
+                l0 = sps(ii).l0
+                ks = sps(ii).ks
+
+                lnow = calc_len( tcon, ii, tnetwork )
+                Es = 0.5d0 * ks * ( lnow - l0 )**2
+                sumEs = sumEs + Es
+
+                ! Gs = 1/4 [ T_xxxx + T_yyyy - 2T_xxyy ]
+                ! Es = 1/2 [] * test**2 * v
+                !    = 2 * Gs * v * test**2
+                Gixy = 0.5d0 * Es / test**2
+
+                sps(ii).Gixy = Gixy
+                sps(ii).gi   = 0.5d0 * ( Gixy + sps(ii).Gis)
+
+            end do
+
+            mgxy = 0.5d0 * sumEs / test**2 * product(tcon.lainv)
+
+            mg = 0.5d0 * ( mgxy + mgs )
+
+        end associate
+
+        
+    end subroutine
+
+! temp
+    subroutine calc_corr( tnetwork )
+        implicit none
+
+        ! para list
+        type(tpnetwork), intent(inout) :: tnetwork
+
+        ! local
+        integer :: ii, jj, flag
+        real(8) :: bi, bj, gi, gj, ksi, ksj, ksmean
+        real(8) :: vec1(free), vec2(free)
+
+        associate(                            &
+            nsps       => tnetwork.nsps,      &
+            sps        => tnetwork.sps,       &
+            bcorr      => tnetwork.bcorr,     &
+            gcorr      => tnetwork.gcorr,     &
+            kscorr     => tnetwork.kscorr,    &
+            ksmeancorr => tnetwork.ksmeancorr &
+            )
+
+            bcorr = 0.d0; gcorr = 0.d0; kscorr = 0.d0
+
+            ksmean = sum( sps(:).ks ) / nsps
+            
+            do ii=1, nsps
+                vec1 = sps(ii).lvec
+                bi   = sps(ii).bi
+                gi   = sps(ii).gi
+                ksi  = sps(ii).ks
+                do jj=ii+1, nsps
+
+                    vec2 = sps(jj).lvec
+                    bj   = sps(jj).bi
+                    gj   = sps(jj).gi
+                    ksj  = sps(jj).ks
+
+                    flag = 0
+                    if ( sps(ii).i == sps(jj).i .or. sps(ii).j == sps(jj).j ) then
+                        vec2 = vec2; flag = 1
+                    end if
+                    if ( sps(ii).j == sps(jj).i ) then
+                        vec2 = -vec2; flag = 1
+                    end if
+
+                    if ( flag == 0 ) cycle
+                    bcorr  = bcorr  + sum(vec1*vec2) * bi * bj
+                    gcorr  = gcorr  + sum(vec1*vec2) * gi * gj
+                    kscorr = kscorr + sum(vec1*vec2) * ksi * ksj
+                    ksmeancorr = ksmeancorr + sum(vec1*vec2) * (ksi-ksmean) * (ksj-ksmean)
+
+                end do
+            end do
+
+            bcorr  = bcorr  / nsps
+            gcorr  = gcorr  / nsps
+            kscorr = kscorr / nsps
+
+        end associate
+
+    end subroutine
 
 end module

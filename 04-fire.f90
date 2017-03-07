@@ -28,15 +28,21 @@ module mo_fire
 
 contains
 
-    subroutine init_confire( tconfire, tcon )
+    subroutine init_confire( tconfire, tcon, tnet )
         implicit none
 
         ! para list
-        type(tpcon), intent(inout) :: tconfire
-        type(tpcon), intent(in)    :: tcon
+        type(tpcon),     intent(inout)        :: tconfire
+        type(tpcon),     intent(in)           :: tcon
+        type(tpnetwork), intent(in), optional :: tnet
 
+        ! copy con to confire
         tconfire = tcon
-        call init_list( nbfire, tconfire )
+
+        ! if net don't exist, allocate list
+        if ( .not. present( tnet ) ) then
+            call init_list( nbfire, tconfire )
+        end if
 
     end subroutine init_confire
 
@@ -45,13 +51,14 @@ contains
         implicit none
 
         ! para list
-        type(tpcon),     intent(inout)        :: tcon
-        type(tpnetwork), intent(in), optional :: tnet
+        type(tpcon),     intent(inout)           :: tcon
+        type(tpnetwork), intent(inout), optional :: tnet
 
         if ( .not. present( tnet ) ) then
             call make_list( nbfire, tcon )
             call calc_force( tcon, nbfire )
         else
+           !call make_network( tnet, tcon )
             call calc_force_spring( tcon, tnet )
         end if
 
@@ -98,8 +105,10 @@ contains
             ! main
             do step=1, stepmax
 
-                if ( nonnetwork_flag .and. check_list( nbfire, tcon ) ) then
-                    call make_list( nbfire, tcon )
+                if ( nonnetwork_flag ) then
+                    if( check_list( nbfire, tcon ) ) then
+                        call make_list( nbfire, tcon )
+                    end if
                 end if
 
                 dt2  = 0.5d0 * dt
