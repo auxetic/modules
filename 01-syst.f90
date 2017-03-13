@@ -10,7 +10,7 @@ module mo_syst
 
     real(8), parameter :: pi    = 3.1415926535897932d0
     real(8), parameter :: ratio = 1.4d0
-    real(8), parameter :: alpha = 2.5d0
+    real(8), parameter :: alpha = 2.d0
     integer, parameter :: free  = 2
 
 contains

@@ -4,7 +4,7 @@
 /bak1
 /bak2
 /test
-!00-main.f90
+00-main.f90
 *.dat
 *.tmp*
 *.out
