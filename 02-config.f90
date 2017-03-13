@@ -294,6 +294,49 @@ contains
 
     end subroutine trim_config
 
+    function calc_dra( tcon, ti, tj ) result(dra)
+        implicit none
+
+        ! para list
+        type(tpcon), intent(in) :: tcon
+        integer, intent(in) :: ti
+        integer, intent(in) :: tj
+
+        ! results
+        real(8), dimension(free) :: dra
+
+        ! local
+        real(8) :: rai(free), raj(free)
+        integer :: k, cory, iround(free)
+
+        associate(                &
+            ra     => tcon.ra,    &
+            la     => tcon.la,    &
+            lainv  => tcon.lainv, &
+            strain => tcon.strain &
+            )
+
+            rai = ra(:,ti)
+            raj = ra(:,tj)
+
+            dra = raj - rai
+
+            cory = nint( dra(free) * lainv(free) )
+            dra(1) = dra(1) - strain * la(free) * cory
+
+            do k=1, free-1
+                iround(k) = nint( dra(k) * lainv(k) )
+            end do
+            iround(free) = cory
+
+            do k=1, free
+                dra(k) = dra(k) - iround(k) * la(k)
+            end do
+
+        end associate
+        
+    end function calc_dra
+
     ! ToDo : use hdf5 insteadly
     subroutine save_config_to( tcon, tfilename )
         implicit none
