@@ -1,3 +1,35 @@
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!  This is a program contributed mainly by Jun Liu     !!
+!!  in SCMP Laboratory in University of Science and     !!
+!!  Technology of China.                                !!
+!!  The other authors are                               !!
+!!  To our knowledge, this code works. Howerver, it     !!
+!!  is the user's own responsibilty to test this code   !!
+!!  before uses them in a real research application.    !!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+
+
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!  PURPOSE                                                                 !!
+!!  SYSTEM CONSTANT VARIABLES USED IN SUBSEQUENT PROGRAM                    !!
+!!                                                                          !!
+!!  USAGE                                                                   !!
+!!                                                                          !!
+!!  PRINCIPLE VARIABLES                                                     !!
+!!  TYPE        TYPESET     DEFINE A TYPE CONTAINS BASIC PARAMETERS USED    !!
+!!                          IN SUBSEQUENT PROGRAM. WHICH CONTAINS           !!
+!!  INTEGER     NATOM       NUMBER OF ATOMS IN THE SYSTEM                   !!
+!!  INTEGER     NP          SEED FOR RANDOM NUMBER GENERATOR                !!
+!!  REAL(8)     PHI         VOLUME FRICTION OF THE SYSTEM                   !!
+!!  REAL(8)     RATIO       THE RATIO OF BIG AND SMALL BALL IN BIDISPERSE   !!
+!!                          SYSTEM                                          !!
+!!  REAL(8)     ALPHA       FORCE CONSTANT                                  !!
+!!                          THE FORMAT OF THE FORCE IS                      !!
+!!  INTEGER     FREE        THE DEGREES OF FREEDOM OF A SINGLE PARTICLE     !!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
 module mo_syst
     implicit none
         
@@ -25,6 +57,18 @@ contains
 !    end subroutine testvar
     
 end module mo_syst
+
+
+
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!  PURPOSE                                                                 !!
+!!  DYNAMIC VARIABLES USED IN SUBSEQUENT PROGRAM                            !!
+!!                                                                          !!
+!!  USAGE                                                                   !!
+!!                                                                          !!
+!!  PRINCIPLE VARIABLES                                                     !!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 module mo_var
     implicit none
