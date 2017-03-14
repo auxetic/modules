@@ -5,6 +5,7 @@
 /bak2
 /test
 00-main.f90
+main.f90
 *.dat
 *.tmp*
 *.out
