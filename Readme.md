@@ -94,6 +94,7 @@ make
 4. 子过程calc_pw，计算参与度
 
 * [ ] 考虑盒子可压缩膨胀和剪切的情形
+* [ ] Psi_th
 
 
 #### ToDo Voronois Cell
