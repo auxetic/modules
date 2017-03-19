@@ -44,7 +44,7 @@ contains
     end subroutine
 
     subroutine gen_rand_config( tcon, tnp, tphi )
-        use ifport
+!       use ifport
         implicit none
 
         ! var list
@@ -353,7 +353,7 @@ contains
             ra     => tcon.ra,    &
             r      => tcon.r,     &
             la     => tcon.la,    &
-            strain => con.strain  &
+            strain => tcon.strain &
             )
 
             open(901,file=tfilename)
@@ -386,7 +386,7 @@ contains
             r      => tcon.r,     &
             la     => tcon.la,    &
             lainv  => tcon.lainv, &
-            strain => con.strain  &
+            strain => tcon.strain &
             )
 
             open(901,file=tfilename)
@@ -419,7 +419,7 @@ contains
             ra     => tcon.ra,    &
             r      => tcon.r,     &
             la     => tcon.la,    &
-            strain => con.strain  &
+            strain => tcon.strain &
             )
 
             open(901,file=tfilename,status="new")
