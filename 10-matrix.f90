@@ -32,12 +32,12 @@ contains
         ! local
 
         associate(                       &
-            natom     => tmode.natom,    &
-            mdim      => tmode.mdim,     &
-            ndim      => tmode.ndim,     &
-            boxflag   => tmode.boxflag,  &
-            xyflag    => tmode.xyflag,   &
-            shearflag => tmode.shearflag &
+            natom     => tmode%natom,    &
+            mdim      => tmode%mdim,     &
+            ndim      => tmode%ndim,     &
+            boxflag   => tmode%boxflag,  &
+            xyflag    => tmode%xyflag,   &
+            shearflag => tmode%shearflag &
             )
 
             if ( present(opboxflag) .and. present(opxyflag) ) stop "boxflag and xyflag can not exist simultaneously"
@@ -45,18 +45,18 @@ contains
             if ( present(opxyflag) )    xyflag    = .true.
             if ( present(opshearflag) ) shearflag = .true.
 
-            natom = tcon.natom
-            ndim = free * tcon.natom
+            natom = tcon%natom
+            ndim = free * tcon%natom
             mdim = ndim
 
             if ( boxflag   ) mdim = mdim + 1
             if ( xyflag    ) mdim = mdim + free
             if ( shearflag ) mdim = mdim + 1
 
-            allocate( tmode.dymatrix(mdim,mdim), tmode.egdymatrix(mdim) )
-           !allocate( tmode.dymatrix0(mdim,mdim) )
-            allocate( tmode.trimatrix(mdim,mdim,mdim) )
-            allocate( tmode.modez(mdim) )
+            allocate( tmode%dymatrix(mdim,mdim), tmode%egdymatrix(mdim) )
+           !allocate( tmode%dymatrix0(mdim,mdim) )
+            allocate( tmode%trimatrix(mdim,mdim,mdim) )
+            allocate( tmode%modez(mdim) )
 
         end associate
 
@@ -76,9 +76,9 @@ contains
         real(8) :: mij(free,free)   ! \p^2v / ( \pxi * \pxj ) ....
 
         associate(                      &
-            dymatrix => tmode.dymatrix, &
-            radius   => tcon.r,         &
-            natom    => tcon.natom      &
+            dymatrix => tmode%dymatrix, &
+            radius   => tcon%r,         &
+            natom    => tcon%natom      &
             )
 
             dymatrix = 0.d0
@@ -142,9 +142,9 @@ contains
         real(8) :: mijk(free,free,free)   ! \p^2v / ( \pxi * \pxj ) ....
 
         associate(                        &
-            trimatrix => tmode.trimatrix, &
-            radius    => tcon.r,          &
-            natom     => tcon.natom       &
+            trimatrix => tmode%trimatrix, &
+            radius    => tcon%r,          &
+            natom     => tcon%natom       &
             )
 
             trimatrix = 0.d0
@@ -228,13 +228,13 @@ contains
         ! local
         integer :: i, j, k
         real(8) :: kappa, tau
-        real(8) :: pkpz(tmode.mdim), ptpz(tmode.mdim), pbpz(tmode.mdim)
+        real(8) :: pkpz(tmode%mdim), ptpz(tmode%mdim), pbpz(tmode%mdim)
 
         associate( &
-            mdim => tmode.mdim, &
-            dymatrix => tmode.dymatrix0, &
-            trimatrix => tmode.trimatrix, &
-            modez => tmode.modez &
+            mdim => tmode%mdim, &
+            dymatrix => tmode%dymatrix0, &
+            trimatrix => tmode%trimatrix, &
+            modez => tmode%modez &
             )
         
             kappa = 0.d0
@@ -273,10 +273,11 @@ contains
 
             modez = modez - pbpz*1.d-2
 
-            modez = modez / norm2(modez)
+            !modez = modez / norm2(modez)
+            modez = modez / sqrt(sum(modez**2))
 
             tb = 2.d0*kappa**3/3.d0/tau**2
-            print*, norm2(pbpz), tb, dot_product(pbpz,modez)/norm2(pbpz)/norm2(modez)
+!           print*, norm2(pbpz), tb, dot_product(pbpz,modez)/norm2(pbpz)/norm2(modez)
 
         end associate
 
@@ -295,9 +296,9 @@ contains
         if ( present( oprange ) ) rangevar = oprange
 
         associate(                        &
-            mdim       => this.mdim,      &
-            dymatrix   => this.dymatrix,  &
-            egdymatrix => this.egdymatrix &
+            mdim       => this%mdim,      &
+            dymatrix   => this%dymatrix,  &
+            egdymatrix => this%egdymatrix &
             )
 
             call solve_matrix( dymatrix, mdim, egdymatrix, rangevar )
@@ -315,13 +316,13 @@ contains
         integer :: i, j 
         real(8) :: sum4
 
-        if ( .not. allocated(this.pw) ) allocate( this.pw(this.mdim) )
+        if ( .not. allocated(this%pw) ) allocate( this%pw(this%mdim) )
 
-        associate(                &
-            mdim   => this.mdim,  &
-            natom  => this.natom, &
-            pw     => this.pw,    &
-            dymatrix => this.dymatrix &
+        associate(                    &
+            mdim   => this%mdim,      &
+            natom  => this%natom,     &
+            pw     => this%pw,        &
+            dymatrix => this%dymatrix &
             )
             
             do i=1, mdim

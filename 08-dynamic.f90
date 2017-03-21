@@ -32,26 +32,26 @@ contains
         integer, intent(in)        :: tnhistmax
 
         associate(                    &
-            natom    => tmsd.natom,   &
-            ndt      => tmsd.ndt,     &
-            nhistmax => tmsd.nhistmax &
+            natom    => tmsd%natom,   &
+            ndt      => tmsd%ndt,     &
+            nhistmax => tmsd%nhistmax &
             )
             
-            natom = tcon.natom
+            natom = tcon%natom
             ndt   = tndt
             nhistmax = tnhistmax
 
             allocate(                         &
-                tmsd.msd(nhistmax),           &
-                tmsd.msdcount(nhistmax),      &
-                tmsd.alpha2(nhistmax),        &
-                tmsd.histdata(natom,nhistmax) &
+                tmsd%msd(nhistmax),           &
+                tmsd%msdcount(nhistmax),      &
+                tmsd%alpha2(nhistmax),        &
+                tmsd%histdata(natom,nhistmax) &
                 )
 
-            tmsd.msd = 0.d0
-            tmsd.msdcount = 0
-            tmsd.alpha2 = 0.d0
-            tmsd.histdata = 0.d0
+            tmsd%msd = 0.d0
+            tmsd%msdcount = 0
+            tmsd%alpha2 = 0.d0
+            tmsd%histdata = 0.d0
 
 
         end associate
@@ -70,16 +70,16 @@ contains
         integer :: i
 
         associate(                       &
-            ra        => tcon.ra,        &
-            cumstep   => tmsd.cumstep,   &
-            histidx   => tmsd.histidx,   &
-            calc_flag => tmsd.calc_flag, &
-            ndt       => tmsd.ndt,       &
-            nhistmax  => tmsd.nhistmax,  &
-            msd       => tmsd.msd,       &
-            msdcount  => tmsd.msdcount,  &
-            alpha2    => tmsd.alpha2,    &
-            histdata  => tmsd.histdata   &
+            ra        => tcon%ra,        &
+            cumstep   => tmsd%cumstep,   &
+            histidx   => tmsd%histidx,   &
+            calc_flag => tmsd%calc_flag, &
+            ndt       => tmsd%ndt,       &
+            nhistmax  => tmsd%nhistmax,  &
+            msd       => tmsd%msd,       &
+            msdcount  => tmsd%msdcount,  &
+            alpha2    => tmsd%alpha2,    &
+            histdata  => tmsd%histdata   &
             )
 
             cumstep = cumstep + 1
@@ -128,13 +128,13 @@ contains
         type(tpmsd), intent(inout) :: tmsd
 
         associate(                    &
-            natom    => tmsd.natom,   &
-            msdcount => tmsd.msdcount &
+            natom    => tmsd%natom,   &
+            msdcount => tmsd%msdcount &
             )
 
-            tmsd.msd    = tmsd.msd    / ( msdcount * natom )
-            tmsd.alpha2 = tmsd.alpha2 / ( msdcount * natom )
-            tmsd.alpha2 = tmsd.alpha2 / tmsd.msd**2 / 3.d0 -1.d0
+            tmsd%msd    = tmsd%msd    / ( msdcount * natom )
+            tmsd%alpha2 = tmsd%alpha2 / ( msdcount * natom )
+            tmsd%alpha2 = tmsd%alpha2 / tmsd%msd**2 / 3.d0 -1.d0
             
             ! todo fkt, ...
             

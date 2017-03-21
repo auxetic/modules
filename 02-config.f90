@@ -36,20 +36,20 @@ contains
         integer,     intent(in)           :: tnatom
         real(8),     intent(in), optional :: tphi
 
-        tcon.natom = tnatom
-        if ( present( tphi ) ) tcon.phi = tphi
+        tcon%natom = tnatom
+        if ( present( tphi ) ) tcon%phi = tphi
 
-        allocate( tcon.ra(free,tnatom), tcon.r(tnatom), tcon.va(free,tnatom), tcon.fa(free,tnatom) )
+        allocate( tcon%ra(free,tnatom), tcon%r(tnatom), tcon%va(free,tnatom), tcon%fa(free,tnatom) )
 
     end subroutine
 
-    subroutine gen_rand_config( tcon, tnp, tphi )
-!       use ifport
+    subroutine gen_rand_config( tcon, tseed, tphi )
+        use ifport
         implicit none
 
         ! var list
         type(tpcon), intent(inout)        :: tcon
-        integer,     intent(inout)        :: tnp
+        integer,     intent(inout)        :: tseed
         real(8),     intent(in), optional :: tphi
 
         ! local
@@ -57,26 +57,26 @@ contains
         real(8) :: seed_temp
 
         ! initialized rand
-        seed_temp = rand(tnp)
-        tnp = 0
+        call srand(tseed)
+        tseed = 0
 
-        if ( present( tphi ) ) tcon.phi = tphi
+        if ( present( tphi ) ) tcon%phi = tphi
 
         associate(                &
-            natom  => tcon.natom, &
-            ra     => tcon.ra,    &
-            fa     => tcon.fa,    &
-            va     => tcon.va,    &
-            r      => tcon.r,     &
-            la     => tcon.la,    &
-            lainv  => tcon.lainv, &
-            lx     => tcon.lx,    &
-            lxinv  => tcon.lxinv, &
-            ly     => tcon.ly,    &
-            lyinv  => tcon.lyinv, &
-            lz     => tcon.lz,    &
-            lzinv  => tcon.lzinv, &
-            strain => tcon.strain &
+            natom  => tcon%natom, &
+            ra     => tcon%ra,    &
+            fa     => tcon%fa,    &
+            va     => tcon%va,    &
+            r      => tcon%r,     &
+            la     => tcon%la,    &
+            lainv  => tcon%lainv, &
+            lx     => tcon%lx,    &
+            lxinv  => tcon%lxinv, &
+            ly     => tcon%ly,    &
+            lyinv  => tcon%lyinv, &
+            lz     => tcon%lz,    &
+            lzinv  => tcon%lzinv, &
+            strain => tcon%strain &
             )
 
             ! radius
@@ -97,7 +97,7 @@ contains
             ! config
             do i=1, natom
                 do j=1, free
-                    ra(j,i) = ( rand(0) - 0.5 ) * la(j)
+                    ra(j,i) = ( rand(0) - 0.5d0 ) * la(j)
                 end do
             end do
 
@@ -121,19 +121,19 @@ contains
         real(8) :: a, b
         real(8), parameter :: xyoffset = 1.d-2
 
-        if ( present( tphi ) ) tcon.phi = tphi
+        if ( present( tphi ) ) tcon%phi = tphi
 
         associate(                &
-            natom  => tcon.natom, &
-            ra     => tcon.ra,    &
-            r      => tcon.r,     &
-            la     => tcon.la,    &
-            lainv  => tcon.lainv, &
-            lx     => tcon.lx,    &
-            ly     => tcon.ly,    &
-            lxinv  => tcon.lxinv, &
-            lyinv  => tcon.lyinv, &
-            strain => tcon.strain &
+            natom  => tcon%natom, &
+            ra     => tcon%ra,    &
+            r      => tcon%r,     &
+            la     => tcon%la,    &
+            lainv  => tcon%lainv, &
+            lx     => tcon%lx,    &
+            ly     => tcon%ly,    &
+            lxinv  => tcon%lxinv, &
+            lyinv  => tcon%lyinv, &
+            strain => tcon%strain &
             )
 
             ! box length
@@ -192,18 +192,18 @@ contains
 
         ! read config
         open(901,file=tfilename)
-            read(901, *) tcon.la, tcon.strain
-            tcon.lainv = 1.d0 / tcon.la
+            read(901, *) tcon%la, tcon%strain
+            tcon%lainv = 1.d0 / tcon%la
             do i=1, tnatom
-                read(901,*) tcon.ra(:,i), tcon.r(i)
+                read(901,*) tcon%ra(:,i), tcon%r(i)
             end do
         close(901)
 
         !!!!
-        tcon.r = tcon.r * 0.5
+        tcon%r = tcon%r * 0.5
 
         ! phi
-        tcon.phi = pi * sum(tcon.r**2) / product(tcon.la)
+        tcon%phi = pi * sum(tcon%r**2) / product(tcon%la)
 
     end subroutine read_config
 
@@ -218,10 +218,10 @@ contains
         real(8) :: phi
         real(8) :: sdisk, volume
 
-        phi = tcon.phi
+        phi = tcon%phi
 
         ! V_n(r) = pi^(n/2) / Gamma( n/2 + 1 ) * r^n
-        sdisk = sqrt(pi**free) / gamma(dble(free)/2.d0+1) * sum(tcon.r**free)
+        sdisk = sqrt(pi**free) / gamma(dble(free)/2.d0+1) * sum(tcon%r**free)
 
         ! box length
         volume = sdisk / phi
@@ -240,8 +240,8 @@ contains
         integer :: nxy
 
         associate(               &
-            natom => tcon.natom, &
-            phi   => tcon.phi    &
+            natom => tcon%natom, &
+            phi   => tcon%phi    &
             )
 
             nxy = nint( sqrt( dble(natom) ) )
@@ -267,11 +267,11 @@ contains
         integer :: i, j, k
 
         associate(                &
-            natom  => tcon.natom, &
-            ra     => tcon.ra,    &
-            la     => tcon.la,    &
-            lainv  => tcon.lainv, &
-            strain => tcon.strain &
+            natom  => tcon%natom, &
+            ra     => tcon%ra,    &
+            la     => tcon%la,    &
+            lainv  => tcon%lainv, &
+            strain => tcon%strain &
             )
 
             do i=1, natom
@@ -310,10 +310,10 @@ contains
         integer :: k, cory, iround(free)
 
         associate(                &
-            ra     => tcon.ra,    &
-            la     => tcon.la,    &
-            lainv  => tcon.lainv, &
-            strain => tcon.strain &
+            ra     => tcon%ra,    &
+            la     => tcon%la,    &
+            lainv  => tcon%lainv, &
+            strain => tcon%strain &
             )
 
             rai = ra(:,ti)
@@ -349,15 +349,15 @@ contains
         integer :: i
 
         associate(                &
-            natom  => tcon.natom, &
-            ra     => tcon.ra,    &
-            r      => tcon.r,     &
-            la     => tcon.la,    &
-            strain => tcon.strain &
+            natom  => tcon%natom, &
+            ra     => tcon%ra,    &
+            r      => tcon%r,     &
+            la     => tcon%la,    &
+            strain => tcon%strain &
             )
 
             open(901,file=tfilename)
-                write(901,'(3es26.16)') dble(natom), tcon.phi, 0.d0
+                write(901,'(3es26.16)') dble(natom), tcon%phi, 0.d0
                 write(901,'(3es26.16)') la, strain
                 do i=1, natom
                     write(901,'(3es26.16)') ra(:,i), r(i)
@@ -379,18 +379,18 @@ contains
         integer :: i
 
         associate(                &
-            natom  => tcon.natom, &
-            ra     => tcon.ra,    &
-            va     => tcon.va,    &
-            fa     => tcon.fa,    &
-            r      => tcon.r,     &
-            la     => tcon.la,    &
-            lainv  => tcon.lainv, &
-            strain => tcon.strain &
+            natom  => tcon%natom, &
+            ra     => tcon%ra,    &
+            va     => tcon%va,    &
+            fa     => tcon%fa,    &
+            r      => tcon%r,     &
+            la     => tcon%la,    &
+            lainv  => tcon%lainv, &
+            strain => tcon%strain &
             )
 
             open(901,file=tfilename)
-                write(901,'(3es26.16)') dble(natom), tcon.phi, 0.d0
+                write(901,'(3es26.16)') dble(natom), tcon%phi, 0.d0
                 write(901,'(3es26.16)') la, strain
                 write(901,'(3es26.16)') lainv, strain
                 do i=1, natom
@@ -415,16 +415,16 @@ contains
         real(8), dimension(free) :: xyoffset
 
         associate(                &
-            natom  => tcon.natom, &
-            ra     => tcon.ra,    &
-            r      => tcon.r,     &
-            la     => tcon.la,    &
-            strain => tcon.strain &
+            natom  => tcon%natom, &
+            ra     => tcon%ra,    &
+            r      => tcon%r,     &
+            la     => tcon%la,    &
+            strain => tcon%strain &
             )
 
             open(901,file=tfilename,status="new")
 
-                write(901,'(3es26.16)') dble(natom), tcon.phi, 0.d0
+                write(901,'(3es26.16)') dble(natom), tcon%phi, 0.d0
                 write(901,'(3es26.16)') 3*la(1:free), strain
 
                 do ii=-1, 1

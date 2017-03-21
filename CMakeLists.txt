@@ -2,11 +2,25 @@ cmake_minimum_required (VERSION 2.6)
 
 project(main Fortran)
 
-#set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR})
-#include(FindMKL)
-#find_package( MKL REQUIRED )
-file(GLOB SOURCE "./*.f90")
-set (CMAKE_Fortran_FLAGS "-g -O3 -C -fpp -mkl")
+# source file
+if ( "${CMAKE_Fortran_COMPILER_ID}" STREQUAL "GNU" )
+    file(GLOB SRC_LIST "*.f90" "gnu/*.f90")
+elseif ( "${CMAKE_Fortran_COMPILER_ID}" STREQUAL "Intel" )
+    file(GLOB SRC_LIST "*.f90")
+endif()
 
-add_executable (main ${SOURCE})
+
+# compiler and compile flag
+set (CMAKE_Fortran_FLAGS "-O2 ")
+
+if ( "${CMAKE_Fortran_COMPILER_ID}" STREQUAL "GNU" )
+    set ( CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -llapack" )
+elseif ( "${CMAKE_Fortran_COMPILER_ID}" STREQUAL "Intel" )
+    set ( CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -mkl" )
+endif()
+MESSAGE( "Fortran COMPILER = " ${CMAKE_Fortran_COMPILER_ID} )
+MESSAGE( "Fortran COMPILE FLAGS = " ${CMAKE_Fortran_FLAGS} )
+
+# compile
+add_executable (main ${SRC_LIST})
 

@@ -30,10 +30,10 @@ contains
         real(8), intent(in) :: ttemper
         real(8), intent(in), optional :: oppress
 
-        mdargs.temper = ttemper
+        mdargs%temper = ttemper
 
         if ( present( oppress ) ) then
-            mdargs.press  = oppress
+            mdargs%press  = oppress
         end if
 
     end subroutine init_md
@@ -50,9 +50,9 @@ contains
         real(8) :: temp
 
         associate(                 &
-            natom => tcon.natom,   &
-            va    => tcon.va,      &
-            Tk    => mdargs.temper &
+            natom => tcon%natom,   &
+            va    => tcon%va,      &
+            Tk    => mdargs%temper &
             )
 
             do i=1, natom
@@ -78,10 +78,10 @@ contains
         real(8) :: chipxi
 
         associate(               &
-            ra  => tcon.ra,      &
-            va  => tcon.va,      &
-            fa  => tcon.fa,      &
-            Tk  => mdargs.temper &
+            ra  => tcon%ra,      &
+            va  => tcon%va,      &
+            fa  => tcon%fa,      &
+            Tk  => mdargs%temper &
             )
 
             ! velocity verlet : move 1
@@ -120,8 +120,8 @@ contains
         real(8) :: temp
 
         associate(               &
-            natom => tcon.natom, &
-            va    => tcon.va     &
+            natom => tcon%natom, &
+            va    => tcon%va     &
             )
 
             do i=1, free

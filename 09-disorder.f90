@@ -8,25 +8,26 @@ module mo_disorder
 
 contains
 
-    subroutine init_disorder( tradisorder, tcon, tnp )
+    subroutine init_disorder( tradisorder, tcon, tseed )
         use ifport
         implicit none
            
         type(tpcon) :: tcon
         real(8), allocatable, dimension(:,:) :: tradisorder
-        integer :: tnp
+        integer :: tseed
 
         real(8) :: temp
         integer :: i
 
-        temp = rand( tnp )
-        tnp = 0
+!       temp = rand( tseed )
+        tseed = 0
 
-        associate( natom => tcon.natom )
+        associate( natom => tcon%natom )
 
             allocate( radisorder(free,natom) )
             do i=1, natom
-                temp = rand(0) * 2.d0 * pi
+                temp = rand(0)
+                temp = temp * 2.d0 * pi
                 radisorder(1,i) = cos(temp)
                 radisorder(2,i) = sin(temp)
     !           radisorder(1,i) = 2.0 * rand(0) - 1.0
@@ -46,7 +47,7 @@ contains
 
         integer :: i
 
-        associate( ra => tcon.ra )
+        associate( ra => tcon%ra )
 
             ra = ra + teta * tradisorder
 

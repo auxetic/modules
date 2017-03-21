@@ -19,19 +19,19 @@ contains
         integer :: i, j, k, jj
 
         associate(                 &
-            natom  => tcon.natom,  &
-            radius => tcon.r,      &
-            ra     => tcon.ra,     &
-            fa     => tcon.fa,     &
-            Ea     => tcon.Ea,     &
-            la     => tcon.la,     &
-            lainv  => tcon.lainv,  &
-            strain => tcon.strain, &
-            stress => tcon.stress, &
-            press  => tcon.press,  &
-            pressx => tcon.pressx, &
-            pressy => tcon.pressy, &
-            list   => tnb.list     &
+            natom  => tcon%natom,  &
+            radius => tcon%r,      &
+            ra     => tcon%ra,     &
+            fa     => tcon%fa,     &
+            Ea     => tcon%Ea,     &
+            la     => tcon%la,     &
+            lainv  => tcon%lainv,  &
+            strain => tcon%strain, &
+            stress => tcon%stress, &
+            press  => tcon%press,  &
+            pressx => tcon%pressx, &
+            pressy => tcon%pressy, &
+            list   => tnb%list     &
             )
 
             Ea     = 0.d0
@@ -45,11 +45,11 @@ contains
                 rai = ra(:,i)
                 ri  = radius(i)
 
-                do jj=1, list(i).nbsum
+                do jj=1, list(i)%nbsum
 
-                    j = list(i).nblist(jj)
-                    iround = list(i).iround(:,jj)
-                    cory = list(i).cory(jj)
+                    j = list(i)%nblist(jj)
+                    iround = list(i)%iround(:,jj)
+                    cory = list(i)%cory(jj)
 
                     raj = ra(:,j)
                     rj  = radius(j)
@@ -109,18 +109,18 @@ contains
         integer :: i, j, k, jj
 
         associate(                 &
-            natom  => tcon.natom,  &
-            radius => tcon.r,      &
-            ra     => tcon.ra,     &
-            fa     => tcon.fa,     &
-            Ea     => tcon.Ea,     &
-            la     => tcon.la,     &
-            lainv  => tcon.lainv,  &
-            strain => tcon.strain, &
-            stress => tcon.stress, &
-            press  => tcon.press,  &
-            pressx => tcon.pressx, &
-            pressy => tcon.pressy  &
+            natom  => tcon%natom,  &
+            radius => tcon%r,      &
+            ra     => tcon%ra,     &
+            fa     => tcon%fa,     &
+            Ea     => tcon%Ea,     &
+            la     => tcon%la,     &
+            lainv  => tcon%lainv,  &
+            strain => tcon%strain, &
+            stress => tcon%stress, &
+            press  => tcon%press,  &
+            pressx => tcon%pressx, &
+            pressy => tcon%pressy  &
             )
 
             Ea     = 0.d0
@@ -202,20 +202,20 @@ contains
         integer :: i, j, k, ii, jj
 
         associate(                 &
-            natom  => tcon.natom,  &
-            radius => tcon.r,      &
-            ra     => tcon.ra,     &
-            fa     => tcon.fa,     &
-            Ea     => tcon.Ea,     &
-            la     => tcon.la,     &
-            lainv  => tcon.lainv,  &
-            strain => tcon.strain, &
-            stress => tcon.stress, &
-            press  => tcon.press,  &
-            pressx => tcon.pressx, &
-            pressy => tcon.pressy, &
-            list   => tnet.sps,    &
-            nlist  => tnet.nsps    &
+            natom  => tcon%natom,  &
+            radius => tcon%r,      &
+            ra     => tcon%ra,     &
+            fa     => tcon%fa,     &
+            Ea     => tcon%Ea,     &
+            la     => tcon%la,     &
+            lainv  => tcon%lainv,  &
+            strain => tcon%strain, &
+            stress => tcon%stress, &
+            press  => tcon%press,  &
+            pressx => tcon%pressx, &
+            pressy => tcon%pressy, &
+            list   => tnet%sps,    &
+            nlist  => tnet%nsps    &
             )
 
             Ea     = 0.d0
@@ -226,12 +226,12 @@ contains
 
             do ii=1, nlist
 
-                i      = list(ii).i
-                j      = list(ii).j
-                cory   = list(ii).cory
-                iround = list(ii).iround
-                l0     = list(ii).l0
-                ks     = list(ii).ks
+                i      = list(ii)%i
+                j      = list(ii)%j
+                cory   = list(ii)%cory
+                iround = list(ii)%iround
+                l0     = list(ii)%l0
+                ks     = list(ii)%ks
 
                 rai = ra(:,i)
                 raj = ra(:,j)

@@ -83,10 +83,10 @@ contains
         if ( present( tnet ) ) nonnetwork_flag = .false.
 
         associate(              &
-            ra    => tcon.ra,   &
-            va    => tcon.va,   &
-            fa    => tcon.fa,   &
-            natom => tcon.natom &
+            ra    => tcon%ra,   &
+            va    => tcon%va,   &
+            fa    => tcon%fa,   &
+            natom => tcon%natom &
             )
 
             ! initial sets
@@ -132,8 +132,8 @@ contains
                 cumn  = cumn + 1
                 power = sum( fa * va )
 
-                fn = norm2( fa )
-                vn = norm2( va )
+                fn = sqrt(sum(fa**2))
+                vn = sqrt(sum(va**2))
 
                 onembeta = 1.d0 - beta
                 betavndfn = beta*vn/fn
@@ -158,7 +158,7 @@ contains
                !if( step == 1 ) write(*,*) 'step', '    dt         ', '              fmax   '
 
                !if( mod(step,1) == 0 ) then
-               !    write(*,'(i6,2e25.15)') step, dt, tcon.stress
+               !    write(*,'(i6,2e25.15)') step, dt, tcon%stress
                !end if
 
             end do
@@ -239,21 +239,21 @@ contains
         end if
 
         associate(                   &
-            natom   => tcon.natom,   &
-            ra      => tcon.ra,      &
-            va      => tcon.va,      &
-            fa      => tcon.fa,      &
-            press   => tcon.press,   &
-            pressx  => tcon.pressx,  &
-            pressy  => tcon.pressy,  &
-            strain  => tcon.strain,  &
-            strainv => tcon.strainv, &
-            strainf => tcon.strainf, &
-            stress  => tcon.stress,  &
-            la      => tcon.la,      &
-            lainv   => tcon.lainv,   &
-            lav     => tcon.lav,     &
-            laf     => tcon.laf      &
+            natom   => tcon%natom,   &
+            ra      => tcon%ra,      &
+            va      => tcon%va,      &
+            fa      => tcon%fa,      &
+            press   => tcon%press,   &
+            pressx  => tcon%pressx,  &
+            pressy  => tcon%pressy,  &
+            strain  => tcon%strain,  &
+            strainv => tcon%strainv, &
+            strainf => tcon%strainf, &
+            stress  => tcon%stress,  &
+            la      => tcon%la,      &
+            lainv   => tcon%lainv,   &
+            lav     => tcon%lav,     &
+            laf     => tcon%laf      &
             )
 
             ! initial sets
@@ -363,7 +363,7 @@ contains
                 if ( cs_flag    ) temp = max( temp , abs( stress - stress_set ) )
 
                 if ( temp < fmax .or. step == (stepmax-1)  ) then
-                    !write(*,'(5es16.6)') 1.0, tcon.press, tcon.pressx, tcon.pressy, tcon.stress
+                    !write(*,'(5es16.6)') 1.0, tcon%press, tcon%pressx, tcon%pressy, tcon%stress
                     exit
                 end if
 

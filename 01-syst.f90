@@ -1,42 +1,31 @@
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!!  This is a program contributed mainly by Jun Liu     !!
-!!  in SCMP Laboratory in University of Science and     !!
-!!  Technology of China.                                !!
-!!  The other authors are                               !!
-!!  To our knowledge, this code works. Howerver, it     !!
-!!  is the user's own responsibilty to test this code   !!
-!!  before uses them in a real research application.    !!
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-
-
-
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!!  PURPOSE                                                                 !!
-!!  SYSTEM CONSTANT VARIABLES USED IN SUBSEQUENT PROGRAM                    !!
-!!                                                                          !!
-!!  USAGE                                                                   !!
-!!                                                                          !!
-!!  PRINCIPLE VARIABLES                                                     !!
-!!  TYPE        TYPESET     DEFINE A TYPE CONTAINS BASIC PARAMETERS USED    !!
-!!                          IN SUBSEQUENT PROGRAM. WHICH CONTAINS           !!
-!!  INTEGER     NATOM       NUMBER OF ATOMS IN THE SYSTEM                   !!
-!!  INTEGER     NP          SEED FOR RANDOM NUMBER GENERATOR                !!
-!!  REAL(8)     PHI         VOLUME FRICTION OF THE SYSTEM                   !!
-!!  REAL(8)     RATIO       THE RATIO OF BIG AND SMALL BALL IN BIDISPERSE   !!
-!!                          SYSTEM                                          !!
-!!  REAL(8)     ALPHA       FORCE CONSTANT                                  !!
-!!                          THE FORMAT OF THE FORCE IS                      !!
-!!  INTEGER     FREE        THE DEGREES OF FREEDOM OF A SINGLE PARTICLE     !!
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
 module mo_syst
     implicit none
-        
+
+!!vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+!!>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+!!  purpose
+!!  system constant variables used in subsequent program
+!!
+!!  usage
+!!
+!!  principle variables
+!!  type        typeset     define a type contains basic parameters used
+!!                          in subsequent program. which contains
+!!  integer     natom       number of atoms in the system
+!!  integer     seed        seed for random number generator
+!!  real(8)     phi         volume friction of the system
+!!  real(8)     ratio       the ratio of big and small ball in bidisperse
+!!                          system
+!!  real(8)     alpha       force constant
+!!                          the format of the force is
+!!  integer     free        the degrees of freedom of a single particle
+!!<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+!!^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
     type tpset
         integer :: natom
         real(8) :: phi
-        integer :: np
+        integer :: seed
     end type
     type(tpset) :: sets
 
@@ -49,30 +38,32 @@ contains
 
 !    subroutine testvar
 !        implicit none
-!            
+!
 !        sets.natom = 64
 !        sets.phi = 0.91d0
-!        sets.np = 201
+!        sets.seed = 201
 !
 !    end subroutine testvar
-    
+
 end module mo_syst
 
 
 
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!!  PURPOSE                                                                 !!
-!!  DYNAMIC VARIABLES USED IN SUBSEQUENT PROGRAM                            !!
-!!                                                                          !!
-!!  USAGE                                                                   !!
-!!                                                                          !!
-!!  PRINCIPLE VARIABLES                                                     !!
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+!!>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+!!  PURPOSE
+!!  DYNAMIC VARIABLES USED IN SUBSEQUENT PROGRAM
+!!
+!!  USAGE
+!!
+!!  PRINCIPLE VARIABLES
+!!<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+!!^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 module mo_var
     implicit none
-        
+
     integer :: i, j, k, ii, jj, kk, itemp, step, step1, step2, nstep
     real(8) :: temp1, temp2, temp3
 
@@ -80,7 +71,7 @@ module mo_var
     real(8) :: testp
     real(8) :: Mk_x, Mk_y, mu_xy, mu_yx, MB, MG_s, MG_xy
     real(8) :: epl_xx, epl_yy
-    
+
     logical :: exist_flag, eof_flag
 
     character(250) :: filename, chtemp

@@ -35,10 +35,10 @@ contains
         ! local
         integer :: tnatom
 
-        tnatom    = tcon.natom
-        tnb.natom = tnatom
+        tnatom    = tcon%natom
+        tnb%natom = tnatom
 
-        allocate( tnb.list(tnatom) )
+        allocate( tnb%list(tnatom) )
 
     end subroutine init_list
 
@@ -55,21 +55,21 @@ contains
         integer :: i, j, k, itemp
 
         associate(                 &
-            natom  => tcon.natom,  &
-            ra     => tcon.ra,     &
-            r      => tcon.r,      &
-            la     => tcon.la,     &
-            lainv  => tcon.lainv,  &
-            strain => tcon.strain, &
-            list   => tnb.list     &
+            natom  => tcon%natom,  &
+            ra     => tcon%ra,     &
+            r      => tcon%r,      &
+            la     => tcon%la,     &
+            lainv  => tcon%lainv,  &
+            strain => tcon%strain, &
+            list   => tnb%list     &
             )
 
             ! set nbsum to zero
-            list(:).nbsum = 0
+            list(:)%nbsum = 0
 
             do i=1, natom
 
-                list(i).con0 = ra(:,i)
+                list(i)%con0 = ra(:,i)
                 rai          = ra(:,i)
                 ri           = r(i)
 
@@ -97,13 +97,13 @@ contains
 
                     if ( rij2 > ( dij+nlcut )**2 ) cycle
 
-                    if ( list(i).nbsum < listmax ) then
-                        itemp                   = list(i).nbsum
+                    if ( list(i)%nbsum < listmax ) then
+                        itemp                   = list(i)%nbsum
                         itemp                   = itemp + 1
-                        list(i).nbsum           = itemp
-                        list(i).nblist(itemp)   = j
-                        list(i).iround(:,itemp) = iround
-                        list(i).cory(itemp)     = cory
+                        list(i)%nbsum           = itemp
+                        list(i)%nblist(itemp)   = j
+                        list(i)%iround(:,itemp) = iround
+                        list(i)%cory(itemp)     = cory
                     end if
 
                 end do
@@ -126,13 +126,13 @@ contains
         integer :: i, j
 
         associate(               &
-            natom => tcon.natom, &
-            ra    => tcon.ra     &
+            natom => tcon%natom, &
+            ra    => tcon%ra     &
             )
 
             maxdis = 0.d0
-            do i=1, tcon.natom
-                dra = tcon.ra(:,i) - tnb.list(i).con0
+            do i=1, tcon%natom
+                dra = tcon%ra(:,i) - tnb%list(i)%con0
                 dr2 = sum( dra**2 )
                 if ( maxdis < dr2 ) maxdis = dr2
             end do
