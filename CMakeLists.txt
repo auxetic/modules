@@ -12,6 +12,12 @@ endif()
 
 # compiler and compile flag
 set (CMAKE_Fortran_FLAGS "-O2 ")
+#set (CMAKE_Fortran_FLAGS "-O2 -xAVX -ip ")
+#set (CMAKE_Fortran_FLAGS "-O2 -xSSE4.2 -static ")
+#set (CMAKE_Fortran_FLAGS "-O2 -xSSE4.2 -unroll ")
+
+# debug
+#set ( CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -O0 -g -C" )
 
 if ( "${CMAKE_Fortran_COMPILER_ID}" STREQUAL "GNU" )
     set ( CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -llapack" )
