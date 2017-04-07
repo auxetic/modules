@@ -9,6 +9,8 @@ module mo_config
         real(8), allocatable, dimension(:)   :: r
         real(8), allocatable, dimension(:,:) :: va
         real(8), allocatable, dimension(:,:) :: fa
+        integer, allocatable, dimension(:)   :: pinflag
+
         ! box
         real(8) :: la(free), lx, ly, lz
         real(8) :: lainv(free), lxinv, lyinv, lzinv
@@ -24,7 +26,6 @@ module mo_config
     end type
 
     type(tpcon) :: con, contemp, contemp2
-
 
 contains
 
@@ -256,6 +257,101 @@ contains
 
     end function calc_box_trianglelattice
 
+    subroutine gen_pin( tcon, tn )
+        implicit none
+
+        ! para list
+        type(tpcon), intent(inout) :: tcon
+        integer,     intent(in) :: tn
+
+        ! local
+        integer :: i, j, k, testi
+        integer :: flag
+        real(8) :: temp, dij
+
+        if ( allocated(tcon%pinflag) .and. size(tcon%pinflag) /= tcon%natom ) then
+            deallocate( tcon%pinflag )
+        end if
+
+        if ( .not. allocated( tcon%pinflag ) ) then
+            allocate( tcon%pinflag( tcon%natom ) )
+        end if
+
+        associate(                   &
+            pinflag => tcon%pinflag, &
+            r       => tcon%r,       &
+            natom   => tcon%natom    &
+            )
+
+            pinflag = 0
+            pinflag(1) = 1
+
+            testi = 1
+            do while ( sum(pinflag) < tn )
+
+                testi = testi + 1
+
+                flag = 0
+                do i=1, testi
+                    if ( pinflag(i) == 1 ) then
+                        temp = calc_pp_len( tcon, i, testi )
+                        dij = r(testi) + r(i)
+                        if ( temp < 3.d0*dij ) flag = flag + 1
+                    end if
+                end do
+
+                if ( flag == 0 ) then
+                    pinflag( testi ) = 1
+                end if
+
+            end do
+
+        end associate
+
+    end subroutine
+
+    function calc_pp_len( tcon, ti, tj ) result(tl)
+        implicit none
+
+        ! para list
+        type(tpcon), intent(in) :: tcon
+        integer,     intent(in) :: ti, tj
+        real(8)                 :: tl
+
+        ! local
+        integer :: k
+        real(8) :: dra(free), rij2, dij
+        integer :: cory, iround(free)
+
+        associate(                &
+            ra     => tcon%ra,    &
+            r      => tcon%r,     &
+            la     => tcon.la,    &
+            lainv  => tcon.lainv, &
+            strain => tcon.strain &
+            )
+
+            dra = ra(:,tj) - ra(:,ti)
+
+            cory = nint( dra(free) * lainv(free) )
+            dra(1) = dra(1) - cory * strain * la(free)
+
+            do k=1, free-1
+                iround(k) = nint( dra(k) * lainv(k) )
+            end do
+            iround(free) = cory
+
+            do k=1, free
+                dra(k) = dra(k) - iround(k) * la(k)
+            end do
+
+            !tl = norm2( dra )
+            tl = sqrt(sum(dra**2))
+
+        end associate
+
+    end function calc_pp_len
+
     subroutine trim_config( tcon )
         implicit none
 
@@ -334,115 +430,119 @@ contains
             end do
 
         end associate
-        
+
     end function calc_dra
 
-    ! ToDo : use hdf5 insteadly
-    subroutine save_config_to( tcon, tfilename )
-        implicit none
-
-        ! var list
-        type(tpcon), intent(in)  :: tcon
-        character(*), intent(in) :: tfilename
-
-        ! local
-        integer :: i
-
-        associate(                &
-            natom  => tcon%natom, &
-            ra     => tcon%ra,    &
-            r      => tcon%r,     &
-            la     => tcon%la,    &
-            strain => tcon%strain &
-            )
-
-            open(901,file=tfilename)
-                write(901,'(3es26.16)') dble(natom), tcon%phi, 0.d0
-                write(901,'(3es26.16)') la, strain
-                do i=1, natom
-                    write(901,'(3es26.16)') ra(:,i), r(i)
-                end do
-            close(901)
-
-        end associate
-
-    end subroutine save_config_to
-
-    subroutine save_config_debug( tcon, tfilename )
-        implicit none
-
-        ! var list
-        type(tpcon), intent(in)  :: tcon
-        character(*), intent(in) :: tfilename
-
-        ! local
-        integer :: i
-
-        associate(                &
-            natom  => tcon%natom, &
-            ra     => tcon%ra,    &
-            va     => tcon%va,    &
-            fa     => tcon%fa,    &
-            r      => tcon%r,     &
-            la     => tcon%la,    &
-            lainv  => tcon%lainv, &
-            strain => tcon%strain &
-            )
-
-            open(901,file=tfilename)
-                write(901,'(3es26.16)') dble(natom), tcon%phi, 0.d0
-                write(901,'(3es26.16)') la, strain
-                write(901,'(3es26.16)') lainv, strain
-                do i=1, natom
-                    write(901,'(7es26.16)') ra(:,i), r(i), va(:,i), fa(:,i)
-                end do
-            close(901)
-
-        end associate
-
-    end subroutine save_config_debug
-
-    ! save config with wall
-    subroutine save_config_copy( tcon, tfilename )
-        implicit none
-
-        ! var list
-        type(tpcon),  intent(in) :: tcon
-        character(*), intent(in) :: tfilename
-
-        ! local
-        integer :: i, ii, jj
-        real(8), dimension(free) :: xyoffset
-
-        associate(                &
-            natom  => tcon%natom, &
-            ra     => tcon%ra,    &
-            r      => tcon%r,     &
-            la     => tcon%la,    &
-            strain => tcon%strain &
-            )
-
-            open(901,file=tfilename,status="new")
-
-                write(901,'(3es26.16)') dble(natom), tcon%phi, 0.d0
-                write(901,'(3es26.16)') 3*la(1:free), strain
-
-                do ii=-1, 1
-                    do jj=-1, 1
-
-                        xyoffset(1) = ii * la(1)
-                        xyoffset(2) = jj * la(2)
-                        do i=1, natom
-                            write(901,'(3es26.16)') ra(:,i)+xyoffset, r(i)
-                        end do
-
-                    end do
-                end do
-
-            close(901)
-
-        end associate
-
-    end subroutine save_config_copy
-
 end module
+
+! ToDo : use hdf5 insteadly
+subroutine save_config_to( tcon, tfilename )
+    use mo_config
+    implicit none
+
+    ! var list
+    type(tpcon), intent(in)  :: tcon
+    character(*), intent(in) :: tfilename
+
+    ! local
+    integer :: i
+
+    associate(                  &
+        natom   => tcon%natom,  &
+        ra      => tcon%ra,     &
+        r       => tcon%r,      &
+        la      => tcon%la,     &
+        strain  => tcon%strain, &
+        pinflag => tcon%pinflag &
+        )
+
+        open(901,file=tfilename)
+            write(901,'(3es26.16)') dble(natom), tcon%phi, 0.d0
+            write(901,'(3es26.16)') la, strain
+            do i=1, natom
+                write(901,'(3es26.16,i10)') ra(:,i), r(i), pinflag(i)
+            end do
+        close(901)
+
+    end associate
+
+end subroutine save_config_to
+
+subroutine save_config_debug( tcon, tfilename )
+    use mo_config
+    implicit none
+
+    ! var list
+    type(tpcon), intent(in)  :: tcon
+    character(*), intent(in) :: tfilename
+
+    ! local
+    integer :: i
+
+    associate(                &
+        natom  => tcon%natom, &
+        ra     => tcon%ra,    &
+        va     => tcon%va,    &
+        fa     => tcon%fa,    &
+        r      => tcon%r,     &
+        la     => tcon%la,    &
+        lainv  => tcon%lainv, &
+        strain => tcon%strain &
+        )
+
+        open(901,file=tfilename)
+            write(901,'(3es26.16)') dble(natom), tcon%phi, 0.d0
+            write(901,'(3es26.16)') la, strain
+            write(901,'(3es26.16)') lainv, strain
+            do i=1, natom
+                write(901,'(7es26.16)') ra(:,i), r(i), va(:,i), fa(:,i)
+            end do
+        close(901)
+
+    end associate
+
+end subroutine save_config_debug
+
+! save config with wall
+subroutine save_config_copy( tcon, tfilename )
+    use mo_config
+    implicit none
+
+    ! var list
+    type(tpcon),  intent(in) :: tcon
+    character(*), intent(in) :: tfilename
+
+    ! local
+    integer :: i, ii, jj
+    real(8), dimension(free) :: xyoffset
+
+    associate(                &
+        natom  => tcon%natom, &
+        ra     => tcon%ra,    &
+        r      => tcon%r,     &
+        la     => tcon%la,    &
+        strain => tcon%strain &
+        )
+
+        open(901,file=tfilename,status="new")
+
+            write(901,'(3es26.16)') dble(natom), tcon%phi, 0.d0
+            write(901,'(3es26.16)') 3*la(1:free), strain
+
+            do ii=-1, 1
+                do jj=-1, 1
+
+                    xyoffset(1) = ii * la(1)
+                    xyoffset(2) = jj * la(2)
+                    do i=1, natom
+                        write(901,'(3es26.16)') ra(:,i)+xyoffset, r(i)
+                    end do
+
+                end do
+            end do
+
+        close(901)
+
+    end associate
+
+end subroutine save_config_copy

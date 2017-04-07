@@ -75,13 +75,105 @@ contains
 
                     fr = wij / rij2
 
+                    fa(:,j) = fa(:,j) + fr * dra
+                    fa(:,i) = fa(:,i) - fr * dra
+
                     wilix = wilix + fr * dra(1)**2
                     wiliy = wiliy + fr * dra(2)**2
+
+                    stress = stress - 2 * dra(1) * dra(2) * fr
+
+                end do
+
+            end do
+
+            stress = stress * product(lainv) / free
+            press  = wili   * product(lainv) / free
+            pressx = wilix  * product(lainv)
+            pressy = wiliy  * product(lainv)
+
+        end associate
+
+    end subroutine calc_force
+
+    subroutine calc_force_pin( tcon, tnb )
+        implicit none
+
+        type(tpcon)  :: tcon
+        type(tplist) :: tnb
+
+        real(8), dimension(free) :: rai, raj, dra
+        real(8) :: ri, rj, rij2, rij, dij, fr, wij, wili, wilix, wiliy
+        integer :: iround(free), cory
+        integer :: i, j, k, jj
+
+        associate(                   &
+            natom   => tcon%natom,   &
+            radius  => tcon%r,       &
+            ra      => tcon%ra,      &
+            fa      => tcon%fa,      &
+            pinflag => tcon%pinflag, &
+            Ea      => tcon%Ea,      &
+            la      => tcon%la,      &
+            lainv   => tcon%lainv,   &
+            strain  => tcon%strain,  &
+            stress  => tcon%stress,  &
+            press   => tcon%press,   &
+            pressx  => tcon%pressx,  &
+            pressy  => tcon%pressy,  &
+            list    => tnb%list      &
+            )
+
+            Ea     = 0.d0
+            fa     = 0.d0
+            press  = 0.d0; pressx = 0.d0; pressy = 0.d0
+            stress = 0.d0
+            wili   = 0.d0; wilix  = 0.d0; wiliy  = 0.d0
+
+            do i=1, natom
+
+                rai = ra(:,i)
+                ri  = radius(i)
+
+                do jj=1, list(i)%nbsum
+
+                    j = list(i)%nblist(jj)
+                    iround = list(i)%iround(:,jj)
+                    cory = list(i)%cory(jj)
+
+                    raj = ra(:,j)
+                    rj  = radius(j)
+
+                    dra = raj - rai
+                    dra(1) = dra(1) - cory * strain * la(free)
+
+                    do k=1, free
+                        dra(k) = dra(k) - iround(k) * la(k)
+                    end do
+
+                    rij2 = sum( dra**2 )
+                    dij = ri + rj
+
+                    if ( rij2 > dij**2 ) cycle
+
+                    rij = sqrt( rij2 )
+
+                    Ea = Ea + ( 1.d0 - rij/dij )**alpha/alpha
+
+                    wij = (1.d0 - rij/dij)**(alpha-1) * rij / dij
+                    wili = wili + wij
+
+                    fr = wij / rij2
 
                     fa(:,j) = fa(:,j) + fr * dra
                     fa(:,i) = fa(:,i) - fr * dra
 
-                    stress = stress - 2 * dra(1) * dra(2) * fr
+                    if ( pinflag(i) == 0 .and. pinflag(j) == 0 ) then
+                        wilix = wilix + fr * dra(1)**2
+                        wiliy = wiliy + fr * dra(2)**2
+
+                        stress = stress - 2 * dra(1) * dra(2) * fr
+                    end if
 
                 end do
 
