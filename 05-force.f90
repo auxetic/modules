@@ -186,7 +186,7 @@ contains
 
         end associate
 
-    end subroutine calc_force
+    end subroutine calc_force_pin
 
     subroutine calc_force_withoutlist( tcon )
         implicit none
