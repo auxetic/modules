@@ -4,7 +4,7 @@ module mo_syst
 !!vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 !!>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 !!  purpose
-!!  system constant variables used in subsequent program
+!!  system constant variables used in sub modules
 !!
 !!  usage
 !!
@@ -53,7 +53,7 @@ end module mo_syst
 !!vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 !!>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 !!  PURPOSE
-!!  DYNAMIC VARIABLES USED IN SUBSEQUENT PROGRAM
+!!  DYNAMIC VARIABLES USED IN SUB MODULES
 !!
 !!  USAGE
 !!
