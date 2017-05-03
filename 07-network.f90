@@ -108,7 +108,6 @@ contains
 
         ! reallocate array of sps
         tnetwork%sps = tnetwork%sps(1:tnetwork%nsps)
-
     end subroutine make_network
 
     subroutine remake_network( tnetwork, tcon )
@@ -163,7 +162,6 @@ contains
             end do
 
         end associate
-
     end subroutine remake_network
 
     subroutine change_k_spring( tnetwork, tcon, opktan, oph )
@@ -213,7 +211,6 @@ contains
 !               tnetwork%sps(i)%ks = h
 !           end if
 !       end do
-
     end subroutine change_k_spring
 
     subroutine change_k_spring_2( tnetwork, tcon, opktan, oph )
@@ -254,8 +251,6 @@ contains
         do i=1, tnetwork%nsps
             tnetwork%sps(i)%ks = 1.d0 + tanh( ktan * ( calc_len( tcon, i, tnetwork ) - 1.d0 ) )
         end do
-
-
     end subroutine change_k_spring_2
 
     function calc_len( tcon, tibond, tnetwork  ) result(tl)
@@ -305,7 +300,6 @@ contains
             tl = sqrt(sum(dra**2))
 
         end associate
-
     end function calc_len
 
     subroutine calc_Bi( tcon, tnetwork, test )
@@ -327,7 +321,7 @@ contains
             sps  => tnetwork%sps,  &
             mb   => tnetwork%mb    &
             )
-            
+
             do ii=1, nsps
 
                 i = sps(ii)%i
@@ -351,7 +345,6 @@ contains
             mb = 2.d0 * sumEs / ( 2.d0 * test )**2 * product(tcon%lainv)
 
         end associate
-
     end subroutine
 
     subroutine calc_Gis( tcon, tnetwork, test )
@@ -361,7 +354,7 @@ contains
         type(tpcon),     intent(in)    :: tcon
         type(tpnetwork), intent(inout) :: tnetwork
         real(8),         intent(in)    :: test
-        
+
         ! local
         integer :: ii, i, j
         real(8) :: ks, Es, lnow, l0, Gis, sumEs
@@ -373,7 +366,7 @@ contains
             sps  => tnetwork%sps,  &
             mgs  => tnetwork%mgs   &
             )
-            
+
             do ii=1, nsps
 
                 i = sps(ii)%i
@@ -397,8 +390,6 @@ contains
             mgs = 2.d0 * sumEs / test**2 * product(tcon%lainv)
 
         end associate
-
-        
     end subroutine
 
     subroutine calc_Gixy( tcon, tnetwork, test )
@@ -408,7 +399,7 @@ contains
         type(tpcon),     intent(in)    :: tcon
         type(tpnetwork), intent(inout) :: tnetwork
         real(8),         intent(in)    :: test
-        
+
         ! local
         integer :: ii, i, j
         real(8) :: ks, Es, lnow, l0, Gixy, sumEs
@@ -422,7 +413,7 @@ contains
             mgs  => tnetwork%mgs,  &
             mg   => tnetwork%mg    &
             )
-            
+
             do ii=1, nsps
 
                 i = sps(ii)%i
@@ -450,8 +441,6 @@ contains
             mg = 0.5d0 * ( mgxy + mgs )
 
         end associate
-
-        
     end subroutine
 
 ! temp
@@ -478,7 +467,7 @@ contains
             bcorr = 0.d0; gcorr = 0.d0; kscorr = 0.d0
 
             ksmean = sum( sps(:)%ks ) / nsps
-            
+
             do ii=1, nsps
                 vec1 = sps(ii)%lvec
                 bi   = sps(ii)%bi
@@ -513,7 +502,6 @@ contains
             kscorr = kscorr / nsps
 
         end associate
-
     end subroutine
 
 end module

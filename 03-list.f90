@@ -113,6 +113,78 @@ contains
 
     end subroutine make_list
 
+    subroutine calc_z( tnb, tcon )
+        implicit none
+
+        ! var list
+        type(tpcon),  intent(in)    :: tcon
+        type(tplist), intent(inout) :: tnb
+
+        ! local
+        real(8) :: dra(free), rai(free), raj(free), ri, rj, rij2, dij
+        integer :: cory, iround(free)
+        integer :: i, j, k, jj, itemp
+
+        if ( allocated( tnb%nbi ) .and. size(tnb%nbi) /= tcon%natom ) then
+            deallocate( tnb%nbi )
+        end if
+
+        if ( .not. allocated( tnb%nbi ) ) then
+            allocate( tnb%nbi(tcon%natom) )
+        end if
+
+        associate(                 &
+            natom  => tcon%natom,  &
+            ra     => tcon%ra,     &
+            r      => tcon%r,      &
+            la     => tcon%la,     &
+            lainv  => tcon%lainv,  &
+            strain => tcon%strain, &
+            list   => tnb%list,    &
+            nbi    => tnb%nbi      &
+            )
+
+            ! set nbsum to zero
+            nbi = 0
+
+            do i=1, natom
+
+                rai          = ra(:,i)
+                ri           = r(i)
+
+                do jj=1, list(i).nbsum
+
+                    j = list(i).nblist(jj)
+
+                    raj = ra(:,j)
+                    rj  = r(j)
+
+                    dra = raj - rai
+
+                    cory = list(i).cory(jj)
+                    iround = list(i).iround(:,jj)
+
+                    dra(1) = dra(1) - strain * la(free) * cory
+
+                    do k=1, free
+                        dra(k) = dra(k) - iround(k) * la(k)
+                    end do
+
+                    rij2 = sum( dra**2 )
+                    dij  = ri + rj
+
+                    if ( rij2 > ( dij )**2 ) cycle
+
+                    nbi(i) = nbi(i) + 1
+                    nbi(j) = nbi(j) + 1
+
+                end do
+            end do
+
+        end associate
+
+    end subroutine
+
     function check_list( tnb, tcon ) result(flag)
         implicit none
 
