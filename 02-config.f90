@@ -92,7 +92,6 @@ contains
         if ( present( tphi ) ) tcon%phi = tphi
 
         allocate( tcon%ra(free,tnatom), tcon%r(tnatom), tcon%va(free,tnatom), tcon%fa(free,tnatom) )
-
     end subroutine
 
     subroutine gen_rand_config( tcon, tseed, tphi )
@@ -158,7 +157,6 @@ contains
             fa = 0.d0
 
         end associate
-
     end subroutine
 
     subroutine gen_lattice_triangle( tcon, tphi )
@@ -220,8 +218,7 @@ contains
             end do
 
         end associate
-
-    end subroutine gen_lattice_triangle
+    end subroutine
 
     subroutine read_config( tcon, tfilename, tnatom, tphi )
         implicit none
@@ -256,8 +253,7 @@ contains
 
         ! phi
         tcon%phi = pi * sum(tcon%r**2) / product(tcon%la)
-
-    end subroutine read_config
+    end subroutine
 
     Pure function calc_box_length(tcon) result(l)
         implicit none
@@ -278,7 +274,6 @@ contains
         ! box length
         volume = sdisk / phi
         l      = volume ** ( 1.d0 / dble(free) )
-
     end function
 
     function calc_box_trianglelattice( tcon ) result( tla )
@@ -305,15 +300,14 @@ contains
             tla(2) = tla(1) * sqrt(3.d0) / 2.d0
 
         end associate
-
-    end function calc_box_trianglelattice
+    end function
 
     subroutine gen_pin( tcon, tn )
         implicit none
 
         ! para list
         type(tpcon), intent(inout) :: tcon
-        integer,     intent(in) :: tn
+        integer,     intent(in)    :: tn
 
         ! local
         integer :: i, j, k, testi
@@ -358,7 +352,6 @@ contains
             end do
 
         end associate
-
     end subroutine
 
     function calc_pp_len( tcon, ti, tj ) result(tl)
@@ -400,16 +393,17 @@ contains
             tl = sqrt(sum(dra**2))
 
         end associate
+    end function
 
-    end function calc_pp_len
-
-    subroutine trim_config( tcon )
+    subroutine trim_config( tcon, opsumxyz )
         implicit none
 
         ! var list
-        type(tpcon), intent(inout) :: tcon
+        type(tpcon), intent(inout)    :: tcon
+        logical, intent(in), optional :: opsumxyz  ! set center of mass to zero
 
         ! local
+        real(8) :: temp
         integer :: iround(free), cory
         integer :: i, j, k
 
@@ -436,18 +430,26 @@ contains
                 end do
 
             end do
+            
+            if ( present( opsumxyz ) ) then
+                if ( opsumxyz == .true. ) then
+                    do i=1, free
+                        temp = sum(ra(i,:)) / natom
+                        ra(i,:) = ra(i,:) - temp
+                    end do
+                end if
+            end if
 
         end associate
-
-    end subroutine trim_config
+    end subroutine
 
     function calc_dra( tcon, ti, tj ) result(dra)
         implicit none
 
         ! para list
         type(tpcon), intent(in) :: tcon
-        integer, intent(in) :: ti
-        integer, intent(in) :: tj
+        integer, intent(in)     :: ti
+        integer, intent(in)     :: tj
 
         ! results
         real(8), dimension(free) :: dra
@@ -481,8 +483,7 @@ contains
             end do
 
         end associate
-
-    end function calc_dra
+    end function
 
 end module
 
@@ -492,7 +493,7 @@ subroutine save_config_to( tcon, tfilename )
     implicit none
 
     ! var list
-    type(tpcon), intent(in)  :: tcon
+    type(tpcon),  intent(in) :: tcon
     character(*), intent(in) :: tfilename
 
     ! local
@@ -516,15 +517,14 @@ subroutine save_config_to( tcon, tfilename )
         close(901)
 
     end associate
-
-end subroutine save_config_to
+end subroutine
 
 subroutine save_config_debug( tcon, tfilename )
     use mo_config
     implicit none
 
     ! var list
-    type(tpcon), intent(in)  :: tcon
+    type(tpcon),  intent(in) :: tcon
     character(*), intent(in) :: tfilename
 
     ! local
@@ -551,8 +551,7 @@ subroutine save_config_debug( tcon, tfilename )
         close(901)
 
     end associate
-
-end subroutine save_config_debug
+end subroutine
 
 ! save config with wall
 subroutine save_config_copy( tcon, tfilename )
@@ -595,5 +594,4 @@ subroutine save_config_copy( tcon, tfilename )
         close(901)
 
     end associate
-
-end subroutine save_config_copy
+end subroutine
