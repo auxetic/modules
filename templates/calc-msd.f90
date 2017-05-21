@@ -24,7 +24,8 @@ program main
     call pre_nvt( con )
 
     ! msd
-    call init_msd( con, msd1, 100, 200 )
+    !call init_msd( con, msd1, 100, 200 )
+    call init_vcorr( con, msd1, 10, 200 )
 
     ! main
     do step=1, 10000
@@ -32,23 +33,27 @@ program main
         call md_nvt( con, nb )
     end do
 
-    do step=1, 50000
+    do step=1, 100000
 
         if ( check_list( nb, con ) ) call make_list( nb, con )
 
         call md_nvt( con, nb )
 
         if ( mod( step, 10000 ) == 0 ) print*, step
-        call calc_msd( con, msd1 )
+        !call calc_msd( con, msd1 )
+        call calc_vcorr( con, vcorr )
 
     end do
 
-    call save_config_to( con, "./con.dat" )
+    !call save_config_to( con, "./con.dat" )
 
-    call endof_msd( msd1 )
+    call endof_vcorr( vcorr )
 
-    do step=1, msd1%nhistmax
-        print*, 1.d-2 * (step-1) * msd1%ndt, msd1%msd(step), msd1%alpha2(step)
+    !do step=1, msd1%nhistmax
+    !    print*, 1.d-2 * (step-1) * msd1%ndt, msd1%msd(step), msd1%alpha2(step)
+    !end do
+    do step=1, vcorr%nhistmax
+        print*, 1.d-2 * (step-1) * vcorr%ndt, vcorr%vcorr(step)
     end do
 contains
 
