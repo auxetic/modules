@@ -11,11 +11,12 @@ cd modules
 ### 使用
 从 templates 目录拷贝示例主程序
 ```bash
-cp templates/calc_msd.f90 00-main.f90
+cp templates/calc_msd.f90 main.f90
 ```
 编译
 ```bash
 mkdir build && cd build
+export FC=ifort     # 可选，gfortran 版本过低（4.4）时，编译会报错。
 cmake ..
 make
 ./main
@@ -75,9 +76,7 @@ make
 
 #### dynamic
 1. 动力学量的计算
-2. msd， fkt
-
-* [ ] 
+2. msd, fkt, 速度关联
 
 
 #### ToDo struc
