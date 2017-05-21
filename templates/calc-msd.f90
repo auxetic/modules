@@ -25,7 +25,7 @@ program main
 
     ! msd
     !call init_msd( con, msd1, 100, 200 )
-    call init_vcorr( con, msd1, 10, 200 )
+    call init_vcorr( con, vcorr, 10, 200 )
 
     ! main
     do step=1, 10000
@@ -33,7 +33,7 @@ program main
         call md_nvt( con, nb )
     end do
 
-    do step=1, 100000
+    do step=1, 200000
 
         if ( check_list( nb, con ) ) call make_list( nb, con )
 
