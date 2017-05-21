@@ -370,9 +370,9 @@ contains
         associate(                &
             ra     => tcon%ra,    &
             r      => tcon%r,     &
-            la     => tcon.la,    &
-            lainv  => tcon.lainv, &
-            strain => tcon.strain &
+            la     => tcon%la,    &
+            lainv  => tcon%lainv, &
+            strain => tcon%strain &
             )
 
             dra = ra(:,tj) - ra(:,ti)
@@ -504,15 +504,14 @@ subroutine save_config_to( tcon, tfilename )
         ra      => tcon%ra,     &
         r       => tcon%r,      &
         la      => tcon%la,     &
-        strain  => tcon%strain, &
-        pinflag => tcon%pinflag &
+        strain  => tcon%strain  &
         )
 
         open(901,file=tfilename)
             write(901,'(3es26.16)') dble(natom), tcon%phi, 0.d0
             write(901,'(3es26.16)') la, strain
             do i=1, natom
-                write(901,'(3es26.16,i10)') ra(:,i), r(i), pinflag(i)
+                write(901,'(3es26.16)') ra(:,i), r(i)
             end do
         close(901)
 

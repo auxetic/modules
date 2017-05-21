@@ -12,8 +12,8 @@ program main
     call testvar
 
     ! system
-    call init_system( con, sets.natom, sets.phi )
-    call gen_rand_config( con, sets.np )
+    call init_system( con, sets%natom, sets%phi )
+    call gen_rand_config( con, sets%seed )
 
     ! fire
     call init_confire( confire, con )
@@ -24,30 +24,26 @@ program main
     call init_mode( mode, con )
 
     call make_dymatrix( mode, con )
-    mode.dymatrix0 = mode.dymatrix
+    mode%dymatrix0 = mode%dymatrix
     call make_trimatrix( mode, con )
 
-    call mode.solve
+    call mode%solve
 
-    mode.modez = - mode.dymatrix(:,15)
+    mode%modez = - mode%dymatrix(:,15)
 
     do step=1, 1000
         call clac_modez( mode, temp1 )
-        print*, maxval(abs(mode.modez/mode.dymatrix(:,15)))
+        print*, maxval(abs(mode%modez/mode%dymatrix(:,15)))
     end do
-
-    
-
 
 contains
 
     subroutine testvar
         implicit none
 
-        sets.natom = 256
-        sets.phi = 0.86d0
-        sets.np = 202
-
+        sets%natom = 256
+        sets%phi = 0.86d0
+        sets%seed = 202
     end subroutine testvar
 
 end program main

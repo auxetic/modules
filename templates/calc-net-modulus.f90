@@ -66,8 +66,6 @@ program main
 
 
     end do
-
-
 contains
 
     subroutine testvar
@@ -76,7 +74,6 @@ contains
         sets%natom = 256
         sets%phi = 0.92d0
         sets%seed = 202
-
     end subroutine testvar
 
 end program main
