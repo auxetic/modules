@@ -432,7 +432,7 @@ contains
             end do
             
             if ( present( opsumxyz ) ) then
-                if ( opsumxyz == .true. ) then
+                if ( opsumxyz .eqv. .true. ) then
                     do i=1, free
                         temp = sum(ra(i,:)) / natom
                         ra(i,:) = ra(i,:) - temp

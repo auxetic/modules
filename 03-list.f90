@@ -152,17 +152,17 @@ contains
                 rai          = ra(:,i)
                 ri           = r(i)
 
-                do jj=1, list(i).nbsum
+                do jj=1, list(i)%nbsum
 
-                    j = list(i).nblist(jj)
+                    j = list(i)%nblist(jj)
 
                     raj = ra(:,j)
                     rj  = r(j)
 
                     dra = raj - rai
 
-                    cory = list(i).cory(jj)
-                    iround = list(i).iround(:,jj)
+                    cory = list(i)%cory(jj)
+                    iround = list(i)%iround(:,jj)
 
                     dra(1) = dra(1) - strain * la(free) * cory
 
