@@ -18,7 +18,20 @@ module mo_dynamic
         real(8), allocatable, dimension(:,:) :: histdata ! array used to stor history config
     end type
 
+    type tpvcorr
+        integer :: natom
+        integer :: nhistmax
+        integer :: ndt
+        integer :: cumstep = -1
+        integer :: histidx = 0
+        logical :: calc_flag = .false.
+        integer, allocatable, dimension(:)   :: vcorrcount
+        real(8), allocatable, dimension(:)   :: vcorr
+        real(8), allocatable, dimension(:,:) :: histdata
+    end type
+
     type(tpmsd) :: msd1
+    type(tpvcorr) :: vcorr
 
 contains
     
@@ -55,7 +68,6 @@ contains
 
 
         end associate
-        
     end subroutine
 
     subroutine calc_msd( tcon, tmsd )
@@ -119,7 +131,6 @@ contains
             end if
 
         end associate
-
     end subroutine
 
     subroutine endof_msd( tmsd )
@@ -139,7 +150,114 @@ contains
             ! todo fkt, ...
             
         end associate
-        
     end subroutine
-    
-end module mo_dynamic
+   
+    subroutine init_vcorr( tcon, tvcorr, tndt, tnhistmax )
+        implicit none
+
+        ! para list
+        type(tpcon),   intent(in)    :: tcon
+        type(tpvcorr), intent(inout) :: tvcorr
+        integer,       intent(in)    :: tndt
+        integer,       intent(in)    :: tnhistmax
+
+        associate(                    &
+            natom    => tvcorr%natom,   &
+            ndt      => tvcorr%ndt,     &
+            nhistmax => tvcorr%nhistmax &
+            )
+
+            natom = tcon%natom
+            ndt   = tndt
+            nhistmax = tnhistmax
+
+            allocate(                           &
+                tvcorr%vcorr(nhistmax),         &
+                tvcorr%vcorrcount(nhistmax),    &
+                tvcorr%histdata(natom,nhistmax) &
+                )
+
+            tvcorr%vcorr      = 0.d0
+            tvcorr%vcorrcount = 0
+            tvcorr%histdata   = 0.d0
+
+        end associate
+    end subroutine
+
+    subroutine calc_vcorr( tcon, tvcorr )
+        implicit none
+
+        ! para list
+        type(tpcon),   intent(in)    :: tcon
+        type(tpvcorr), intent(inout) :: tvcorr
+
+        ! local
+        integer :: idx
+        integer :: i
+
+        associate(                           &
+            va         => tcon%va,           &
+            cumstep    => tvcorr%cumstep,    &
+            histidx    => tvcorr%histidx,    &
+            calc_flag  => tvcorr%calc_flag,  &
+            ndt        => tvcorr%ndt,        &
+            nhistmax   => tvcorr%nhistmax,   &
+            vcorr      => tvcorr%vcorr,      &
+            vcorrcount => tvcorr%vcorrcount, &
+            histdata   => tvcorr%histdata    &
+            )
+
+            cumstep = cumstep + 1
+            if ( cumstep >= ndt ) cumstep = 0
+
+            if ( cumstep /= 0 ) return
+
+            ! main v
+
+            histidx = histidx + 1
+
+            ! if histidx less then nhistmax, then just store configure, not calc vcorr
+            if ( .not. calc_flag .and. histidx == nhistmax ) calc_flag = .true.
+
+            ! if histidx greater then max dim of histdata, reset to one
+            if ( histidx == nhistmax + 1 ) histidx = 1
+
+            ! store config to "history data"
+            histdata(:,histidx) = va(1,:)
+
+            if ( calc_flag ) then
+
+                do i=1, nhistmax
+
+                    ! if histidx > i; idx = histidx - i + 1
+                    ! if histidx < i; idx = nhistmax + histidx - i + 1
+                    !if ( i == histidx ) cycle
+                    idx = histidx-i+1
+                    if ( idx <= 0 ) idx = idx + nhistmax 
+
+                    vcorrcount(idx) = vcorrcount(idx) + 1
+                    vcorr(idx)      = vcorr(idx)      + dot_product( histdata(:,i), histdata(:,histidx) )
+
+                end do
+
+            end if
+
+        end associate
+    end subroutine
+
+    subroutine endof_vcorr( tvcorr )
+        implicit none
+
+        type(tpvcorr), intent(inout) :: tvcorr
+
+        associate(                          &
+            vcorrcount => tvcorr%vcorrcount &
+            )
+
+            tvcorr%vcorr = tvcorr%vcorr / vcorrcount
+            tvcorr%vcorr = tvcorr%vcorr / tvcorr%vcorr(1)
+            
+        end associate
+    end subroutine
+
+end module 
