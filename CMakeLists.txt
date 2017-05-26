@@ -20,7 +20,7 @@ set (CMAKE_Fortran_FLAGS "-O2 ")
 #set ( CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -O0 -g -C" )
 
 if ( "${CMAKE_Fortran_COMPILER_ID}" STREQUAL "GNU" )
-    set ( CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -llapack" )
+    set ( CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -llapack -ffree-line-length-none" )
 elseif ( "${CMAKE_Fortran_COMPILER_ID}" STREQUAL "Intel" )
     set ( CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -mkl" )
 endif()

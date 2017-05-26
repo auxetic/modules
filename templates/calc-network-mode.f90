@@ -44,22 +44,22 @@ program main
 
         call init_mode( mode1, confire )
         call make_dymatrix_net( mode1, confire, net )
-        call mode1.solve
+        call mode1%solve
 
         temp1 = 0.d0
-        do i=3, mode1.mdim
-            temp1 = temp1 + 1.d0 / mode1.egdymatrix(i) * dot_product( mode1.dymatrix(:,i), mode.dymatrix(1:mode1.mdim,mode1.mdim+1)) &
-                                                     & * dot_product( mode1.dymatrix(:,i), mode.dymatrix(1:mode1.mdim,mode1.mdim+2) )
-           !write(*,"(i8, 3es26.16)") i, mode1.egdymatrix(i), dot_product( mode1.dymatrix(:,i), mode.dymatrix(1:mode1.mdim,mode1.mdim+1) ), &
-           !                                                & dot_product( mode1.dymatrix(:,i), mode.dymatrix(1:mode1.mdim,mode1.mdim+2) )
-           !write(*,'(i8,2es16.6)') i, mode.dymatrix(mode.mdim-1,i), mode.dymatrix(mode.mdim,i)
-           !write(*,'(i8,4es16.6)') i, mode.dymatrix(mode.mdim-2:mode.mdim,i)!, mode1.dymatrix(mode1.mdim,i)
-           !write(*,'(4es26.16)') eta, mode.egdymatrix(mode.mdim-2:mode.mdim)
-           !write(*,'(5es16.6)') confire.ra(:,i), confire.r(i), mode.dymatrix(free*(i-1)+1:free*i,5)
-           !print*, i, mode1.dymatrix(i,mode.mdim-1) / mode.dymatrix(i,mode.mdim-1)
+        do i=3, mode1%mdim
+            temp1 = temp1 + 1.d0 / mode1%egdymatrix(i) * dot_product( mode1%dymatrix(:,i), mode%dymatrix(1:mode1%mdim,mode1%mdim+1)) &
+                                                     & * dot_product( mode1%dymatrix(:,i), mode%dymatrix(1:mode1%mdim,mode1%mdim+2) )
+           !write(*,"(i8, 3es26.16)") i, mode1%egdymatrix(i), dot_product( mode1%dymatrix(:,i), mode%dymatrix(1:mode1%mdim,mode1%mdim+1) ), &
+           !                                                & dot_product( mode1%dymatrix(:,i), mode%dymatrix(1:mode1%mdim,mode1%mdim+2) )
+           !write(*,'(i8,2es16.6)') i, mode%dymatrix(mode%mdim-1,i), mode%dymatrix(mode%mdim,i)
+           !write(*,'(i8,4es16.6)') i, mode%dymatrix(mode%mdim-2:mode%mdim,i)!, mode1%dymatrix(mode1%mdim,i)
+           !write(*,'(4es26.16)') eta, mode%egdymatrix(mode%mdim-2:mode%mdim)
+           !write(*,'(5es16.6)') confire%ra(:,i), confire%r(i), mode%dymatrix(free*(i-1)+1:free*i,5)
+           !print*, i, mode1%dymatrix(i,mode%mdim-1) / mode%dymatrix(i,mode%mdim-1)
         end do
 
-        print*, eta, mode.dymatrix(mode1.mdim+1,mode1.mdim+2), temp1
+        print*, eta, mode%dymatrix(mode1%mdim+1,mode1%mdim+2), temp1
        !print*,''
 
     end do

@@ -18,7 +18,7 @@ cp templates/calc_msd.f90 main.f90
 mkdir build && cd build
 export FC=ifort     # 可选，gfortran 版本过低（4.4）时，编译会报错。
 cmake ..
-make
+make                # ubuntu可能链接lapack失败，原因未知，请使用RedHat系linux系统
 ./main
 ```
 
