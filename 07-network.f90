@@ -181,31 +181,31 @@ contains
 
         ! 1. ks = ls
 !       do i=1, tnetwork%nsps
-!           tnetwork%sps(i)%ks = calc_len( tcon, i, tnetwork )
+!           tnetwork%sps(i)%ks = calc_spring_len( tcon, i, tnetwork )
 !       end do
 
 !       do i=1, tnetwork%nsps
 !           itemp = floor( rand(0) * tnetwork%nsps ) + 1
-!           tnetwork%sps(i)%ks = calc_len( tcon, itemp, tnetwork )
+!           tnetwork%sps(i)%ks = calc_spring_len( tcon, itemp, tnetwork )
 !       end do
 
         ktan = 1.d0
         if ( present( opktan ) ) ktan = opktan
 !        do i=1, tnetwork%nsps
-!            tnetwork%sps(i)%ks = 1.0 + tanh( ktan * ( calc_len( tcon, i, tnetwork ) - 1.d0 ) )
+!            tnetwork%sps(i)%ks = 1.0 + tanh( ktan * ( calc_spring_len( tcon, i, tnetwork ) - 1.d0 ) )
 !!           tnetwork%sps(i)%ks = 1.0 + tanh( ktan * ( tnetwork%sps(i)%l0 - 1.d0 ) )
 !        end do
         do i=1, tnetwork%nsps
             temp = rand(0)
             itemp = floor( temp*tnetwork%nsps ) + 1
-!           tnetwork%sps(i)%ks = 1.0 + tanh( ktan * ( calc_len( tcon, itemp, tnetwork ) - 1.d0 ) )
+!           tnetwork%sps(i)%ks = 1.0 + tanh( ktan * ( calc_spring_len( tcon, itemp, tnetwork ) - 1.d0 ) )
             tnetwork%sps(i)%ks = 1.0 + tanh( ktan * ( tnetwork%sps(i)%l0 - 1.d0 ) )
         end do
 
 !       h = 0.1d0
 !       if ( present( oph ) ) h = oph
 !       do i=1, tnetwork%nsps
-!           if (  calc_len( tcon, i, tnetwork ) > 1.d0 ) then
+!           if (  calc_spring_len( tcon, i, tnetwork ) > 1.d0 ) then
 !               tnetwork%sps(i)%ks = 2.d0 - h
 !           else
 !               tnetwork%sps(i)%ks = h
@@ -249,11 +249,11 @@ contains
         ktan = 1.d0
         if ( present( opktan ) ) ktan = opktan
         do i=1, tnetwork%nsps
-            tnetwork%sps(i)%ks = 1.d0 + tanh( ktan * ( calc_len( tcon, i, tnetwork ) - 1.d0 ) )
+            tnetwork%sps(i)%ks = 1.d0 + tanh( ktan * ( calc_spring_len( tcon, i, tnetwork ) - 1.d0 ) )
         end do
     end subroutine change_k_spring_2
 
-    function calc_len( tcon, tibond, tnetwork  ) result(tl)
+    function calc_spring_len( tcon, tibond, tnetwork  ) result(tl)
         implicit none
 
         ! para list
@@ -300,7 +300,7 @@ contains
             tl = sqrt(sum(dra**2))
 
         end associate
-    end function calc_len
+    end function
 
     subroutine calc_Bi( tcon, tnetwork, test )
         implicit none
@@ -330,7 +330,7 @@ contains
                 l0 = sps(ii)%l0
                 ks = sps(ii)%ks
 
-                lnow = calc_len( tcon, ii, tnetwork )
+                lnow = calc_spring_len( tcon, ii, tnetwork )
                 Es = 0.5d0 * ks * ( lnow - l0 )**2
                 sumEs = sumEs + Es
 
@@ -375,7 +375,7 @@ contains
                 l0 = sps(ii)%l0
                 ks = sps(ii)%ks
 
-                lnow = calc_len( tcon, ii, tnetwork )
+                lnow = calc_spring_len( tcon, ii, tnetwork )
                 Es = 0.5d0 * ks * ( lnow - l0 )**2
                 sumEs = sumEs + Es
 
@@ -422,7 +422,7 @@ contains
                 l0 = sps(ii)%l0
                 ks = sps(ii)%ks
 
-                lnow = calc_len( tcon, ii, tnetwork )
+                lnow = calc_spring_len( tcon, ii, tnetwork )
                 Es = 0.5d0 * ks * ( lnow - l0 )**2
                 sumEs = sumEs + Es
 

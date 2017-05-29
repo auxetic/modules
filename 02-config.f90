@@ -10,7 +10,7 @@ module mo_config
 !!  purpose
 !!    define configuration of particles, parameter of box, thermodynamic and
 !!    dynamic properties of the system.
-!!    generate random configuration or read a configuration from an external 
+!!    generate random configuration or read a configuration from an external
 !!    file.
 !!
 !!  principle variables
@@ -56,15 +56,13 @@ module mo_config
     type tpcon
         integer :: natom
         ! configuration, velocity, force
-        real(8), allocatable, dimension(:,:) :: ra
+        real(8), allocatable, dimension(:,:) :: ra, va, fa
         real(8), allocatable, dimension(:)   :: r
-        real(8), allocatable, dimension(:,:) :: va
-        real(8), allocatable, dimension(:,:) :: fa
         integer, allocatable, dimension(:)   :: pinflag
 
         ! box
-        real(8) :: la(free), lx, ly, lz
-        real(8) :: lainv(free), lxinv, lyinv, lzinv
+        real(8) :: la(free), lainv(free)
+        real(8) :: lx, ly, lz, lxinv, lyinv, lzinv
         real(8) :: lav(free), lxv, lyv, lzv
         real(8) :: laf(free), lxf, lyf, lzf
         real(8) :: strain
@@ -74,9 +72,12 @@ module mo_config
         real(8) :: T
         ! property
         real(8) :: Ea, Ek, Ev, stress, press, pressx, pressy
+    contains
+        procedure :: dra => calc_dra
+        procedure :: len => calc_len
     end type
 
-    type(tpcon) :: con, contemp, contemp2
+    type(tpcon) :: con, con0, contemp, contemp2
 
 contains
 
@@ -84,9 +85,9 @@ contains
         implicit none
 
         ! var list
-        type(tpcon), intent(inout)        :: tcon
-        integer,     intent(in)           :: tnatom
-        real(8),     intent(in), optional :: tphi
+        type(tpcon),       intent(inout) :: tcon
+        integer,           intent(in)    :: tnatom
+        real(8), optional, intent(in)    :: tphi
 
         tcon%natom = tnatom
         if ( present( tphi ) ) tcon%phi = tphi
@@ -99,9 +100,9 @@ contains
         implicit none
 
         ! var list
-        type(tpcon), intent(inout)        :: tcon
-        integer,     intent(inout)        :: tseed
-        real(8),     intent(in), optional :: tphi
+        type(tpcon),       intent(inout) :: tcon
+        integer,           intent(inout) :: tseed
+        real(8), optional, intent(in)    :: tphi
 
         ! local
         integer :: i, j
@@ -139,10 +140,8 @@ contains
             lainv  = 1.d0 / la
             lx     = la(1)
             ly     = la(2)
-           !lz     = la(3)
             lxinv  = lainv(1)
             lyinv  = lainv(2)
-           !lzinv  = lainv(3)
             strain = 0.d0
 
             ! config
@@ -302,83 +301,35 @@ contains
         end associate
     end function
 
-    subroutine gen_pin( tcon, tn )
+    function calc_dra( this, ti, tj ) result(dra)
         implicit none
 
         ! para list
-        type(tpcon), intent(inout) :: tcon
-        integer,     intent(in)    :: tn
+        class(tpcon), intent(in) :: this
+        integer,      intent(in) :: ti
+        integer,      intent(in) :: tj
+
+        ! results
+        real(8), dimension(free) :: dra
 
         ! local
-        integer :: i, j, k, testi
-        integer :: flag
-        real(8) :: temp, dij
-
-        if ( allocated(tcon%pinflag) .and. size(tcon%pinflag) /= tcon%natom ) then
-            deallocate( tcon%pinflag )
-        end if
-
-        if ( .not. allocated( tcon%pinflag ) ) then
-            allocate( tcon%pinflag( tcon%natom ) )
-        end if
-
-        associate(                   &
-            pinflag => tcon%pinflag, &
-            r       => tcon%r,       &
-            natom   => tcon%natom    &
-            )
-
-            pinflag = 0
-            pinflag(1) = 1
-
-            testi = 1
-            do while ( sum(pinflag) < tn )
-
-                testi = testi + 1
-
-                flag = 0
-                do i=1, testi
-                    if ( pinflag(i) == 1 ) then
-                        temp = calc_pp_len( tcon, i, testi )
-                        dij = r(testi) + r(i)
-                        if ( temp < 3.d0*dij ) flag = flag + 1
-                    end if
-                end do
-
-                if ( flag == 0 ) then
-                    pinflag( testi ) = 1
-                end if
-
-            end do
-
-        end associate
-    end subroutine
-
-    function calc_pp_len( tcon, ti, tj ) result(tl)
-        implicit none
-
-        ! para list
-        type(tpcon), intent(in) :: tcon
-        integer,     intent(in) :: ti, tj
-        real(8)                 :: tl
-
-        ! local
-        integer :: k
-        real(8) :: dra(free), rij2, dij
-        integer :: cory, iround(free)
+        real(8) :: rai(free), raj(free)
+        integer :: k, cory, iround(free)
 
         associate(                &
-            ra     => tcon%ra,    &
-            r      => tcon%r,     &
-            la     => tcon%la,    &
-            lainv  => tcon%lainv, &
-            strain => tcon%strain &
+            ra     => this%ra,    &
+            la     => this%la,    &
+            lainv  => this%lainv, &
+            strain => this%strain &
             )
 
-            dra = ra(:,tj) - ra(:,ti)
+            rai = ra(:,ti)
+            raj = ra(:,tj)
+
+            dra = raj - rai
 
             cory = nint( dra(free) * lainv(free) )
-            dra(1) = dra(1) - cory * strain * la(free)
+            dra(1) = dra(1) - strain * la(free) * cory
 
             do k=1, free-1
                 iround(k) = nint( dra(k) * lainv(k) )
@@ -389,10 +340,24 @@ contains
                 dra(k) = dra(k) - iround(k) * la(k)
             end do
 
-            !tl = norm2( dra )
-            tl = sqrt(sum(dra**2))
-
         end associate
+    end function
+
+    function calc_len( this, ti, tj ) result(tl)
+        implicit none
+
+        ! para list
+        class(tpcon), intent(in) :: this
+        integer,      intent(in) :: ti, tj
+
+        ! results
+        real(8) :: tl
+
+        ! local
+        real(8) :: dra(free)
+
+        dra = calc_dra( this, ti, tj )
+        tl = norm2(dra)
     end function
 
     subroutine trim_config( tcon, opsumxyz )
@@ -430,7 +395,7 @@ contains
                 end do
 
             end do
-            
+
             if ( present( opsumxyz ) ) then
                 if ( opsumxyz .eqv. .true. ) then
                     do i=1, free
@@ -443,47 +408,57 @@ contains
         end associate
     end subroutine
 
-    function calc_dra( tcon, ti, tj ) result(dra)
+    subroutine gen_pin( tcon, tn )
         implicit none
 
         ! para list
-        type(tpcon), intent(in) :: tcon
-        integer, intent(in)     :: ti
-        integer, intent(in)     :: tj
-
-        ! results
-        real(8), dimension(free) :: dra
+        type(tpcon), intent(inout) :: tcon
+        integer,     intent(in)    :: tn
 
         ! local
-        real(8) :: rai(free), raj(free)
-        integer :: k, cory, iround(free)
+        integer :: i, j, k, testi
+        integer :: flag
+        real(8) :: temp, dij
 
-        associate(                &
-            ra     => tcon%ra,    &
-            la     => tcon%la,    &
-            lainv  => tcon%lainv, &
-            strain => tcon%strain &
+        if ( allocated(tcon%pinflag) .and. size(tcon%pinflag) /= tcon%natom ) then
+            deallocate( tcon%pinflag )
+        end if
+
+        if ( .not. allocated( tcon%pinflag ) ) then
+            allocate( tcon%pinflag( tcon%natom ) )
+        end if
+
+        associate(                   &
+            pinflag => tcon%pinflag, &
+            r       => tcon%r,       &
+            natom   => tcon%natom    &
             )
 
-            rai = ra(:,ti)
-            raj = ra(:,tj)
+            pinflag = 0
+            pinflag(1) = 1
 
-            dra = raj - rai
+            testi = 1
+            do while ( sum(pinflag) < tn )
 
-            cory = nint( dra(free) * lainv(free) )
-            dra(1) = dra(1) - strain * la(free) * cory
+                testi = testi + 1
 
-            do k=1, free-1
-                iround(k) = nint( dra(k) * lainv(k) )
-            end do
-            iround(free) = cory
+                flag = 0
+                do i=1, testi
+                    if ( pinflag(i) == 1 ) then
+                        temp = calc_len( tcon, i, testi )
+                        dij = r(testi) + r(i)
+                        if ( temp < 3.d0*dij ) flag = flag + 1
+                    end if
+                end do
 
-            do k=1, free
-                dra(k) = dra(k) - iround(k) * la(k)
+                if ( flag == 0 ) then
+                    pinflag( testi ) = 1
+                end if
+
             end do
 
         end associate
-    end function
+    end subroutine
 
 end module
 
