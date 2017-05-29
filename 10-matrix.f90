@@ -7,6 +7,8 @@ module mo_mode
     type tpmatrix
         real(8), allocatable, dimension(:,:)   :: dymatrix, dymatrix0
         real(8), allocatable, dimension(:)     :: egdymatrix, pw
+        real(8), allocatable, dimension(:)     :: varXi_x, varXi_y, varXi_s
+        real(8), allocatable, dimension(:)     :: psi_th, psi_liu
         real(8), allocatable, dimension(:,:,:) :: trimatrix
         real(8), allocatable, dimension(:)     :: modez
         integer :: ndim, mdim, natom
@@ -349,7 +351,8 @@ contains
             dymatrix => tmode%dymatrix, &
             radius   => tcon%r,         &
             natom    => tmode%natom,    &
-            mdim     => tmode%mdim      &
+            mdim     => tmode%mdim,     &
+            ndim     => tmode%ndim      &
             )
 
             dymatrix = 0.d0
@@ -425,9 +428,107 @@ contains
 
                     end do
 
+                    if ( present( opflag ) ) then
+                        if ( opflag == 1 ) then
+                            tmode%varXi_x = tmode%dymatrix(1:ndim,ndim+1)
+                            tmode%varXi_y = tmode%dymatrix(1:ndim,ndim+2)
+                        elseif ( opflag == 3 ) then
+                            tmode%varXi_x = tmode%dymatrix(1:ndim,ndim+1)
+                            tmode%varXi_y = tmode%dymatrix(1:ndim,ndim+2)
+                            tmode%varXi_s = tmode%dymatrix(1:ndim,ndim+3)
+                        end if
+                    end if
+
                 end associate
 
             end if
+
+        end associate
+    end subroutine
+
+    subroutine calc_psi_th( tmode, istart )
+        implicit none
+
+        ! para list
+        type(tpmatrix), intent(inout) :: tmode
+        integer, optional, intent(in) :: istart
+
+        ! local
+        integer :: lc_istart
+        integer :: i, j
+        real(8) :: temp
+
+        if ( .not. allocated( tmode%psi_th ) ) then
+            allocate( tmode%psi_th( tmode%natom ) )
+        end if
+
+        associate(                          &
+            dymatrix   => tmode%dymatrix,   &
+            egdymatrix => tmode%egdymatrix, &
+            psi_th     => tmode%psi_th,     &
+            ndim       => tmode%ndim,       &
+            natom      => tmode%natom       &
+            )
+
+            psi_th = 0.d0
+
+            if ( .not. present( istart ) ) then
+                lc_istart = free + 1
+            else
+                lc_istart = istart
+            end if
+
+            do j=lc_istart, ndim
+                do i=1, natom
+                    temp = 1.d0 / egdymatrix(j) * sum( dymatrix(free*(i-1)+1:free*i, j)**2 )
+                    psi_th(i) = psi_th(i) + temp
+                end do
+            end do
+
+        end associate
+    end subroutine
+
+    subroutine calc_psi_liu( tmode, varXi_x, varXi_y, istart )
+        implicit none
+
+        ! para list
+        type(tpmatrix), intent(inout) :: tmode
+        real(8), intent(in) :: varXi_x(:), varXi_y(:)
+        integer, optional, intent(in) :: istart
+
+        ! local
+        integer :: lc_istart
+        integer :: i, j
+        real(8) :: temp, temp1, temp2
+
+        if ( .not. allocated( tmode%psi_liu ) ) then
+            allocate( tmode%psi_liu( tmode%natom ) )
+        end if
+
+        associate(                          &
+            dymatrix   => tmode%dymatrix,   &
+            egdymatrix => tmode%egdymatrix, &
+            psi_liu    => tmode%psi_liu,    &
+            ndim       => tmode%ndim,       &
+            natom      => tmode%natom       &
+            )
+
+            psi_liu = 0.d0
+
+            if ( .not. present( istart ) ) then
+                lc_istart = free + 1
+            else
+                lc_istart = istart
+            end if
+
+            do j=lc_istart, ndim
+                do i=1, natom
+                    temp1 = sum( dymatrix(free*(i-1)+1:free*i, j) * varXi_x(free*(i-1)+1:free*i) )
+                    temp2 = sum( dymatrix(free*(i-1)+1:free*i, j) * varXi_y(free*(i-1)+1:free*i) )
+                    temp = 1.d0 / egdymatrix(j) * temp1 * temp2
+                    psi_liu(i) = psi_liu(i) + temp
+                end do
+            end do
 
         end associate
     end subroutine
