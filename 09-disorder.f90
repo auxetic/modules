@@ -2,7 +2,7 @@ module mo_disorder
     use mo_syst
     use mo_config
     implicit none
-        
+
     real(8) :: eta, eta_spring
     real(8), allocatable, dimension(:,:) :: radisorder
 
@@ -11,7 +11,7 @@ contains
     subroutine init_disorder( tradisorder, tcon, tseed )
         use ifport
         implicit none
-           
+
         type(tpcon) :: tcon
         real(8), allocatable, dimension(:,:) :: tradisorder
         integer :: tseed
@@ -40,7 +40,7 @@ contains
 
     subroutine make_disorder( tcon, tradisorder, teta )
         implicit none
-    
+
         type(tpcon) :: tcon
         real(8), allocatable, dimension(:,:) :: tradisorder
         real(8) :: teta

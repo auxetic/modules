@@ -34,7 +34,7 @@ make                # ubuntu可能链接lapack失败，原因未知，请使用R
 #### config
 1. 定义tpcon结构，包含体系粒子数、位形、半径、速度等等，盒子边长、剪切等等，系统能量、压强等等。
 2. 定义用于初始化系统的子过程：init_system
-3. 用于产生位形的：gen_rand_config, gen_lattice_triangle 
+3. 用于产生位形的：gen_rand_config, gen_lattice_triangle
 4. 用于计算两粒子距离的子过程：calc_dra
 5. 用于裁剪位形的子过程：trim_config
 

@@ -34,7 +34,7 @@ module mo_dynamic
     type(tpvcorr) :: vcorr
 
 contains
-    
+
     subroutine init_msd( tcon, tmsd, tndt, tnhistmax )
         implicit none
 
@@ -49,7 +49,7 @@ contains
             ndt      => tmsd%ndt,     &
             nhistmax => tmsd%nhistmax &
             )
-            
+
             natom = tcon%natom
             ndt   = tndt
             nhistmax = tnhistmax
@@ -120,7 +120,7 @@ contains
                     ! if histidx < i; idx = nhistmax + histidx - i + 1
                     !if ( i == histidx ) cycle
                     idx = histidx-i+1
-                    if ( idx <= 0 ) idx = idx + nhistmax 
+                    if ( idx <= 0 ) idx = idx + nhistmax
 
                     msdcount(idx) = msdcount(idx) + 1
                     msd(idx)      = msd(idx)      + sum( ( histdata(:,i) - histdata(:,histidx) )**2 )
@@ -146,12 +146,12 @@ contains
             tmsd%msd    = tmsd%msd    / ( msdcount * natom )
             tmsd%alpha2 = tmsd%alpha2 / ( msdcount * natom )
             tmsd%alpha2 = tmsd%alpha2 / tmsd%msd**2 / 3.d0 -1.d0
-            
+
             ! todo fkt, ...
-            
+
         end associate
     end subroutine
-   
+
     subroutine init_vcorr( tcon, tvcorr, tndt, tnhistmax )
         implicit none
 
@@ -233,7 +233,7 @@ contains
                     ! if histidx < i; idx = nhistmax + histidx - i + 1
                     !if ( i == histidx ) cycle
                     idx = histidx-i+1
-                    if ( idx <= 0 ) idx = idx + nhistmax 
+                    if ( idx <= 0 ) idx = idx + nhistmax
 
                     vcorrcount(idx) = vcorrcount(idx) + 1
                     vcorr(idx)      = vcorr(idx)      + dot_product( histdata(:,i), histdata(:,histidx) )
@@ -256,8 +256,8 @@ contains
 
             tvcorr%vcorr = tvcorr%vcorr / vcorrcount
             tvcorr%vcorr = tvcorr%vcorr / tvcorr%vcorr(1)
-            
+
         end associate
     end subroutine
 
-end module 
+end module
