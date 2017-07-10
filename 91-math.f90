@@ -12,7 +12,7 @@ contains
         redata(1) = 1
         do i=2, n
             itemp = floor(rand(0)*i) + 1
-            if ( i /= itemp )
+            if ( i /= itemp ) then
                 redata(i) = redata(itemp)
                 redata(itemp) = i
             else
