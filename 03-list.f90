@@ -38,8 +38,14 @@ contains
         tnatom    = tcon%natom
         tnb%natom = tnatom
 
-        allocate( tnb%list(tnatom) )
-
+        if ( allocated(tnb%list) ) then
+            if ( size(tnb%list) /= tnatom ) then
+                deallocate( tnb%list )
+                allocate( tnb%list(tnatom) )
+            end if
+        else
+            allocate( tnb%list(tnatom) )
+        end if
     end subroutine init_list
 
     subroutine make_list(tnb, tcon)
@@ -110,7 +116,6 @@ contains
             end do
 
         end associate
-
     end subroutine make_list
 
     subroutine calc_z( tnb, tcon )
@@ -182,7 +187,6 @@ contains
             end do
 
         end associate
-
     end subroutine
 
     function check_list( tnb, tcon ) result(flag)
@@ -213,7 +217,6 @@ contains
 
         flag = .false.
         if ( maxdis > nlcut**2 ) flag = .true.
-
     end function check_list
 
     ! ToDo
