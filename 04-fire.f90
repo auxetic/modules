@@ -43,9 +43,7 @@ contains
         if ( .not. present( tnet ) ) then
             call init_list( nbfire, tconfire )
         end if
-
-    end subroutine init_confire
-
+    end subroutine
 
     subroutine check_system_force( tcon, tnet )
         implicit none
@@ -61,8 +59,7 @@ contains
            !call make_network( tnet, tcon )
             call calc_force_spring( tcon, tnet )
         end if
-
-    end subroutine check_system_force
+    end subroutine
 
     ! main 1
     subroutine mini_fire_cv( tcon, tnet )
@@ -164,8 +161,7 @@ contains
             end do
 
         end associate
-
-    end subroutine mini_fire_cv
+    end subroutine
 
     ! main 2
     subroutine mini_fire_cp( tcon, tnet, opboxp_set, opxyp_set, opxp_set, opyp_set, opstress_set )
@@ -376,8 +372,7 @@ contains
             end do
 
         end associate
-
-    end subroutine mini_fire_cp
+    end subroutine
 
     subroutine mini_fire_cp_pin( tcon, tnet, opboxp_set, opxyp_set, opxp_set, opyp_set, opstress_set )
         implicit none
@@ -602,7 +597,6 @@ contains
             end do
 
         end associate
-
-    end subroutine mini_fire_cp_pin
+    end subroutine
 
 end module
