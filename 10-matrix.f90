@@ -138,14 +138,8 @@ contains
         rx = xij / rij
         ry = yij / rij
         ! \partial r_ij / \partial \epsilon_x = rx * x_ij
-        rex = rx * xij
-        rey = ry * yij
         res = rx * yij
 
-        ! \partial r_ij / [ \partial x_j \partial x_j ]
-        rxx = 1.d0/rij - xij**2 /rij**3
-        ryy = 1.d0/rij - yij**2 /rij**3
-        rxy =          - xij*yij/rij**3
         ! \partial^2 r_ij / [ \partial x_j \partial x_j ]
         rxx = 1.d0/rij - xij**2 /rij**3
         ryy = 1.d0/rij - yij**2 /rij**3
