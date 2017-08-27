@@ -336,14 +336,7 @@ contains
 
         do i=1, ncan-1
 
-            imin = i
-            minvalue = ps(imin)
-            do j=i+1, ncan
-                if ( ps(j) < minvalue ) then
-                    imin = j
-                    minvalue = ps(imin)
-                end if
-            end do
+            imin = minloc( ps(i:ncan), 1 ) + i - 1
             if ( i == imin ) cycle
 
             call swapr( px(i),  px(imin)  )
