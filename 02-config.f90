@@ -1,57 +1,7 @@
 module mo_config
     use mo_syst
+    use mo_math, only: init_rand
     implicit none
-
-
-!!vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
-!!>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-!!  module mo_config
-!!
-!!  purpose
-!!    define configuration of particles, parameter of box, thermodynamic and
-!!    dynamic properties of the system.
-!!    generate random configuration or read a configuration from an external
-!!    file.
-!!
-!!  principle variables
-!!    type        tpcon       define a type contains configuration, dynamic proper
-!!                            -ties and kinetic properties of particles, proper
-!!                            -ties of simulation box, and thermodynamic property
-!!                            contains
-!!      particles configuration
-!!      integer     natom       number of atoms in the system
-!!      real(:,:)   ra          position of atoms
-!!      real(:)     r           radius of atoms
-!!      real(:,:)   va          velocity of atoms
-!!      real(:,:)   fa          force of atoms
-!!      box configuration
-!!      real(free)  la          length of box in 2 or 3 dimension
-!!      real(free)  lainv       inverse length of box in 2 or 3 dimension
-!!      real        strain      shear strain added to the box
-!!      real        phi         volume friction of the system
-!!      thermodynamic property
-!!      real        T           temperature of the system
-!!      Kinetic properties of the system
-!!      real        Ea          Total energy of the system
-!!      real        Ek          Total kinetic energy of the system
-!!      real        stress      stress of the system
-!!      real        press       press of the system
-!!      real        pressx      press in the x direction
-!!      real        pressy      press in the y direction
-!!    type(tpcon)  con         configuration of the system and particles
-!!
-!!  principle subroutines and functions
-!!    gen_rand_config          generate random particles configuration
-!!      parameters:
-!!        tcon      data of configuration which is tpcon type
-!!        tseed     random seed for random generation
-!!        tphi      volumn fraction of the box
-!!    trim_config              pull every particles back to central box
-!!      parameters:
-!!        tcon      data of configuration which is tpcon type
-!!<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-!!^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
 
     type tpcon
         integer :: natom
@@ -96,7 +46,6 @@ contains
     end subroutine
 
     subroutine gen_rand_config( tcon, tseed, tphi )
-        use ifport
         implicit none
 
         ! var list
@@ -109,7 +58,7 @@ contains
         real(8) :: seed_temp
 
         ! initialized rand
-        call srand(tseed)
+        call init_rand(tseed)
         tseed = 0
 
         if ( present( tphi ) ) tcon%phi = tphi
@@ -145,9 +94,10 @@ contains
             strain = 0.d0
 
             ! config
+            call random_number(ra)
             do i=1, natom
                 do j=1, free
-                    ra(j,i) = ( rand(0) - 0.5d0 ) * la(j)
+                    ra(j,i) = ( ra(j,i) - 0.5d0 ) * la(j)
                 end do
             end do
 

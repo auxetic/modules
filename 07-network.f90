@@ -165,7 +165,6 @@ contains
     end subroutine remake_network
 
     subroutine change_k_spring( tnetwork, tcon, opktan, oph )
-        use ifport
         implicit none
 
         ! para list
@@ -196,7 +195,7 @@ contains
 !!           tnetwork%sps(i)%ks = 1.0 + tanh( ktan * ( tnetwork%sps(i)%l0 - 1.d0 ) )
 !        end do
         do i=1, tnetwork%nsps
-            temp = rand(0)
+            call random_number(temp)
             itemp = floor( temp*tnetwork%nsps ) + 1
 !           tnetwork%sps(i)%ks = 1.0 + tanh( ktan * ( calc_spring_len( tcon, itemp, tnetwork ) - 1.d0 ) )
             tnetwork%sps(i)%ks = 1.0 + tanh( ktan * ( tnetwork%sps(i)%l0 - 1.d0 ) )
@@ -214,7 +213,6 @@ contains
     end subroutine change_k_spring
 
     subroutine change_k_spring_2( tnetwork, tcon, opktan, oph )
-        use ifport
         implicit none
 
         ! para list

@@ -9,7 +9,6 @@ module mo_disorder
 contains
 
     subroutine init_disorder( tradisorder, tcon, tseed )
-        use ifport
         implicit none
 
         type(tpcon) :: tcon
@@ -26,7 +25,7 @@ contains
 
             allocate( radisorder(free,natom) )
             do i=1, natom
-                temp = rand(0)
+                call random_number(temp)
                 temp = temp * 2.d0 * pi
                 radisorder(1,i) = cos(temp)
                 radisorder(2,i) = sin(temp)

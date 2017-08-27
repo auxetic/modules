@@ -23,6 +23,21 @@ module mo_list
 
     type(tplist) :: nb
 
+    type tpvoro_one
+        integer :: nbsum
+        integer :: nblist(listmax)
+        integer :: vid1(listmax), vid2(listmax)
+    end type
+
+    type tpvoro
+        integer :: natom
+        type(tpvoro_one), allocatable, dimension(:) :: list
+        real(8), allocatable, dimension(:,:) :: center, vertex
+        real(8) :: lx, ly, strain
+    end type
+
+    type(tpvoro) :: voro
+
 contains
 
     subroutine init_list(tnb, tcon)
@@ -221,5 +236,220 @@ contains
 
     ! ToDo
     ! subroutine check_rattler
+
+    ! voro
+    subroutine init_voro( tvoro, tcon )
+        implicit none
+
+        type(tpvoro) :: tvoro
+        type(tpcon)  :: tcon
+
+        tvoro%natom  = tcon%natom
+        tvoro%center = tcon%ra
+        tvoro%lx     = tcon%lx
+        tvoro%ly     = tcon%ly
+        tvoro%strain = tcon%strain
+
+        allocate( tvoro%list(tvoro%natom) )
+    end subroutine
+
+    subroutine calc_voro( tvoro )
+        implicit none
+
+        type(tpvoro) :: tvoro
+
+        integer, parameter :: maxcan = 200
+        integer, dimension(maxcan) :: verts
+        real(8), dimension(maxcan) :: px, py, ps
+        integer, dimension(maxcan) :: tag
+        real(8), parameter :: rcut = 3.5
+
+        real(8) :: rai(free), raij(free), rijsq
+        integer :: i, j, k, cory, ncan
+
+        associate( natom  => tvoro%natom,  &
+                   list   => tvoro%list,   &
+                   con    => tvoro%center, &
+                   lx     => tvoro%lx,     &
+                   ly     => tvoro%ly,     &
+                   strain => tvoro%strain  &
+                   )
+
+        list(:)%nbsum = 0
+
+        ! main loop
+        do i=1, natom
+            rai = con(:,i)
+            k   = 0
+            do j=1, natom
+                if ( i == j ) cycle
+
+                raij = con(:,j) - rai
+                cory = nint( raij(2) / ly )
+                raij(1) = raij(1) - cory * strain * ly
+                raij(1) = raij(1) - anint( raij(1) / lx ) * lx
+                raij(2) = raij(2) - anint( raij(2) / ly ) * ly
+
+                rijsq = sum(raij**2)
+
+                if ( rijsq < rcut**2 ) then
+                    if ( k == maxcan ) then
+                        print*, k
+                        cycle
+                    end if
+                    k      = k + 1
+                    px(k)  = raij(1)
+                    py(k)  = raij(2)
+                    ps(k)  = rijsq
+                    tag(k) = j
+                end if
+            end do
+
+            ncan = k
+
+            call sortps( px, py, ps, tag, ncan )
+
+            call calc_voro_single( px, py, ps, maxcan, ncan, verts )
+
+            do k=1, ncan
+                if ( verts(k) /= 0 ) then
+                    list(i)%nbsum = list(i)%nbsum + 1
+                    list(i)%nblist(list(i)%nbsum) = tag(k)
+                end if
+            end do
+
+        end do
+
+        end associate
+    end subroutine
+
+    subroutine sortps( px, py, ps, tag, ncan )
+        use mo_math, only: swapr, swapi
+        implicit none
+
+        integer :: ncan
+        real(8), dimension(ncan) :: px, py, ps
+        integer, dimension(ncan) :: tag
+
+        integer :: i, j, imin
+        real(8) :: minvalue
+
+        do i=1, ncan-1
+
+            imin = i
+            minvalue = ps(imin)
+            do j=i+1, ncan
+                if ( ps(j) < minvalue ) then
+                    imin = j
+                    minvalue = ps(imin)
+                end if
+            end do
+            if ( i == imin ) cycle
+
+            call swapr( px(i),  px(imin)  )
+            call swapr( py(i),  py(imin)  )
+            call swapr( ps(i),  ps(imin)  )
+            call swapi( tag(i), tag(imin) )
+
+        end do
+    end subroutine
+
+    subroutine calc_voro_single( px, py, ps, maxcan, ncan, verts )
+        implicit none
+
+        integer :: maxcan, ncan, nv, ne
+        real(8), dimension(maxcan) :: px, py, ps
+        integer, dimension(maxcan) :: verts
+        integer, parameter :: maxv = 200
+        real(8), dimension(maxv) :: vx, vy
+        integer, dimension(maxv) :: iv, jv
+
+        logical :: flag
+        real(8) :: ai,bi,ci, aj,bj,cj, det, detinv
+        real(8) :: vxij, vyij
+        real(8), parameter :: tol=1.d-8
+
+        integer :: i, j, l, v
+
+        !-- check
+        if ( ncan < 3 ) then
+            write(*,'('' less than 3 points given to work '',i5)') ncan
+            stop
+        end if
+
+        v = 0
+        do i=1, ncan-1
+
+            ai =  px(i)
+            bi =  py(i)
+            ci = -ps(i)
+
+            do j=i+1, ncan
+
+                aj =  px(j)
+                bj =  py(j)
+                cj = -ps(j)
+
+                det = ai*bj - aj*bi
+
+                if( abs(det) >= tol ) then
+
+                    detinv = 1.d0 / det
+                    vxij = ( bi * cj - bj * ci ) * detinv
+                    vyij = ( aj * ci - ai * cj ) * detinv
+                    flag = .true.
+                    l  = 1
+                    do while( flag .and. l < ncan )
+                        if ( l /= i .and. l /= j ) then
+                            flag = ( ( px(l) * vxij + py(l) * vyij ) .le. ps(l) )
+                        end if
+                        l = l + 1
+                    end do
+
+                    if ( flag ) then
+                        v = v + 1
+                        if ( v > maxv ) stop 'too many vertices'
+                        iv(v)  = i
+                        jv(v)  = j
+                        vx(v) = 0.5 * vxij
+                        vy(v) = 0.5 * vyij
+                    end if
+                end if
+            end do
+        end do
+
+        nv = v                      ! total vertex found
+        if ( nv < 3 ) then
+            write(*,'('' less than 3 vertices found in work '',i5)') nv
+            stop
+        end if
+
+        verts(1:ncan) = 0
+
+        do i = 1, nv
+            verts(iv(i)) = verts(iv(i)) + 1
+            verts(jv(i)) = verts(jv(i)) + 1
+        end do
+
+        flag = .true.
+        ne   = 0
+
+        do i = 1, ncan
+            if ( verts(i) > 0 ) then
+                ne = ne + 1
+                if ( verts(i) /= 2 ) then    ! it is supposed that every neighbor contribute 2 vertex
+                    flag = .false.
+                endif
+            endif
+        end do
+
+        if ( flag .eqv. .false. ) then
+            write (*,'('' **** vertex error: degeneracy ? **** '')')
+        endif
+
+        if ( ne /= nv ) then
+            write(*,'('' **** edge   error: degeneracy ? ****  '')')
+        endif
+    end subroutine
 
 end module

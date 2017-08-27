@@ -39,7 +39,6 @@ contains
     end subroutine init_md
 
     subroutine pre_nvt( tcon )
-        use ifport
         implicit none
 
         ! para list
@@ -55,12 +54,7 @@ contains
             Tk    => mdargs%temper &
             )
 
-            do i=1, natom
-                do j=1, free
-                    va(j,i) = rand(0)
-                end do
-            end do
-
+            call random_number(va)
             call scale_temper( tcon, Tk )
 
         end associate
