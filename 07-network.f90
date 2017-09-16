@@ -7,6 +7,7 @@ module mo_network
         integer :: i, j
         integer :: cory, iround(free)
         real(8) :: l0, lvec(free)
+        real(8) :: vdl
         real(8) :: ks
         real(8) :: Bi, Gi, Gixy, Gis
     end type
@@ -16,6 +17,7 @@ module mo_network
         integer :: natom
         real(8) :: mb, mg, mgs, mgxy
         real(8) :: bcorr, gcorr, kscorr, ksmeancorr
+        real(8), allocatable, dimension(:,:) :: kvec
         type(tpspring), allocatable, dimension(:) :: sps
     end type
 
@@ -38,6 +40,7 @@ contains
             natom = tcon%natom
             max_of_springs = natom * 10
             allocate( tnetwork%sps(max_of_springs) )
+            allocate( tnetwork%kvec(free,natom) )
 
         end associate
     end subroutine init_network
@@ -157,6 +160,7 @@ contains
                 sps(ii)%cory   = cory
                 sps(ii)%iround = iround
                 sps(ii)%lvec   = dra
+                sps(ii)%vdl    = sqrt(rij2) - sps(ii)%l0
                 sps(ii)%l0     = sqrt(rij2)
 
             end do
@@ -164,92 +168,77 @@ contains
         end associate
     end subroutine remake_network
 
-    subroutine change_k_spring( tnetwork, tcon, opktan, oph )
+    subroutine change_k_spring( tnetwork, tcon, opcase, opktan, oph, opa, opb, opketa )
+        use mo_math, only: randperm
         implicit none
 
         ! para list
         type(tpnetwork), intent(inout) :: tnetwork
         type(tpcon),     intent(in)    :: tcon
+        integer,         optional      :: opcase
         real(8),         optional      :: opktan
-        real(8),         optional      :: oph
+        real(8),         optional      :: oph, opketa, opa, opb
 
         ! local
         integer :: i, itemp
         real(8) :: ktan, h, temp
+        integer :: casenu
+        integer, allocatable, dimension(:) :: perm
 
+        associate(                 &
+            nsps => tnetwork%nsps, &
+            net  => tnetwork%sps   &
+            )
 
-        ! 1. ks = ls
-!       do i=1, tnetwork%nsps
-!           tnetwork%sps(i)%ks = calc_spring_len( tcon, i, tnetwork )
-!       end do
+            if ( present(opcase) ) then
+                casenu = opcase
+            else
+                casenu = 1
+            end if
 
-!       do i=1, tnetwork%nsps
-!           itemp = floor( rand(0) * tnetwork%nsps ) + 1
-!           tnetwork%sps(i)%ks = calc_spring_len( tcon, itemp, tnetwork )
-!       end do
-
-        ktan = 1.d0
-        if ( present( opktan ) ) ktan = opktan
-!        do i=1, tnetwork%nsps
-!            tnetwork%sps(i)%ks = 1.0 + tanh( ktan * ( calc_spring_len( tcon, i, tnetwork ) - 1.d0 ) )
-!!           tnetwork%sps(i)%ks = 1.0 + tanh( ktan * ( tnetwork%sps(i)%l0 - 1.d0 ) )
-!        end do
-        do i=1, tnetwork%nsps
-            call random_number(temp)
-            itemp = floor( temp*tnetwork%nsps ) + 1
-!           tnetwork%sps(i)%ks = 1.0 + tanh( ktan * ( calc_spring_len( tcon, itemp, tnetwork ) - 1.d0 ) )
-            tnetwork%sps(i)%ks = 1.0 + tanh( ktan * ( tnetwork%sps(i)%l0 - 1.d0 ) )
-        end do
-
-!       h = 0.1d0
-!       if ( present( oph ) ) h = oph
-!       do i=1, tnetwork%nsps
-!           if (  calc_spring_len( tcon, i, tnetwork ) > 1.d0 ) then
-!               tnetwork%sps(i)%ks = 2.d0 - h
-!           else
-!               tnetwork%sps(i)%ks = h
-!           end if
-!       end do
-    end subroutine change_k_spring
-
-    subroutine change_k_spring_2( tnetwork, tcon, opktan, oph )
-        implicit none
-
-        ! para list
-        type(tpnetwork), intent(inout) :: tnetwork
-        type(tpcon),     intent(in)    :: tcon
-        real(8),         optional      :: opktan
-        real(8),         optional      :: oph
-
-        ! local
-        integer :: i
-        real(8) :: h, ktan
-
-        h = 0.1
-        if ( present( oph ) ) h = oph
-
-!       do i=1, tnetwork%nsps
-!           if ( rand(0) > 0.5 ) then
-!               tnetwork%sps(i)%ks = 2.d0 - h
-!           else
-!               tnetwork%sps(i)%ks = h
-!           end if
-!       end do
-
-!       do i=1, tnetwork%nsps
-!           if ( calc_len( tcon, i, tnetwork ) > 1.d0 ) then
-!               tnetwork%sps(i)%ks = 2.d0 - h
-!           else
-!               tnetwork%sps(i)%ks = h
-!           end if
-!       end do
-
-        ktan = 1.d0
-        if ( present( opktan ) ) ktan = opktan
-        do i=1, tnetwork%nsps
-            tnetwork%sps(i)%ks = 1.d0 + tanh( ktan * ( calc_spring_len( tcon, i, tnetwork ) - 1.d0 ) )
-        end do
-    end subroutine change_k_spring_2
+            select case( casenu )
+            ! 0. ks = 1
+            case(0)
+                do i=1, nsps
+                    net(i)%ks = 1.d0
+                end do
+            ! 1. ks = l0
+            case(1)
+                do i=1, nsps
+                    net(i)%ks = net(i)%l0
+                end do
+            ! 2. ks = rand()
+            case(2)
+                do i=1, nsps
+                    call random_number(temp)
+                    net(i)%ks = 1.d0 + opketa * ( temp - 0.5d0 )
+                end do
+            ! 3. ks = 1.0 + a * tanh( b * ( l-1.0 ) )
+            case(3)
+                do i=1, nsps
+                    net(i)%ks = 1.d0 + opa * tanh( opb * ( net(i)%l0 - 1.d0 ) )
+                end do
+            ! 3.1 ks = 1.0 + a * tanh( b * ( l-l0 ) )
+            case(31)
+                do i=1, nsps
+                    net(i)%ks = 1.d0 + opa * tanh( opb * net(i)%vdl )
+                end do
+            ! 4. ks = 3 + randperm
+            case(4)
+                perm = randperm(nsps)
+                do i=1, nsps
+                    net(i)%ks = 1.d0 + opa * tanh( opb * ( net(perm(i))%l0 - 1.d0 ) )
+                end do
+                deallocate(perm)
+            ! 5. ks -> f( l - l_aver )
+            case(5)
+                temp = sum( net(1:nsps)%l0 ) / nsps
+                do i=1, nsps
+                    net(i)%ks = 1.d0 + opa * tanh( opb * ( net(i)%l0 - temp ) )
+                end do
+            end select
+        end associate
+    end subroutine
 
     function calc_spring_len( tcon, tibond, tnetwork  ) result(tl)
         implicit none
@@ -439,6 +428,92 @@ contains
             mg = 0.5d0 * ( mgxy + mgs )
 
         end associate
+    end subroutine
+
+    subroutine calc_kvec( tnetwork, tcon )
+        implicit none
+
+        ! para list
+        type(tpnetwork), intent(inout) :: tnetwork
+        type(tpcon),     intent(in)    :: tcon
+
+        ! local
+        integer :: i, j, k, ii
+        real(8) :: dra(free), rij2, dij, ks
+        integer :: cory, iround(free)
+
+        associate(                   &
+            natom  => tcon%natom,    &
+            ra     => tcon%ra,       &
+            r      => tcon%r,        &
+            la     => tcon%la,       &
+            lainv  => tcon%lainv,    &
+            strain => tcon%strain,   &
+            nsps   => tnetwork%nsps, &
+            sps    => tnetwork%sps,  &
+            kvec   => tnetwork%kvec  &
+            )
+
+            kvec = 0.d0
+
+            do ii=1, nsps
+
+                i  = sps(ii)%i
+                j  = sps(ii)%j
+                ks = sps(ii)%ks
+
+                dra = ra(:,j) - ra(:,i)
+
+                cory = nint( dra(free) * lainv(free) )
+                dra(1) = dra(1) - cory * strain * la(free)
+
+                do k=1, free-1
+                    iround(k) = nint( dra(k) * lainv(k) )
+                end do
+                iround(free) = cory
+
+                do k=1, free
+                    dra(k) = dra(k) - iround(k) * la(k)
+                end do
+
+                kvec(:,i) = kvec(:,i) + ks * dra
+                kvec(:,j) = kvec(:,j) - ks * dra
+
+            end do
+
+        end associate
+    end subroutine
+
+    subroutine calc_kvec_corr( tkvcorr, tnetwork, tcon )
+        use mo_corr
+        implicit none
+
+        type(tpcorr) :: tkvcorr
+        type(tpnetwork) :: tnetwork
+        type(tpcon) :: tcon
+
+        integer :: i, j, k, ibin
+        real(8) :: l
+
+        tkvcorr%cum_n = 0
+        tkvcorr%cum_corr = 0.d0
+
+        associate( natom => tcon%natom )
+
+            do i=1, natom-1
+                do j=i+1, natom
+
+                    l = tcon%len(i,j)
+                    if ( l > tkvcorr%vmin .and. l < tkvcorr%vmax ) then
+                        ibin = floor( (l-tkvcorr%vmin) / tkvcorr%wbin ) + 1
+                        tkvcorr%cum_n(ibin) = tkvcorr%cum_n(ibin) + 1
+                        tkvcorr%cum_corr(ibin) = tkvcorr%cum_corr(ibin) + sum(tnetwork%kvec(:,i)*tnetwork%kvec(:,j))
+                    end if
+                end do
+            end do
+
+        end associate
+
     end subroutine
 
 ! temp

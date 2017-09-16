@@ -23,7 +23,8 @@ contains
 
         associate( natom => tcon%natom )
 
-            allocate( radisorder(free,natom) )
+            if( .not. allocated(radisorder) ) allocate( radisorder(free,natom) )
+
             do i=1, natom
                 call random_number(temp)
                 temp = temp * 2.d0 * pi
