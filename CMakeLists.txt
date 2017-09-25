@@ -12,7 +12,7 @@ file(GLOB SRC_LIST "*.f90")
 
 
 # compiler and compile flag
-set (CMAKE_Fortran_FLAGS "-O2 ")
+set (CMAKE_Fortran_FLAGS "-O3 ")
 #set (CMAKE_Fortran_FLAGS "-O2 -xAVX -ip ")
 #set (CMAKE_Fortran_FLAGS "-O2 -xSSE4.2 -static ")
 #set (CMAKE_Fortran_FLAGS "-O2 -xSSE4.2 -unroll ")

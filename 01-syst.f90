@@ -1,31 +1,11 @@
 module mo_syst
     implicit none
 
-!!vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
-!!>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-!!  purpose
-!!  system constant variables used in sub modules
-!!
-!!  usage
-!!
-!!  principle variables
-!!  type        typeset     define a type contains basic parameters used
-!!                          in subsequent program. which contains
-!!  integer     natom       number of atoms in the system
-!!  integer     seed        seed for random number generator
-!!  real(8)     phi         volume friction of the system
-!!  real(8)     ratio       the ratio of big and small ball in bidisperse
-!!                          system
-!!  real(8)     alpha       force constant
-!!                          the format of the force is
-!!  integer     free        the degrees of freedom of a single particle
-!!<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-!!^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
     type tpset
         integer :: natom
         real(8) :: phi
         integer :: seed
+        real(8) :: press
     end type
     type(tpset) :: sets
 
@@ -34,32 +14,8 @@ module mo_syst
     real(8), parameter :: alpha = 2.d0
     integer, parameter :: free  = 2
 
-contains
-
-!    subroutine testvar
-!        implicit none
-!
-!        sets.natom = 64
-!        sets.phi = 0.91d0
-!        sets.seed = 201
-!
-!    end subroutine testvar
-
 end module mo_syst
 
-
-
-
-!!vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
-!!>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-!!  PURPOSE
-!!  DYNAMIC VARIABLES USED IN SUB MODULES
-!!
-!!  USAGE
-!!
-!!  PRINCIPLE VARIABLES
-!!<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-!!^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 module mo_var
     implicit none
