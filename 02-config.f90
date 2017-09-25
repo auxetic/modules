@@ -25,6 +25,7 @@ module mo_config
     contains
         procedure :: dra => calc_dra
         procedure :: len => calc_len
+        procedure :: calc_phi => calc_phi
     end type
 
     type(tpcon) :: con, con0, contemp, contemp2
@@ -357,6 +358,25 @@ contains
 
         end associate
     end subroutine
+
+    Pure function calc_phi(this) result(re)
+        implicit none
+
+        class(tpcon), intent(in) :: this
+        real(8) :: re
+        real(8) :: sdisk, volume
+        integer :: i
+
+        volume = product( this%la(1:free) )
+
+        if ( free == 2 ) then
+            sdisk = pi * sum( this%r(1:this%natom)**2 )
+        elseif ( free == 3 ) then
+            sdisk = 4.d0/3.d0 * pi * sum( this%r(1:this%natom)**3 )
+        end if
+
+        re = sdisk / volume
+    end function
 
     subroutine gen_pin( tcon, tn )
         implicit none
