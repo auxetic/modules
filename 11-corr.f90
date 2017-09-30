@@ -38,47 +38,37 @@ contains
         allocate( tcorr%cum_corr(nbins), tcorr%cum_n(nbins) );
     end subroutine
 
-    Pure function calc_xi( this, i ) result(x)
+    pure function calc_xi( this, i ) result(re)
         implicit none
 
         class(tpcorr), intent(in) :: this
         integer,       intent(in) :: i
-        real(8) :: x
+        real(8) :: re
 
-        x = this%vmin + ( i - 0.5 ) * this%wbin
+        re = this%vmin + ( i - 0.5 ) * this%wbin
     end function
 
-    Pure function calc_corr( this, i ) result( x )
+    pure function calc_corr( this, i ) result(re)
         implicit none
 
         class(tpcorr), intent(in) :: this
         integer,       intent(in) :: i
-        real(8) :: x
+        real(8) :: re
 
-        x = 0
+        re = 0
         if ( this%cum_n(i) /= 0 ) then
-            x = this%cum_corr(i) / this%cum_n(i)
+            re = this%cum_corr(i) / this%cum_n(i)
         end if
     end function
 
-    Pure function calc_corrab( this ) result( x )
+    pure function calc_corrab( this ) result( re )
+        use mo_math, only: corr
         implicit none
 
         class(tpcorrab), intent(in) :: this
-        real(8) :: x
+        real(8) :: re
 
-        integer :: n
-        real(8) :: ava, avb, sigmaa, sigmab
-
-        n = size( this%a )
-
-        ava = sum(this%a) / n
-        avb = sum(this%b) / n
-
-        sigmaa = sqrt( sum( (this%a - ava)**2 ) / n )
-        sigmab = sqrt( sum( (this%b - avb)**2 ) / n )
-
-        x = sum( (this%a-ava)*(this%b-avb) ) / n / sigmaa / sigmab
+        re = corr(this%a, this%b)
     end function
 
 end module
