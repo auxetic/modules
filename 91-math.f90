@@ -57,5 +57,46 @@ contains
         call random_seed(put=seed_array)
     end subroutine
 
-end module
+    pure function mean(a) result(re)
+        implicit none
 
+        real(8), intent(in), dimension(:) :: a
+        real(8) :: re
+
+        re = sum(a) / size(a)
+    end function
+
+    pure function std(a) result(re)
+        implicit none
+
+        real(8), intent(in), dimension(:) :: a
+        integer :: i, ilen
+        real(8) :: mean_of_a, re
+
+        ilen = size(a)
+
+        mean_of_a = sum(a) / ilen 
+
+        re = sum( (a-mean_of_a)**2 ) / ilen
+        re = sqrt(re)
+    end function
+
+    pure function corr(a, b) result(re)
+        implicit none
+
+        real(8), intent(in), dimension(:) :: a, b
+        real(8) :: re
+        integer :: ilen
+
+        real(8) :: sigma_of_a, sigma_of_b
+
+        ilen = size(a)
+
+        sigma_of_a = std(a)
+        sigma_of_b = std(b)
+
+        re = sum(a*b)/ilen - mean(a)*mean(b)
+        re = re / std(a) / std(b)
+    end function
+
+end module
