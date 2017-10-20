@@ -236,6 +236,35 @@ contains
 
     ! ToDo
     ! subroutine check_rattler
+    function calc_rattler( tcon, tnblist ) result(flag)
+        implicit none
+
+        type(tpcon),  intent(in)           :: tcon
+        type(tplist), intent(in), optional :: tnblist
+        integer, dimension(tcon%natom)     :: flag
+
+        type(tplist) :: lclist
+        integer      :: i
+
+        if ( present(tnblist) ) then
+            lclist = tnblist
+        else
+            call init_list( lclist, tcon )
+            call make_list( lclist, tcon )
+        end if
+
+        call calc_z( lclist, tcon )
+
+        flag = 0
+        do i=1, lclist%natom
+            if ( lclist%nbi(i) == 0 ) then
+                flag(i) = 1
+            elseif ( lclist%nbi(i) <= (free-1) ) then
+                print*, "There exist unstable particle(s)"
+                stop
+            end if
+        end do
+    end function
 
     ! voro
     subroutine init_voro( tvoro, tcon )
