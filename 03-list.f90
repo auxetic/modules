@@ -231,7 +231,7 @@ contains
         end associate
 
         flag = .false.
-        if ( maxdis > nlcut**2 ) flag = .true.
+        if ( maxdis > 0.25 * nlcut**2 ) flag = .true.
     end function check_list
 
     ! ToDo
