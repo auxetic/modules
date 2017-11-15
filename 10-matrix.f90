@@ -233,7 +233,7 @@ contains
         !
         rexex = rxx * xij**2
         reyey = ryy * yij**2
-        rexey = ryy * xij*yij
+        rexey = rxy * xij*yij
 
         ! \partial^2 V_ij / [ \partial x_i \partial x_j ]
         ! = - \partial V_ij / [ \partial x_j \partial x_j ]
@@ -334,7 +334,7 @@ contains
         resy = rxy * yij
         !
         rexex = rxx * xij**2
-        rexey = ryy * xij*yij
+        rexey = rxy * xij*yij
         rexes = rxx * xij*yij
         reyey = ryy * yij**2
         reyes = rxy * yij**2
