@@ -1,14 +1,31 @@
-**仅供参考**
+## 项目说明
 ------
 
-### 下载
+### git 使用建议
+#### 需要使用此代码进行工作的话, 建议fork此库，并在fork后的代码库中，新建work分支。
 ```bash
-git clone git@git.ustclug.org:liuxu/modules.git     # 需要配置ssh-key
-or
-git clone https://git.ustclug.org/liuxu/modules.git
+点击上方Fork按钮，转到自己fork源的页面
+git clone git@git.ustclug.org:"""your user name in git.ustclug"""/modules.git
 cd modules
+git checkout -b work
 ```
-### 使用
+#### fork后的代码和上游同步。
+```bash
+git remote add upstream https://git.ustclug.org/liuxu/modules.git
+git checkout master
+git pull upstream master
+git push 
+```
+#### 更新work分支，master与上游同步后，使用变基(rebase)同步work分支
+```bash
+git checkout work
+git rebase -i master
+解决冲突，合并
+```
+#### 欢迎merge request
+
+-----
+### 代码使用
 从 templates 目录拷贝示例主程序
 ```bash
 cp templates/calc_msd.f90 main.f90
@@ -16,15 +33,15 @@ cp templates/calc_msd.f90 main.f90
 编译
 ```bash
 mkdir build && cd build
-export FC=ifort     # 可选，gfortran 版本过低（4.4）时，编译会报错。
+source /opt/rh/devtoolset-3/enable  # 可选，使用高版本gfortran。
+export FC=ifort                     # 可选
 cmake ..
-make                # ubuntu可能链接lapack失败，原因未知，请使用RedHat系linux系统
+make                                # ubuntu可能链接lapack失败，原因未知，请使用RedHat系linux系统
 ./main
 ```
 
-
-### 模块说明
 -----
+### 模块说明
 #### syst
 1. 体系维度
 2. 大小球比例
@@ -43,8 +60,8 @@ make                # ubuntu可能链接lapack失败，原因未知，请使用R
 1. 定义tplist、tplistone结构，包含粒子邻居编号，ra_ij除以盒子边长后的取整信息
 2. 定义子过程分别对应列表空间分配、列表、列表检查
 
-* [ ] 检查自由粒子（rattler）
-* [ ] 配位数
+- [x] 检查自由粒子（rattler）
+- [x] 配位数
 
 
 #### fire
@@ -58,14 +75,14 @@ make                # ubuntu可能链接lapack失败，原因未知，请使用R
 1. 分子动力学相关
 2. 子过程md_nvt，实现NVT MD模拟的一步积分
 
-* [ ] npt
+- [ ] npt
 
 
 #### force
 1. 子过程calc_foce计算作用力，需要列表信息
 2. 子过程calc_force_withoutlist，无需列表
 
-* [ ] Lenard-Jones
+- [ ] Lenard-Jones
 
 
 #### network
@@ -82,8 +99,8 @@ make                # ubuntu可能链接lapack失败，原因未知，请使用R
 #### ToDo struc
 1. 静态结构计算
 
-* [ ] gr sk
-* [ ] psi4 psi6
+- [ ] gr sk
+- [ ] psi4 psi6
 
 
 #### matrix
@@ -92,8 +109,8 @@ make                # ubuntu可能链接lapack失败，原因未知，请使用R
 3. 子过程solve_matrix，调用Lapack解矩阵本征值，可选择只解前rangevar部分
 4. 子过程calc_pw，计算参与度
 
-* [ ] 考虑盒子可压缩膨胀和剪切的情形
-* [ ] Psi_th
+- [x] 考虑盒子可压缩膨胀和剪切的情形
+- [ ] Psi_th
 
 
 #### ToDo Voronois Cell
