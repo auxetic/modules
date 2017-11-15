@@ -1,5 +1,28 @@
-**仅供参考**
+**说明**
 ------
+
+### 提示
+* 需要使用此代码进行工作的话, 建议fork此库，并在fork后的代码库中，新建work分支。
+```bash
+点击上方Fork按钮，转到自己fork源的页面
+git clone git@git.ustclug.org:"""your user name in git.ustclug"""/modules.git
+cd modules
+git checkout -b work
+```
+* fork后的代码和上游同步。
+```bash
+git remote add upstream https://git.ustclug.org/liuxu/modules.git
+git checkout master
+git pull upstream master
+git push 
+```
+* 更新work分支，master与上游同步后，使用变基(rebase)同步work分支
+```bash
+git checkout work
+git rebase -i master
+解决冲突，合并
+```
+* 欢迎merge request
 
 ### 下载
 ```bash
