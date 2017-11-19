@@ -627,6 +627,8 @@ contains
                         if ( opflag == 1 ) then
                             tmode%varXi_x = tmode%dymatrix(1:ndim,ndim+1)
                             tmode%varXi_y = tmode%dymatrix(1:ndim,ndim+2)
+                        elseif ( opflag == 2 ) then
+                            tmode%varXi_s = tmode%dymatrix(1:ndim,ndim+1)
                         elseif ( opflag == 3 ) then
                             tmode%varXi_x = tmode%dymatrix(1:ndim,ndim+1)
                             tmode%varXi_y = tmode%dymatrix(1:ndim,ndim+2)
