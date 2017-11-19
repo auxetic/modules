@@ -5,7 +5,7 @@ module mo_mode
     implicit none
 
     type tpmatrix
-        real(8), allocatable, dimension(:,:)   :: dymatrix, dymatrix0
+        real(8), allocatable, dimension(:,:)   :: dymatrix, dymatrix0, invmatrix
         real(8), allocatable, dimension(:)     :: egdymatrix, pw
         real(8), allocatable, dimension(:)     :: varXi_x, varXi_y, varXi_s
         real(8), allocatable, dimension(:)     :: psi_th, psi_liu
@@ -18,6 +18,7 @@ module mo_mode
     contains
         procedure :: solve   => solve_mode
         procedure :: calc_pw => calc_pw
+        procedure :: inv     => calc_inverse_matrix
     end type
 
     type(tpmatrix) :: mode, mode0, mode1, mode2
@@ -833,6 +834,8 @@ contains
         rangevar = 0
         if ( present( oprange ) ) rangevar = oprange
 
+        this%dymatrix0 = this%dymatrix
+
         associate(                        &
             mdim       => this%mdim,      &
             dymatrix   => this%dymatrix,  &
@@ -842,6 +845,30 @@ contains
             call solve_matrix( dymatrix, mdim, egdymatrix, rangevar )
 
         end associate
+    end subroutine
+
+    subroutine calc_inverse_matrix( this, nu_ratter )
+        implicit none
+
+        class(tpmatrix), intent(inout) :: this
+        integer, intent(in)            :: nu_ratter
+
+        integer :: i
+
+        this%invmatrix = this%dymatrix
+
+        ! m0 = Matrix
+        ! m1 = eig(m0)
+        ! m_inv = \sum_{i_real} eigenvalue(i) * e_{\omega_i} * e_{\omega_i}^T
+        do i=1, this%mdim
+            if ( i<=free*(1+nu_ratter) ) then
+                this%invmatrix(:,i) = 0.d0
+            else
+                this%invmatrix(:,i) = ( 1.d0 / this%egdymatrix(i) ) * this%invmatrix(:,i)
+            end if
+        end do
+
+        this%invmatrix = matmul(this%invmatrix, transpose(this%dymatrix))
     end subroutine
 
     subroutine calc_pw( this )
