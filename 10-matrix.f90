@@ -189,7 +189,7 @@ contains
         & dymatrix(free*natom+1:free*natom+1,free*natom+1:free*natom+1) + mee
     end subroutine
 
-    subroutine kernel_matrix_compress( mdim, dymatrix, i, j, natom, vr, vrr, xij, yij, rij )
+    subroutine kernel_matrix_compress_xy( mdim, dymatrix, i, j, natom, vr, vrr, xij, yij, rij )
         implicit none
 
         ! para list
@@ -286,6 +286,112 @@ contains
 
           dymatrix(free*natom+1:free*natom+2,free*natom+1:free*natom+2) = &
         & dymatrix(free*natom+1:free*natom+2,free*natom+1:free*natom+2) + mee
+    end subroutine
+
+    subroutine kernel_matrix_compress_box( mdim, dymatrix, i, j, natom, vr, vrr, xij, yij, rij )
+        implicit none
+
+        ! para list
+        integer, intent(in)    :: mdim
+        real(8), intent(inout) :: dymatrix(mdim,mdim)
+        integer, intent(in)    :: i, j
+        integer, intent(in)    :: natom
+        real(8), intent(in)    :: vr, vrr
+        real(8), intent(in)    :: xij, yij, rij
+
+        ! local
+        real(8) :: rx, ry, rxx, rxy, ryy
+        real(8) :: rex, rey
+        real(8) :: rexx, rexy, reyx, reyy
+        real(8) :: rexex, rexey, reyey
+
+        real(8) :: mij(free,free)
+        real(8) :: miex(free), miey(free)
+        !real(8) :: mee(2,2)
+        real(8) :: mee
+
+        ! \partial r_ij / \partial x_ij
+        rx = xij / rij
+        ry = yij / rij
+        ! \partial r_ij / \partial \epsilon_x = rx * x_ij
+        rex = rx * xij
+        rey = ry * yij
+
+        ! \partial r_ij / [ \partial x_j \partial x_j ]
+        rxx = 1.d0/rij - xij**2 /rij**3
+        ryy = 1.d0/rij - yij**2 /rij**3
+        rxy =          - xij*yij/rij**3
+        ! \partial^2 r_ij / [ \partial x_j \partial x_j ]
+        rxx = 1.d0/rij - xij**2 /rij**3
+        ryy = 1.d0/rij - yij**2 /rij**3
+        rxy =          - xij*yij/rij**3
+        ! \partial^2 r_ij / [ \partial x_j \partial \epsilon_x ]
+        rexx = rxx * xij
+        rexy = rxy * xij
+        reyx = rxy * yij
+        reyy = ryy * yij
+        !
+        rexex = rxx * xij**2
+        reyey = ryy * yij**2
+        rexey = rxy * xij*yij
+
+        ! \partial^2 V_ij / [ \partial x_i \partial x_j ]
+        ! = - \partial V_ij / [ \partial x_j \partial x_j ]
+        ! =   - [ Vrr * rx**2   + vr * rxx ]
+        ! yy: - [ Vrr * rx**2 + Vr * ryy ]
+        ! xy: - [ Vrr * rx*ry + Vr * rxy ]
+        mij(1,1) = - ( vrr*rx**2 + vr*rxx )
+        mij(2,2) = - ( vrr*ry**2 + vr*ryy )
+        mij(1,2) = - ( vrr*rx*ry + vr*rxy )
+        mij(2,1) = mij(1,2)
+
+
+        miex(1) = - ( vrr*rx*rex + vr*rexx )
+        miex(2) = - ( vrr*ry*rex + vr*rexy )
+        miey(1) = - ( vrr*rx*rey + vr*reyx )
+        miey(2) = - ( vrr*ry*rey + vr*reyy )
+
+        !mee(1,1) = vrr*rex*rex + vr*rexex
+        !mee(2,2) = vrr*rey*rey + vr*reyey
+        !mee(1,2) = vrr*rex*rey + vr*rexey
+        !mee(2,1) = mee(1,2)
+        mee = 0.d0
+        mee = mee + vrr*rex*rex + vr*rexex
+        mee = mee + vrr*rey*rey + vr*reyey
+        mee = mee + 2 * vrr*rex*rey + vr*rexey
+
+        ! con ij
+          dymatrix( free*(i-1)+1:free*i, free*(i-1)+1:free*i ) = &
+        & dymatrix( free*(i-1)+1:free*i, free*(i-1)+1:free*i ) - mij
+          dymatrix( free*(j-1)+1:free*j, free*(j-1)+1:free*j ) = &
+        & dymatrix( free*(j-1)+1:free*j, free*(j-1)+1:free*j ) - mij
+
+          dymatrix( free*(i-1)+1:free*i, free*(j-1)+1:free*j ) = mij
+          dymatrix( free*(j-1)+1:free*j, free*(i-1)+1:free*i ) = mij
+
+          ! ex ey
+          dymatrix( free*(i-1)+1:free*i, free*natom+1 ) = &
+        & dymatrix( free*(i-1)+1:free*i, free*natom+1 ) + miex + miey
+          dymatrix( free*natom+1, free*(i-1)+1:free*i ) = &
+        & dymatrix( free*natom+1, free*(i-1)+1:free*i ) + miex + miey
+        !   dymatrix( free*(i-1)+1:free*i, free*natom+2 ) = &
+        ! & dymatrix( free*(i-1)+1:free*i, free*natom+2 ) + miey
+        !   dymatrix( free*natom+2, free*(i-1)+1:free*i ) = &
+        ! & dymatrix( free*natom+2, free*(i-1)+1:free*i ) + miey
+
+          dymatrix( free*(j-1)+1:free*j, free*natom+1 ) = &
+        & dymatrix( free*(j-1)+1:free*j, free*natom+1 ) - miex - miey
+          dymatrix( free*natom+1, free*(j-1)+1:free*j ) = &
+        & dymatrix( free*natom+1, free*(j-1)+1:free*j ) - miex - miey
+        !   dymatrix( free*(j-1)+1:free*j, free*natom+2 ) = &
+        ! & dymatrix( free*(j-1)+1:free*j, free*natom+2 ) - miey
+        !   dymatrix( free*natom+2, free*(j-1)+1:free*j ) = &
+        ! & dymatrix( free*natom+2, free*(j-1)+1:free*j ) - miey
+
+        !   dymatrix(free*natom+1:free*natom+2,free*natom+1:free*natom+2) = &
+        ! & dymatrix(free*natom+1:free*natom+2,free*natom+1:free*natom+2) + mee
+          dymatrix(free*natom+1,free*natom+1) = &
+        & dymatrix(free*natom+1,free*natom+1) + mee
     end subroutine
 
     subroutine kernel_matrix_compress_shear( mdim, dymatrix, i, j, natom, vr, vrr, xij, yij, rij )
@@ -463,7 +569,9 @@ contains
                         if ( .not. present( opflag ) ) then
                             call kernel_matrix_fix( mdim, dymatrix, i, j, natom, vr, vrr, xij, yij, rij )
                         elseif ( opflag == 1 ) then
-                            call kernel_matrix_compress( mdim, dymatrix, i, j, natom, vr, vrr, xij, yij, rij )
+                            call kernel_matrix_compress_xy( mdim, dymatrix, i, j, natom, vr, vrr, xij, yij, rij )
+                        elseif ( opflag == 11 ) then
+                            call kernel_matrix_compress_box( mdim, dymatrix, i, j, natom, vr, vrr, xij, yij, rij )
                         elseif ( opflag == 2 ) then
                             call kernel_matrix_shear( mdim, dymatrix, i, j, natom, vr, vrr, xij, yij, rij )
                         elseif ( opflag == 3 ) then
@@ -504,7 +612,9 @@ contains
                         if ( .not. present( opflag ) ) then
                             call kernel_matrix_fix( mdim, dymatrix, i, j, natom, vr, vrr, xij, yij, rij )
                         elseif ( opflag == 1 ) then
-                            call kernel_matrix_compress( mdim, dymatrix, i, j, natom, vr, vrr, xij, yij, rij )
+                            call kernel_matrix_compress_xy( mdim, dymatrix, i, j, natom, vr, vrr, xij, yij, rij )
+                        elseif ( opflag == 11 ) then
+                            call kernel_matrix_compress_box( mdim, dymatrix, i, j, natom, vr, vrr, xij, yij, rij )
                         elseif ( opflag == 2 ) then
                             call kernel_matrix_shear( mdim, dymatrix, i, j, natom, vr, vrr, xij, yij, rij )
                         elseif ( opflag == 3 ) then
