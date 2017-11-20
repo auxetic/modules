@@ -3,7 +3,7 @@ module mo_math
 
 contains
 
-    function randperm(n) result( redata )
+    function randperm(n) result(redata)
         implicit none
         integer, intent(in) :: n
         integer, dimension(n) :: redata
@@ -20,9 +20,9 @@ contains
                 redata(i) = i
             end if
         end do
-    end function randperm
+    end function
 
-    subroutine swapr( x, y )
+    subroutine swapr(x, y)
         implicit none
 
         real(8), intent(inout) :: x, y
@@ -33,7 +33,7 @@ contains
         y   = tmp
     end subroutine
 
-    subroutine swapi( x, y )
+    subroutine swapi(x, y)
         implicit none
 
         integer, intent(inout) :: x, y

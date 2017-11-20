@@ -43,7 +43,7 @@ contains
             allocate( tnetwork%kvec(free,natom) )
 
         end associate
-    end subroutine init_network
+    end subroutine
 
     subroutine make_network( tnetwork, tcon )
         implicit none
@@ -111,7 +111,7 @@ contains
 
         ! reallocate array of sps
         tnetwork%sps = tnetwork%sps(1:tnetwork%nsps)
-    end subroutine make_network
+    end subroutine
 
     subroutine remake_network( tnetwork, tcon )
         implicit none
@@ -166,7 +166,7 @@ contains
             end do
 
         end associate
-    end subroutine remake_network
+    end subroutine
 
     subroutine change_k_spring( tnetwork, tcon, opcase, opktan, oph, opa, opb, opketa )
         use mo_math, only: randperm
@@ -513,7 +513,6 @@ contains
             end do
 
         end associate
-
     end subroutine
 
 ! temp

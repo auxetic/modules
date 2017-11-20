@@ -20,8 +20,10 @@ end module mo_syst
 module mo_var
     implicit none
 
-    integer :: i, j, k, ii, jj, kk, itemp, step, step1, step2, nstep
-    real(8) :: temp1, temp2, temp3
+    integer :: i, j, k, ii, jj, kk
+    integer :: step, step0, step1, step2, nstep
+    real(8) :: temp, temp0, temp1, temp2, temp3, temp4, temp5
+    integer :: itemp, itemp0, itemp1, itemp2, itemp3, itemp4
 
     ! main
     real(8) :: testp

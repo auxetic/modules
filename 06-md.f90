@@ -35,8 +35,7 @@ contains
         if ( present( oppress ) ) then
             mdargs%press  = oppress
         end if
-
-    end subroutine init_md
+    end subroutine
 
     subroutine pre_nvt( tcon )
         implicit none
@@ -58,7 +57,6 @@ contains
             call scale_temper( tcon, Tk )
 
         end associate
-
     end subroutine
 
     subroutine md_nvt( tcon, tnb )
@@ -99,7 +97,6 @@ contains
             end if
 
         end associate
-
     end subroutine
 
     subroutine scale_temper( tcon, tTk )
@@ -127,7 +124,6 @@ contains
             va = sqrt( tTk / temp ) * va
 
         end associate
-
     end subroutine
 
 end module

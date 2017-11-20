@@ -18,7 +18,7 @@ contains
         real(8) :: temp
         integer :: i
 
-!       temp = rand( tseed )
+        ! temp = rand( tseed )
         tseed = 0
 
         associate( natom => tcon%natom )
@@ -30,13 +30,12 @@ contains
                 temp = temp * 2.d0 * pi
                 radisorder(1,i) = cos(temp)
                 radisorder(2,i) = sin(temp)
-    !           radisorder(1,i) = 2.0 * rand(0) - 1.0
-    !           radisorder(2,i) = 2.0 * rand(0) - 1.0
+                !radisorder(1,i) = 2.0 * rand(0) - 1.0
+                !radisorder(2,i) = 2.0 * rand(0) - 1.0
             end do
 
         end associate
-
-    end subroutine init_disorder
+    end subroutine
 
     subroutine make_disorder( tcon, tradisorder, teta )
         implicit none
@@ -52,7 +51,6 @@ contains
             ra = ra + teta * tradisorder
 
         end associate
-
     end subroutine
 
 end module

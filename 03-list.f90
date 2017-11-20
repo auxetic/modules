@@ -61,7 +61,7 @@ contains
         else
             allocate( tnb%list(tnatom) )
         end if
-    end subroutine init_list
+    end subroutine
 
     subroutine make_list(tnb, tcon)
         implicit none
@@ -131,7 +131,7 @@ contains
             end do
 
         end associate
-    end subroutine make_list
+    end subroutine
 
     subroutine calc_z( tnb, tcon )
         implicit none
@@ -232,7 +232,7 @@ contains
 
         flag = .false.
         if ( maxdis > 0.25 * nlcut**2 ) flag = .true.
-    end function check_list
+    end function
 
     ! ToDo
     ! subroutine check_rattler

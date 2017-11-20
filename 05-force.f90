@@ -93,8 +93,7 @@ contains
             pressy = wiliy  * product(lainv)
 
         end associate
-
-    end subroutine calc_force
+    end subroutine
 
     subroutine calc_force_pin( tcon, tnb )
         implicit none
@@ -185,8 +184,7 @@ contains
             pressy = wiliy  * product(lainv)
 
         end associate
-
-    end subroutine calc_force_pin
+    end subroutine
 
     subroutine calc_force_withoutlist( tcon )
         implicit none
@@ -277,8 +275,7 @@ contains
             pressy = wiliy  * product(lainv)
 
         end associate
-
-    end subroutine calc_force_withoutlist
+    end subroutine
 
     subroutine calc_force_spring( tcon, tnet )
         implicit none
