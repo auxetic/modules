@@ -24,6 +24,8 @@ module mo_var
     integer :: step, step0, step1, step2, nstep
     real(8) :: temp, temp0, temp1, temp2, temp3, temp4, temp5
     integer :: itemp, itemp0, itemp1, itemp2, itemp3, itemp4
+    real(8), allocatable, dimension(:)   :: tempvec
+    real(8), allocatable, dimension(:,:) :: temparray
 
     ! main
     real(8) :: testp

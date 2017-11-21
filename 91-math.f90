@@ -99,4 +99,42 @@ contains
         re = re / std(a) / std(b)
     end function
 
+    pure function dot(a,b) result(re)
+        implicit none
+
+        real(8), intent(in), dimension(:) :: a, b
+        real(8) :: re
+
+        re = sum(a*b)
+    end function
+
+    pure function times2(a,b) result(re)
+        implicit none
+
+        real(8), intent(in)  :: a(2), b(2)
+        real(8) :: re
+
+        re = a(1) * b(2) - a(2) * b(1)
+    end function
+
+    pure function times3(a,b) result(re)
+        implicit none
+
+        real(8), intent(in)  :: a(3), b(3)
+        real(8) :: re(3)
+
+        re(1) = a(2) * b(3) - a(3) * b(2)
+        re(2) = a(3) * b(1) - a(1) * b(3)
+        re(3) = a(1) * b(2) - a(2) * b(1)
+    end function
+
+    function unitv(vector) result(uvector)
+        implicit none
+
+        real(8), dimension(:) :: vector
+        real(8), allocatable, dimension(:) :: uvector
+
+        uvector = vector / norm2(vector)
+    end function
+
 end module
