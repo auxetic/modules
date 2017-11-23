@@ -359,7 +359,7 @@ contains
         mee = 0.d0
         mee = mee + vrr*rex*rex + vr*rexex
         mee = mee + vrr*rey*rey + vr*reyey
-        mee = mee + 2 * vrr*rex*rey + vr*rexey
+        mee = mee + 2 * ( vrr*rex*rey + vr*rexey )
 
         ! con ij
           dymatrix( free*(i-1)+1:free*i, free*(i-1)+1:free*i ) = &
