@@ -26,6 +26,8 @@ module mo_fire
     type(tpcon)  :: confire, confire2
     type(tplist) :: nbfire
 
+    procedure(abstract_force), pointer :: calc_force_h => null()
+
 contains
 
     subroutine init_confire( tconfire, tcon, tnet )
@@ -43,6 +45,8 @@ contains
         if ( .not. present( tnet ) ) then
             call init_list( nbfire, tconfire )
         end if
+
+        calc_force_h => calc_force
     end subroutine
 
     subroutine check_system_force( tcon, tnet )
@@ -54,7 +58,7 @@ contains
 
         if ( .not. present( tnet ) ) then
             call make_list( nbfire, tcon )
-            call calc_force( tcon, nbfire )
+            call calc_force_h( tcon, nbfire )
         else
            !call make_network( tnet, tcon )
             call calc_force_spring( tcon, tnet )
@@ -94,7 +98,7 @@ contains
             ! calc fortran before iteration
             if ( nonnetwork_flag ) then
                 call make_list( nbfire, tcon )
-                call calc_force( tcon, nbfire )
+                call calc_force_h( tcon, nbfire )
             else
                 call calc_force_spring( tcon, tnet )
             end if
@@ -117,7 +121,7 @@ contains
 
                 ! velocity verlet method / force
                 if ( nonnetwork_flag ) then
-                    call calc_force( tcon, nbfire )
+                    call calc_force_h( tcon, nbfire )
                 else
                     call calc_force_spring( tcon, tnet )
                 end if
@@ -262,7 +266,7 @@ contains
             ! pre
             if ( nonnetwork_flag ) then
                 call make_list( nbfire, tcon )
-                call calc_force( tcon, nbfire )
+                call calc_force_h( tcon, nbfire )
             else
                 call calc_force_spring( tcon, tnet )
             end if
@@ -308,7 +312,7 @@ contains
 
                 ! velocity verlet method / force
                 if ( nonnetwork_flag ) then
-                    call calc_force( tcon, nbfire )
+                    call calc_force_h( tcon, nbfire )
                 else
                     call calc_force_spring( tcon, tnet )
                 end if
@@ -363,11 +367,11 @@ contains
                     exit
                 end if
 
-               !if( step == 1 ) write(*,*) 'step', '    dt         ', '              fmax   '
+                !if( step == 1 ) write(*,*) 'step', '    dt         ', '              fmax   '
 
-               !if( mod(step,10) == 0 ) then
-               !    write(*,'(i6,3e16.6)') step, dt, temp, press
-               !end if
+                !if( mod(step,10) == 0 ) then
+                !    write(*,'(i6,3e16.6)') step, dt, temp, press
+                !end if
 
             end do
 
@@ -475,7 +479,7 @@ contains
             ! pre
             if ( nonnetwork_flag ) then
                 call make_list( nbfire, tcon )
-                call calc_force( tcon, nbfire )
+                call calc_force_h( tcon, nbfire )
             else
                 call calc_force_spring( tcon, tnet )
             end if
@@ -526,7 +530,7 @@ contains
 
                 ! velocity verlet method / force
                 if ( nonnetwork_flag ) then
-                    call calc_force( tcon, nbfire )
+                    call calc_force_h( tcon, nbfire )
                 else
                     call calc_force_spring( tcon, tnet )
                 end if
