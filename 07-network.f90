@@ -10,6 +10,7 @@ module mo_network
         real(8) :: vdl
         real(8) :: ks
         real(8) :: Bi, Gi, Gixy, Gis
+        real(8) :: Es, Wili, Stress
     end type
 
     type tpnetwork
@@ -240,18 +241,18 @@ contains
         end associate
     end subroutine
 
-    function calc_spring_len( tcon, tibond, tnetwork  ) result(tl)
+    function calc_spring_dra( tcon, tibond, tnetwork  ) result(tdra)
         implicit none
 
         ! para list
         type(tpcon), intent(in)     :: tcon
         integer, intent(in)         :: tibond
         type(tpnetwork), intent(in) :: tnetwork
-        real(8) :: tl
+        real(8), dimension(free) :: tdra
 
         ! local
         integer :: i, j, k, ii
-        real(8) :: dra(free), rij2, dij
+        real(8) :: rij2, dij
         integer :: cory, iround(free)
 
         associate(                   &
@@ -269,25 +270,70 @@ contains
             i = sps(tibond)%i
             j = sps(tibond)%j
 
-            dra = ra(:,j) - ra(:,i)
+            tdra = ra(:,j) - ra(:,i)
 
-            cory = nint( dra(free) * lainv(free) )
-            dra(1) = dra(1) - cory * strain * la(free)
+            cory = nint( tdra(free) * lainv(free) )
+            tdra(1) = tdra(1) - cory * strain * la(free)
 
             do k=1, free-1
-                iround(k) = nint( dra(k) * lainv(k) )
+                iround(k) = nint( tdra(k) * lainv(k) )
             end do
             iround(free) = cory
 
             do k=1, free
-                dra(k) = dra(k) - iround(k) * la(k)
+                tdra(k) = tdra(k) - iround(k) * la(k)
             end do
-
-            !tl = norm2( dra )
-            tl = sqrt(sum(dra**2))
 
         end associate
     end function
+
+    function calc_spring_len( tcon, tibond, tnetwork  ) result(tl)
+        implicit none
+
+        ! para list
+        type(tpcon), intent(in)     :: tcon
+        integer, intent(in)         :: tibond
+        type(tpnetwork), intent(in) :: tnetwork
+        real(8) :: dra(free), tl
+
+        dra = calc_spring_dra(tcon, tibond, tnetwork)
+        tl = sqrt(sum(dra**2))
+    end function
+
+    subroutine calc_net_E_and_Wili( tnetwork, tcon )
+        implicit none
+
+        ! para list
+        type(tpcon),     intent(in)    :: tcon
+        type(tpnetwork), intent(inout) :: tnetwork
+
+        ! local
+        integer :: ii, i, j
+        real(8) :: lnow, dra(free)
+        real(8) :: ks, Es, l0
+
+        associate(                    &
+            nsps   => tnetwork%nsps,  &
+            sps    => tnetwork%sps    &
+            )
+
+            do ii=1, nsps
+
+                i = sps(ii)%i
+                j = sps(ii)%j
+
+                l0 = sps(ii)%l0
+                ks = sps(ii)%ks
+
+                dra  = calc_spring_dra( tcon, ii, tnetwork )
+                lnow = sqrt(sum(dra**2))
+
+                sps(ii)%Es     = 0.5d0 * ks * ( lnow - l0 )**2
+                sps(ii)%Wili   = - lnow *  ks * ( lnow - l0 )
+                sps(ii)%Stress = - (dra(1) * dra(2) / lnow ) * ks * ( lnow - l0 )
+            end do
+        end associate
+    end subroutine
 
     subroutine calc_Bi( tcon, tnetwork, test )
         implicit none

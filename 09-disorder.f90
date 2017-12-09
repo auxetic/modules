@@ -18,7 +18,8 @@ contains
         real(8) :: temp
         integer :: i
 
-        ! temp = rand( tseed )
+        !temp = rand( tseed )
+        call init_rand( tseed )
         tseed = 0
 
         associate( natom => tcon%natom )

@@ -23,7 +23,7 @@ module mo_fire
     integer, private :: count
 
 
-    type(tpcon)  :: confire, confire2
+    type(tpcon)  :: confire, confire1, confire2
     type(tplist) :: nbfire
 
     procedure(abstract_force), pointer :: calc_force_h => null()

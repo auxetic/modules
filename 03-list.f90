@@ -34,6 +34,9 @@ module mo_list
         type(tpvoro_one), allocatable, dimension(:) :: list
         real(8), allocatable, dimension(:,:) :: center, vertex
         real(8) :: lx, ly, strain
+    contains
+        procedure :: init      => init_voro
+        procedure :: decompose => calc_voro
     end type
 
     type(tpvoro) :: voro
@@ -267,25 +270,25 @@ contains
     end function
 
     ! voro
-    subroutine init_voro( tvoro, tcon )
+    subroutine init_voro( this, tcon )
         implicit none
 
-        type(tpvoro) :: tvoro
-        type(tpcon)  :: tcon
+        class(tpvoro), intent(inout) :: this
+        type(tpcon),  intent(in)     :: tcon
 
-        tvoro%natom  = tcon%natom
-        tvoro%center = tcon%ra
-        tvoro%lx     = tcon%lx
-        tvoro%ly     = tcon%ly
-        tvoro%strain = tcon%strain
+        this%natom  = tcon%natom
+        this%center = tcon%ra
+        this%lx     = tcon%lx
+        this%ly     = tcon%ly
+        this%strain = tcon%strain
 
-        allocate( tvoro%list(tvoro%natom) )
+        allocate( this%list(this%natom) )
     end subroutine
 
-    subroutine calc_voro( tvoro )
+    subroutine calc_voro( this )
         implicit none
 
-        type(tpvoro) :: tvoro
+        class(tpvoro), intent(inout) :: this
 
         integer, parameter :: maxcan = 200
         integer, dimension(maxcan) :: verts
@@ -296,12 +299,12 @@ contains
         real(8) :: rai(free), raij(free), rijsq
         integer :: i, j, k, cory, ncan
 
-        associate( natom  => tvoro%natom,  &
-                   list   => tvoro%list,   &
-                   con    => tvoro%center, &
-                   lx     => tvoro%lx,     &
-                   ly     => tvoro%ly,     &
-                   strain => tvoro%strain  &
+        associate( natom  => this%natom,  &
+                   list   => this%list,   &
+                   con    => this%center, &
+                   lx     => this%lx,     &
+                   ly     => this%ly,     &
+                   strain => this%strain  &
                    )
 
         list(:)%nbsum = 0

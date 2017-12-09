@@ -50,9 +50,9 @@ contains
         implicit none
 
         ! var list
-        type(tpcon),       intent(inout) :: tcon
-        integer,           intent(inout) :: tseed
-        real(8), optional, intent(in)    :: tphi
+        type(tpcon), intent(inout)        :: tcon
+        integer,     intent(inout)        :: tseed
+        real(8),     intent(in), optional :: tphi
 
         ! local
         integer :: i, j
@@ -315,8 +315,8 @@ contains
         implicit none
 
         ! var list
-        type(tpcon), intent(inout)    :: tcon
-        logical, intent(in), optional :: opsumxyz  ! set center of mass to zero
+        type(tpcon), intent(inout)        :: tcon
+        logical,     intent(in), optional :: opsumxyz  ! set center of mass to zero
 
         ! local
         real(8) :: temp
@@ -369,11 +369,12 @@ contains
 
         volume = product( this%la(1:free) )
 
-        if ( free == 2 ) then
-            sdisk = pi * sum( this%r(1:this%natom)**2 )
-        elseif ( free == 3 ) then
-            sdisk = 4.d0/3.d0 * pi * sum( this%r(1:this%natom)**3 )
-        end if
+        !if ( free == 2 ) then
+        !    sdisk = pi * sum( this%r(1:this%natom)**2 )
+        !elseif ( free == 3 ) then
+        !    sdisk = 4.d0/3.d0 * pi * sum( this%r(1:this%natom)**3 )
+        !end if
+        sdisk = sqrt(pi**free) / gamma(dble(free)/2.d0+1) * sum(this%r**free)
 
         re = sdisk / volume
     end function
