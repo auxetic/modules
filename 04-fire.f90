@@ -180,7 +180,7 @@ contains
 
         real(8) :: dstrain
         logical :: nonnetwork_flag
-        real(8) :: boxp_set, xyp_set, xp_set, yp_set, stress_set
+        real(8) :: boxp_set, xp_set, yp_set, stress_set
         logical :: cp_flag, boxcp_flag, xycp_flag, xcp_flag, ycp_flag
         logical :: cs_flag
 
@@ -390,7 +390,7 @@ contains
 
         real(8) :: dstrain
         logical :: nonnetwork_flag
-        real(8) :: boxp_set, xyp_set, xp_set, yp_set, stress_set
+        real(8) :: boxp_set, xp_set, yp_set, stress_set
         logical :: cp_flag, boxcp_flag, xycp_flag, xcp_flag, ycp_flag
         logical :: cs_flag
 

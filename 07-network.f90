@@ -123,7 +123,7 @@ contains
 
         ! local
         integer :: i, j, k, ii
-        real(8) :: dra(free), rij2, dij
+        real(8) :: dra(free), rij2
         integer :: cory, iround(free)
 
         associate(                   &
@@ -181,8 +181,8 @@ contains
         real(8),         optional      :: oph, opketa, opa, opb
 
         ! local
-        integer :: i, itemp
-        real(8) :: ktan, h, temp
+        integer :: i
+        real(8) :: temp
         integer :: casenu
         integer, allocatable, dimension(:) :: perm
 
@@ -251,8 +251,7 @@ contains
         real(8), dimension(free) :: tdra
 
         ! local
-        integer :: i, j, k, ii
-        real(8) :: rij2, dij
+        integer :: i, j, k
         integer :: cory, iround(free)
 
         associate(                   &
@@ -310,7 +309,7 @@ contains
         ! local
         integer :: ii, i, j
         real(8) :: lnow, dra(free)
-        real(8) :: ks, Es, l0
+        real(8) :: ks, l0
 
         associate(                    &
             nsps   => tnetwork%nsps,  &
@@ -485,7 +484,7 @@ contains
 
         ! local
         integer :: i, j, k, ii
-        real(8) :: dra(free), rij2, dij, ks
+        real(8) :: dra(free), ks
         integer :: cory, iround(free)
 
         associate(                   &
@@ -538,7 +537,7 @@ contains
         type(tpnetwork) :: tnetwork
         type(tpcon) :: tcon
 
-        integer :: i, j, k, ibin
+        integer :: i, j, ibin
         real(8) :: l
 
         tkvcorr%cum_n = 0

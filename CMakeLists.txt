@@ -19,6 +19,7 @@ set (CMAKE_Fortran_FLAGS "-O3 ")
 
 # debug
 #set ( CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -O0 -g -C" )
+#set ( CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -Wunused-variable" )
 
 if ( "${CMAKE_Fortran_COMPILER_ID}" STREQUAL "GNU" )
     set ( CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -llapack -ffree-line-length-none" )

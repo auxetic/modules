@@ -309,7 +309,7 @@ contains
         real(8), dimension(free) :: rai, raj, dra
         real(8) :: ri, rj, rij2, rij, dij, fr, wij, wili, wilix, wiliy
         integer :: iround(free), cory
-        integer :: i, j, k, jj
+        integer :: i, j, k
 
         associate(                 &
             natom  => tcon%natom,  &
@@ -399,9 +399,9 @@ contains
 
         ! local
         real(8), dimension(free) :: rai, raj, dra
-        real(8) :: ri, rij2, rij, dij, l0, fr, wij, wili, wilix, wiliy, ks
+        real(8) :: rij2, rij, l0, fr, wij, wili, wilix, wiliy, ks
         integer :: iround(free), cory
-        integer :: i, j, k, ii, jj
+        integer :: i, j, k, ii
 
         associate(                 &
             natom  => tcon%natom,  &

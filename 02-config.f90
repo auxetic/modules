@@ -56,7 +56,6 @@ contains
 
         ! local
         integer :: i, j
-        real(8) :: seed_temp
 
         ! initialized rand
         call init_rand(tseed)
@@ -117,7 +116,7 @@ contains
         real(8),     intent(in), optional :: tphi
 
         ! local
-        integer :: nxy, i, j, k, ii, jj
+        integer :: nxy, i, ii, jj
         real(8) :: a, b
         real(8), parameter :: xyoffset = 1.d-2
 
@@ -168,6 +167,80 @@ contains
             end do
 
         end associate
+    end subroutine
+
+    subroutine gen_lattice_fcc( tcon, tphi )
+        implicit none
+
+        ! var list
+        type(tpcon), intent(inout)        :: tcon
+        real(8),     intent(in), optional :: tphi
+
+        ! local
+        integer :: nxyz, i, ii, jj, kk
+        real(8) :: a, sdisk, volume
+        real(8), parameter :: xyzoffset = 1.d-2
+
+        if ( present( tphi ) ) tcon%phi = tphi
+
+        associate(                &
+            natom  => tcon%natom, &
+            ra     => tcon%ra,    &
+            r      => tcon%r,     &
+            la     => tcon%la,    &
+            lainv  => tcon%lainv, &
+            lx     => tcon%lx,    &
+            ly     => tcon%ly,    &
+            lz     => tcon%lz,    &
+            lxinv  => tcon%lxinv, &
+            lyinv  => tcon%lyinv, &
+            lzinv  => tcon%lzinv, &
+            strain => tcon%strain &
+            )
+
+            ! radius
+            r = 0.5d0
+
+            ! box length
+            sdisk = sqrt(pi**free) / gamma(dble(free)/2.d0+1) * sum(r**free)
+            volume = sdisk / tcon%phi
+            la = volume**(1.d0/3.d0)
+            la = 1.d0 / la
+            lx = la(1); lxinv = 1.d0 / lx
+            ly = la(2); lyinv = 1.d0 / ly
+            lz = la(3); lzinv = 1.d0 / lz
+            strain = 0.d0
+
+            ! primitive cell
+            nxyz = nint( dble(natom/2)**(1.d0/3.d0) )
+            if ( 2*nxyz**3 /= natom ) then
+                print*, "wrong natom"; stop
+            end if
+            a = lx / nxyz
+
+            ! config
+            i = 0
+            do ii=1, nxyz
+                do jj=1, nxyz
+                    do kk=1, nxyz
+                        i = i + 1
+                        ra(1,i) = (ii-1) * a
+                        ra(2,i) = (ii-1) * a
+                        ra(3,i) = (ii-1) * a
+                        i = i + 1
+                        ra(1,i) = (ii-1+0.5) * a
+                        ra(2,i) = (ii-1+0.5) * a
+                        ra(3,i) = (ii-1+0.5) * a
+                    end do
+                end do
+            end do
+
+            do i=1, natom
+                ra(:,i) = ra(:,i) + xyzoffset
+            end do
+        end associate
+
+        call trim_config( tcon )
     end subroutine
 
     subroutine read_config( tcon, tfilename, tnatom, tphi )
@@ -321,7 +394,7 @@ contains
         ! local
         real(8) :: temp
         integer :: iround(free), cory
-        integer :: i, j, k
+        integer :: i, k
 
         associate(                &
             natom  => tcon%natom, &
@@ -365,7 +438,6 @@ contains
         class(tpcon), intent(in) :: this
         real(8) :: re
         real(8) :: sdisk, volume
-        integer :: i
 
         volume = product( this%la(1:free) )
 
@@ -387,7 +459,7 @@ contains
         integer,     intent(in)    :: tn
 
         ! local
-        integer :: i, j, k, testi
+        integer :: i, testi
         integer :: flag
         real(8) :: temp, dij
 

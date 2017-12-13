@@ -146,7 +146,7 @@ contains
         ! local
         real(8) :: dra(free), rai(free), raj(free), ri, rj, rij2, dij
         integer :: cory, iround(free)
-        integer :: i, j, k, jj, itemp
+        integer :: i, j, k, jj
 
         if ( allocated( tnb%nbi ) .and. size(tnb%nbi) /= tcon%natom ) then
             deallocate( tnb%nbi )
@@ -217,7 +217,7 @@ contains
 
         ! local
         real(8) :: maxdis, dra(free), dr2
-        integer :: i, j
+        integer :: i
 
         associate(               &
             natom => tcon%natom, &
@@ -363,8 +363,7 @@ contains
         real(8), dimension(ncan) :: px, py, ps
         integer, dimension(ncan) :: tag
 
-        integer :: i, j, imin
-        real(8) :: minvalue
+        integer :: i, imin
 
         do i=1, ncan-1
 

@@ -45,8 +45,6 @@ contains
         real(8), allocatable, dimension(:,:) :: tradisorder
         real(8) :: teta
 
-        integer :: i
-
         associate( ra => tcon%ra )
 
             ra = ra + teta * tradisorder

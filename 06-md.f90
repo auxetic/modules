@@ -43,10 +43,6 @@ contains
         ! para list
         type(tpcon), intent(inout) :: tcon
 
-        ! local
-        integer :: i, j
-        real(8) :: temp
-
         associate(                 &
             natom => tcon%natom,   &
             va    => tcon%va,      &

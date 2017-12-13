@@ -127,9 +127,9 @@ contains
 
         ! local
         real(8) :: rx, ry, rxx, rxy, ryy
-        real(8) :: rex, rey, res
-        real(8) :: rexx, rexy, reyx, reyy, resx, resy
-        real(8) :: rexex, rexey, rexes, reyey, reyes, reses
+        real(8) :: res
+        real(8) :: resx, resy
+        real(8) :: reses
 
         real(8) :: mij(free,free)
         real(8) :: mies(free)
@@ -741,7 +741,7 @@ contains
         ! local
         integer :: i, j
         real(8) :: dra(free), rij, rij2, rij3, rij5, dij, xi, xj, yi, yj
-        real(8) :: vr, vrr, vrrr
+        real(8) :: vr, vrr!, vrr
         real(8) :: rx, ry
         real(8) :: rxx, ryy, rxy
         real(8) :: rxxx, rxxy, rxyy, ryyy

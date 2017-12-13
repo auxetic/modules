@@ -70,7 +70,7 @@ contains
         implicit none
 
         real(8), intent(in), dimension(:) :: a
-        integer :: i, ilen
+        integer :: ilen
         real(8) :: mean_of_a, re
 
         ilen = size(a)
