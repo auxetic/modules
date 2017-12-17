@@ -22,6 +22,22 @@ contains
         end do
     end function
 
+    function randuvec(n) result(uvec)
+        implicit none
+
+        integer, intent(in) :: n
+        real(8) :: uvec(n)
+
+        call random_number(uvec)
+        uvec = 2 * uvec - 1.d0
+        do while ( norm2(uvec) > 1.d0 )
+            call random_number(uvec)
+            uvec = 2 * uvec - 1.d0
+        end do
+        
+        uvec = uvec / norm2(uvec)
+    end function
+
     subroutine swapr(x, y)
         implicit none
 

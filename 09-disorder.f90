@@ -9,6 +9,7 @@ module mo_disorder
 contains
 
     subroutine init_disorder( tradisorder, tcon, tseed )
+        use mo_math, only: randuvec
         implicit none
 
         type(tpcon) :: tcon
@@ -27,12 +28,7 @@ contains
             if( .not. allocated(radisorder) ) allocate( radisorder(free,natom) )
 
             do i=1, natom
-                call random_number(temp)
-                temp = temp * 2.d0 * pi
-                radisorder(1,i) = cos(temp)
-                radisorder(2,i) = sin(temp)
-                !radisorder(1,i) = 2.0 * rand(0) - 1.0
-                !radisorder(2,i) = 2.0 * rand(0) - 1.0
+                radisorder(:,i) = randuvec(free)
             end do
 
         end associate
