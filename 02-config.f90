@@ -21,7 +21,7 @@ module mo_config
         ! sets
         real(8) :: T
         ! property
-        real(8) :: Ea, Ek, Ev, stress, press, pressx, pressy
+        real(8) :: Ea, Ek, Ev, stress, press, pressxyz(free)
     contains
         procedure :: dra => calc_dra
         procedure :: len => calc_len

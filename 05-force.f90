@@ -22,31 +22,29 @@ contains
         type(tplist) :: tnb
 
         real(8), dimension(free) :: rai, raj, dra
-        real(8) :: ri, rj, rij2, rij, dij, fr, wij, wili, wilix, wiliy
+        real(8) :: ri, rj, rij2, rij, dij, fr, wij, wili, wilixyz(free)
         integer :: iround(free), cory
         integer :: i, j, k, jj
 
-        associate(                 &
-            natom  => tcon%natom,  &
-            radius => tcon%r,      &
-            ra     => tcon%ra,     &
-            fa     => tcon%fa,     &
-            Ea     => tcon%Ea,     &
-            la     => tcon%la,     &
-            lainv  => tcon%lainv,  &
-            strain => tcon%strain, &
-            stress => tcon%stress, &
-            press  => tcon%press,  &
-            pressx => tcon%pressx, &
-            pressy => tcon%pressy, &
-            list   => tnb%list     &
+        associate(                     &
+            natom    => tcon%natom,    &
+            radius   => tcon%r,        &
+            ra       => tcon%ra,       &
+            fa       => tcon%fa,       &
+            Ea       => tcon%Ea,       &
+            la       => tcon%la,       &
+            lainv    => tcon%lainv,    &
+            strain   => tcon%strain,   &
+            stress   => tcon%stress,   &
+            press    => tcon%press,    &
+            pressxyz => tcon%pressxyz, &
+            list     => tnb%list       &
             )
 
             Ea     = 0.d0
             fa     = 0.d0
-            press  = 0.d0; pressx = 0.d0; pressy = 0.d0
             stress = 0.d0
-            wili   = 0.d0; wilix  = 0.d0; wiliy  = 0.d0
+            wili   = 0.d0; wilixyz = 0.d0
 
             do i=1, natom
 
@@ -86,8 +84,7 @@ contains
                     fa(:,j) = fa(:,j) + fr * dra
                     fa(:,i) = fa(:,i) - fr * dra
 
-                    wilix = wilix + fr * dra(1)**2
-                    wiliy = wiliy + fr * dra(2)**2
+                    wilixyz = wilixyz + fr * dra(:)**2
 
                     stress = stress - 2 * dra(1) * dra(2) * fr
 
@@ -95,10 +92,9 @@ contains
 
             end do
 
-            stress = stress * product(lainv) / free
-            press  = wili   * product(lainv) / free
-            pressx = wilix  * product(lainv)
-            pressy = wiliy  * product(lainv)
+            stress   = stress  * product(lainv) / free
+            press    = wili    * product(lainv) / free
+            pressxyz = wilixyz * product(lainv)
 
         end associate
     end subroutine
@@ -110,39 +106,37 @@ contains
         type(tplist) :: tnb
 
         ! gel
-        real(8), parameter :: rcut = 0.02d0
-        real(8), parameter :: kout = 10.d0
+        real(8), parameter :: rcut = 0.1d0
+        real(8), parameter :: kout = 0.5d0
         real(8) :: rc
 
         real(8), dimension(free) :: rai, raj, dra
-        real(8) :: ri, rj, rij2, rij, dij, fr, wij, wili, wilix, wiliy
+        real(8) :: ri, rj, rij2, rij, dij, fr, wij, wili, wilixyz(free)
         real(8) :: dijrcut, dijrc
         integer :: iround(free), cory
         integer :: i, j, k, jj
 
         rc = rcut * kout / ( 1.d0 + kout )
 
-        associate(                 &
-            natom  => tcon%natom,  &
-            radius => tcon%r,      &
-            ra     => tcon%ra,     &
-            fa     => tcon%fa,     &
-            Ea     => tcon%Ea,     &
-            la     => tcon%la,     &
-            lainv  => tcon%lainv,  &
-            strain => tcon%strain, &
-            stress => tcon%stress, &
-            press  => tcon%press,  &
-            pressx => tcon%pressx, &
-            pressy => tcon%pressy, &
-            list   => tnb%list     &
+        associate(                     &
+            natom    => tcon%natom,    &
+            radius   => tcon%r,        &
+            ra       => tcon%ra,       &
+            fa       => tcon%fa,       &
+            Ea       => tcon%Ea,       &
+            la       => tcon%la,       &
+            lainv    => tcon%lainv,    &
+            strain   => tcon%strain,   &
+            stress   => tcon%stress,   &
+            press    => tcon%press,    &
+            pressxyz => tcon%pressxyz, &
+            list     => tnb%list       &
             )
 
             Ea     = 0.d0
             fa     = 0.d0
-            press  = 0.d0; pressx = 0.d0; pressy = 0.d0
             stress = 0.d0
-            wili   = 0.d0; wilix  = 0.d0; wiliy  = 0.d0
+            wili   = 0.d0; wilixyz = 0.d0
 
             do i=1, natom
 
@@ -191,8 +185,7 @@ contains
                     fa(:,j) = fa(:,j) + fr * dra
                     fa(:,i) = fa(:,i) - fr * dra
 
-                    wilix = wilix + fr * dra(1)**2
-                    wiliy = wiliy + fr * dra(2)**2
+                    wilixyz = wilixyz + fr * dra(:)**2
 
                     stress = stress - 2 * dra(1) * dra(2) * fr
 
@@ -200,10 +193,9 @@ contains
 
             end do
 
-            stress = stress * product(lainv) / free
-            press  = wili   * product(lainv) / free
-            pressx = wilix  * product(lainv)
-            pressy = wiliy  * product(lainv)
+            stress   = stress  * product(lainv) / free
+            press    = wili    * product(lainv) / free
+            pressxyz = wilixyz * product(lainv)
 
         end associate
     end subroutine
@@ -215,32 +207,30 @@ contains
         type(tplist) :: tnb
 
         real(8), dimension(free) :: rai, raj, dra
-        real(8) :: ri, rj, rij2, rij, dij, fr, wij, wili, wilix, wiliy
+        real(8) :: ri, rj, rij2, rij, dij, fr, wij, wili, wilixyz(free)
         integer :: iround(free), cory
         integer :: i, j, k, jj
 
-        associate(                   &
-            natom   => tcon%natom,   &
-            radius  => tcon%r,       &
-            ra      => tcon%ra,      &
-            fa      => tcon%fa,      &
-            pinflag => tcon%pinflag, &
-            Ea      => tcon%Ea,      &
-            la      => tcon%la,      &
-            lainv   => tcon%lainv,   &
-            strain  => tcon%strain,  &
-            stress  => tcon%stress,  &
-            press   => tcon%press,   &
-            pressx  => tcon%pressx,  &
-            pressy  => tcon%pressy,  &
-            list    => tnb%list      &
+        associate(                     &
+            natom    => tcon%natom,    &
+            radius   => tcon%r,        &
+            ra       => tcon%ra,       &
+            fa       => tcon%fa,       &
+            pinflag  => tcon%pinflag,  &
+            Ea       => tcon%Ea,       &
+            la       => tcon%la,       &
+            lainv    => tcon%lainv,    &
+            strain   => tcon%strain,   &
+            stress   => tcon%stress,   &
+            press    => tcon%press,    &
+            pressxyz => tcon%pressxyz, &
+            list     => tnb%list       &
             )
 
             Ea     = 0.d0
             fa     = 0.d0
-            press  = 0.d0; pressx = 0.d0; pressy = 0.d0
             stress = 0.d0
-            wili   = 0.d0; wilix  = 0.d0; wiliy  = 0.d0
+            wili   = 0.d0; wilixyz = 0.d0
 
             do i=1, natom
 
@@ -281,8 +271,7 @@ contains
                     fa(:,i) = fa(:,i) - fr * dra
 
                     if ( pinflag(i) == 0 .and. pinflag(j) == 0 ) then
-                        wilix = wilix + fr * dra(1)**2
-                        wiliy = wiliy + fr * dra(2)**2
+                        wilixyz = wilixyz + fr * dra(:)**2
 
                         stress = stress - 2 * dra(1) * dra(2) * fr
                     end if
@@ -291,10 +280,9 @@ contains
 
             end do
 
-            stress = stress * product(lainv) / free
-            press  = wili   * product(lainv) / free
-            pressx = wilix  * product(lainv)
-            pressy = wiliy  * product(lainv)
+            stress   = stress  * product(lainv) / free
+            press    = wili    * product(lainv) / free
+            pressxyz = wilixyz * product(lainv)
 
         end associate
     end subroutine
@@ -307,30 +295,28 @@ contains
 
         ! local
         real(8), dimension(free) :: rai, raj, dra
-        real(8) :: ri, rj, rij2, rij, dij, fr, wij, wili, wilix, wiliy
+        real(8) :: ri, rj, rij2, rij, dij, fr, wij, wili, wilixyz(free)
         integer :: iround(free), cory
         integer :: i, j, k
 
-        associate(                 &
-            natom  => tcon%natom,  &
-            radius => tcon%r,      &
-            ra     => tcon%ra,     &
-            fa     => tcon%fa,     &
-            Ea     => tcon%Ea,     &
-            la     => tcon%la,     &
-            lainv  => tcon%lainv,  &
-            strain => tcon%strain, &
-            stress => tcon%stress, &
-            press  => tcon%press,  &
-            pressx => tcon%pressx, &
-            pressy => tcon%pressy  &
+        associate(                    &
+            natom    => tcon%natom,   &
+            radius   => tcon%r,       &
+            ra       => tcon%ra,      &
+            fa       => tcon%fa,      &
+            Ea       => tcon%Ea,      &
+            la       => tcon%la,      &
+            lainv    => tcon%lainv,   &
+            strain   => tcon%strain,  &
+            stress   => tcon%stress,  &
+            press    => tcon%press,   &
+            pressxyz => tcon%pressxyz &
             )
 
             Ea     = 0.d0
             fa     = 0.d0
-            press  = 0.d0; pressx = 0.d0; pressy = 0.d0
             stress = 0.d0
-            wili   = 0.d0; wilix  = 0.d0; wiliy  = 0.d0
+            wili   = 0.d0; wilixyz = 0.d0
 
             do i=1, natom
 
@@ -370,8 +356,7 @@ contains
 
                     fr = wij / rij2
 
-                    wilix = wilix + fr * dra(1)**2
-                    wiliy = wiliy + fr * dra(2)**2
+                    wilixyz = wilixyz + fr * dra(1)**2
 
                     fa(:,j) = fa(:,j) + fr * dra
                     fa(:,i) = fa(:,i) - fr * dra
@@ -382,10 +367,9 @@ contains
 
             end do
 
-            stress = stress * product(lainv) / free
-            press  = wili   * product(lainv) / free
-            pressx = wilix  * product(lainv)
-            pressy = wiliy  * product(lainv)
+            stress   = stress  * product(lainv) / free
+            press    = wili    * product(lainv) / free
+            pressxyz = wilixyz * product(lainv)
 
         end associate
     end subroutine
@@ -399,32 +383,30 @@ contains
 
         ! local
         real(8), dimension(free) :: rai, raj, dra
-        real(8) :: rij2, rij, l0, fr, wij, wili, wilix, wiliy, ks
+        real(8) :: rij2, rij, l0, fr, wij, wili, wilixyz(free), ks
         integer :: iround(free), cory
         integer :: i, j, k, ii
 
-        associate(                 &
-            natom  => tcon%natom,  &
-            radius => tcon%r,      &
-            ra     => tcon%ra,     &
-            fa     => tcon%fa,     &
-            Ea     => tcon%Ea,     &
-            la     => tcon%la,     &
-            lainv  => tcon%lainv,  &
-            strain => tcon%strain, &
-            stress => tcon%stress, &
-            press  => tcon%press,  &
-            pressx => tcon%pressx, &
-            pressy => tcon%pressy, &
-            list   => tnet%sps,    &
-            nlist  => tnet%nsps    &
+        associate(                     &
+            natom    => tcon%natom,    &
+            radius   => tcon%r,        &
+            ra       => tcon%ra,       &
+            fa       => tcon%fa,       &
+            Ea       => tcon%Ea,       &
+            la       => tcon%la,       &
+            lainv    => tcon%lainv,    &
+            strain   => tcon%strain,   &
+            stress   => tcon%stress,   &
+            press    => tcon%press,    &
+            pressxyz => tcon%pressxyz, &
+            list     => tnet%sps,      &
+            nlist    => tnet%nsps      &
             )
 
             Ea     = 0.d0
             fa     = 0.d0
-            press  = 0.d0; pressx = 0.d0; pressy = 0.d0
             stress = 0.d0
-            wili   = 0.d0; wilix  = 0.d0; wiliy  = 0.d0
+            wili   = 0.d0; wilixyz = 0.d0
 
             do ii=1, nlist
 
@@ -455,8 +437,7 @@ contains
 
                 fr = wij / rij2
 
-                wilix = wilix + fr * dra(1)**2
-                wiliy = wiliy + fr * dra(2)**2
+                wilixyz = wilixyz + fr * dra(:)**2
 
                 fa(:,j) = fa(:,j) + fr * dra
                 fa(:,i) = fa(:,i) - fr * dra
@@ -465,10 +446,9 @@ contains
 
             end do
 
-            stress = stress * product(lainv) / free
-            press  = wili   * product(lainv) / free
-            pressx = wilix  * product(lainv)
-            pressy = wiliy  * product(lainv)
+            stress   = stress  * product(lainv) / free
+            press    = wili    * product(lainv) / free
+            pressxyz = wilixyz * product(lainv)
 
         end associate
     end subroutine
