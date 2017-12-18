@@ -169,6 +169,78 @@ contains
         end associate
     end subroutine
 
+    subroutine gen_lattice_sc( tcon, tphi )
+        implicit none
+
+        ! var list
+        type(tpcon), intent(inout)        :: tcon
+        real(8),     intent(in), optional :: tphi
+
+        ! local
+        integer :: nxy, i, ii, jj
+        real(8) :: volume, sdisk
+        real(8) :: a, b
+        real(8), parameter :: xyzoffset = 1.d-2
+
+        if ( present( tphi ) ) tcon%phi = tphi
+
+        associate(                &
+            natom  => tcon%natom, &
+            ra     => tcon%ra,    &
+            r      => tcon%r,     &
+            la     => tcon%la,    &
+            lainv  => tcon%lainv, &
+            lx     => tcon%lx,    &
+            ly     => tcon%ly,    &
+            lxinv  => tcon%lxinv, &
+            lyinv  => tcon%lyinv, &
+            strain => tcon%strain &
+            )
+
+            ! sc close packing
+            ! box: 1
+            ! sphere: pi/4
+            ! phi: pi/4 = 0.7853981633974483 <= 0.78540
+
+            ! radius
+            r = 0.5d0
+
+            ! box length
+            sdisk = sqrt(pi**free) / gamma(dble(free)/2.d0+1) * sum(r**free)
+            volume = sdisk / tcon%phi
+            la = volume**(1.d0/2.d0)
+            lainv = 1.d0 / la
+            lx     = la(1)
+            ly     = la(2)
+            lxinv  = lainv(1)
+            lyinv  = lainv(2)
+            strain = 0.d0
+
+            ! cell numbers and unit
+            nxy = nint( sqrt( dble(natom) ) )
+            a   = lx / nxy
+
+            ! config
+            i=0
+            do ii=1, nxy
+                do jj=1, nxy
+                    i = i + 1
+                    ra(1,i) = (ii-1) * a
+                    ra(2,i) = (jj-1) * a
+                end do
+            end do
+
+            do i=1, natom
+                ra(:,i) = ra(:,i) + xyzoffset
+            end do
+
+            do i=1, natom
+                ra(:,i) = ra(:,i) - anint( ra(:,i) * lainv ) * la
+            end do
+
+        end associate
+    end subroutine
+
     subroutine gen_lattice_fcc( tcon, tphi )
         implicit none
 
@@ -198,6 +270,11 @@ contains
             strain => tcon%strain &
             )
 
+            ! fcc close packing
+            ! box: 2 x^2 = 4 => x^3 = 2^1.5
+            ! sphere: 4*4/3*pi*1/8 = 2pi/3
+            ! phi: pi/3/2^0.5 = 0.7404804896930609 <= 0.7404805
+
             ! radius
             r = 0.5d0
 
@@ -205,7 +282,94 @@ contains
             sdisk = sqrt(pi**free) / gamma(dble(free)/2.d0+1) * sum(r**free)
             volume = sdisk / tcon%phi
             la = volume**(1.d0/3.d0)
-            la = 1.d0 / la
+            lainv = 1.d0 / la
+            lx = la(1); lxinv = 1.d0 / lx
+            ly = la(2); lyinv = 1.d0 / ly
+            lz = la(3); lzinv = 1.d0 / lz
+            strain = 0.d0
+
+            ! primitive cell
+            nxyz = nint( dble(natom/4)**(1.d0/3.d0) )
+            if ( 4*nxyz**3 /= natom ) then
+                print*, "wrong natom"; stop
+            end if
+            a = lx / nxyz
+
+            ! config
+            i = 0
+            do ii=1, nxyz
+                do jj=1, nxyz
+                    do kk=1, nxyz
+                        i = i + 1
+                        ra(1,i) = (ii-1) * a
+                        ra(2,i) = (jj-1) * a
+                        ra(3,i) = (kk-1) * a
+                        i = i + 1
+                        ra(1,i) = (ii-1+0.5d0) * a
+                        ra(2,i) = (jj-1+0.5d0) * a
+                        ra(3,i) = (kk-1      ) * a
+                        i = i + 1
+                        ra(1,i) = (ii-1+0.5d0) * a
+                        ra(2,i) = (jj-1      ) * a
+                        ra(3,i) = (kk-1+0.5d0) * a
+                        i = i + 1
+                        ra(1,i) = (ii-1      ) * a
+                        ra(2,i) = (jj-1+0.5d0) * a
+                        ra(3,i) = (kk-1+0.5d0) * a
+                    end do
+                end do
+            end do
+
+            do i=1, natom
+                ra(:,i) = ra(:,i) + xyzoffset
+            end do
+        end associate
+
+        call trim_config( tcon )
+    end subroutine
+
+    subroutine gen_lattice_bcc( tcon, tphi )
+        implicit none
+
+        ! var list
+        type(tpcon), intent(inout)        :: tcon
+        real(8),     intent(in), optional :: tphi
+
+        ! local
+        integer :: nxyz, i, ii, jj, kk
+        real(8) :: a, sdisk, volume
+        real(8), parameter :: xyzoffset = 1.d-2
+
+        if ( present( tphi ) ) tcon%phi = tphi
+
+        associate(                &
+            natom  => tcon%natom, &
+            ra     => tcon%ra,    &
+            r      => tcon%r,     &
+            la     => tcon%la,    &
+            lainv  => tcon%lainv, &
+            lx     => tcon%lx,    &
+            ly     => tcon%ly,    &
+            lz     => tcon%lz,    &
+            lxinv  => tcon%lxinv, &
+            lyinv  => tcon%lyinv, &
+            lzinv  => tcon%lzinv, &
+            strain => tcon%strain &
+            )
+
+            ! bcc close packing
+            ! box: 3*x^2 = 4 => x^3 = (4/3)^1.5
+            ! shperes: 2*4/3*pi/8 = pi / 3
+            ! phi: pi / 3 / (4/3)^1.5 = 0.6801747615878317 <= 0.680175
+
+            ! radius
+            r = 0.5d0
+
+            ! box length
+            sdisk = sqrt(pi**free) / gamma(dble(free)/2.d0+1) * sum(r**free)
+            volume = sdisk / tcon%phi
+            la = volume**(1.d0/3.d0)
+            lainv = 1.d0 / la
             lx = la(1); lxinv = 1.d0 / lx
             ly = la(2); lyinv = 1.d0 / ly
             lz = la(3); lzinv = 1.d0 / lz
@@ -225,12 +389,12 @@ contains
                     do kk=1, nxyz
                         i = i + 1
                         ra(1,i) = (ii-1) * a
-                        ra(2,i) = (ii-1) * a
-                        ra(3,i) = (ii-1) * a
+                        ra(2,i) = (jj-1) * a
+                        ra(3,i) = (kk-1) * a
                         i = i + 1
                         ra(1,i) = (ii-1+0.5) * a
-                        ra(2,i) = (ii-1+0.5) * a
-                        ra(3,i) = (ii-1+0.5) * a
+                        ra(2,i) = (jj-1+0.5) * a
+                        ra(3,i) = (kk-1+0.5) * a
                     end do
                 end do
             end do
@@ -529,7 +693,11 @@ subroutine save_config_to( tcon, tfilename )
             write(901,'(3es26.16)') dble(natom), tcon%phi, 0.d0
             write(901,'(3es26.16)') la, strain
             do i=1, natom
-                write(901,'(3es26.16)') ra(:,i), r(i)
+                if ( free == 3 ) then
+                    write(901,'(4es26.16)') ra(:,i), r(i)
+                elseif( free == 2 ) then
+                    write(901,'(3es26.16)') ra(:,i), r(i)
+                end if
             end do
         close(901)
 

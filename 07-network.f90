@@ -39,7 +39,7 @@ contains
             )
 
             natom = tcon%natom
-            max_of_springs = natom * 10
+            max_of_springs = natom * 15
             allocate( tnetwork%sps(max_of_springs) )
             allocate( tnetwork%kvec(free,natom) )
 
@@ -91,7 +91,6 @@ contains
                     dij = r(i) + r(j)
 
                     if ( rij2 > dij**2 ) cycle
-
                     nsps             = nsps + 1
                     sps(nsps)%i      = i
                     sps(nsps)%j      = j
@@ -104,7 +103,6 @@ contains
                     sps(nsps)%Gi     = 0.d0
                     sps(nsps)%Gis    = 0.d0
                     sps(nsps)%Gixy   = 0.d0
-
                 end do
             end do
 

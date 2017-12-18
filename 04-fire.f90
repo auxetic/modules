@@ -156,11 +156,11 @@ contains
                 temp = maxval( abs(fa) )
                 if ( temp < fmax ) exit
 
-               !if( step == 1 ) write(*,*) 'step', '    dt         ', '              fmax   '
+                !if( step == 1 ) write(*,*) 'step', '    dt         ', '              fmax   '
 
-               !if( mod(step,1) == 0 ) then
-               !    write(*,'(i6,2e25.15)') step, dt, tcon%stress
-               !end if
+                !if( mod(step,1) == 0 ) then
+                !    write(*,'(i6,2e25.15)') step, dt, temp
+                !end if
 
             end do
 
