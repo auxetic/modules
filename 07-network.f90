@@ -167,8 +167,8 @@ contains
         end associate
     end subroutine
 
-    subroutine change_k_spring( tnetwork, tcon, opcase, opktan, oph, opa, opb, opketa )
-        use mo_math, only: randperm
+    subroutine change_k_spring( tnetwork, tcon, opcase, opktan, oph, opa, opb, opketa, oprratio )
+        use mo_math, only: randperm, qsort
         implicit none
 
         ! para list
@@ -176,13 +176,27 @@ contains
         type(tpcon),     intent(in)    :: tcon
         integer,         optional      :: opcase
         real(8),         optional      :: opktan
-        real(8),         optional      :: oph, opketa, opa, opb
+        real(8),         optional      :: oph, opketa, opa, opb, oprratio
 
         ! local
         integer :: i
         real(8) :: temp
         integer :: casenu
         integer, allocatable, dimension(:) :: perm
+        real(8) :: a, b, rratio
+
+        a = 1.d0
+        if ( present(opa) ) then
+           a = opa
+        end if
+        b = 1.d0
+        if ( present(opb) ) then
+           b = opb
+        end if
+        rratio = 0.5d0
+        if ( present(oprratio) ) then
+           rratio = oprratio
+        end if
 
         associate(                 &
             nsps => tnetwork%nsps, &
@@ -215,26 +229,41 @@ contains
             ! 3. ks = 1.0 + a * tanh( b * ( l-1.0 ) )
             case(3)
                 do i=1, nsps
-                    net(i)%ks = 1.d0 + opa * tanh( opb * ( net(i)%l0 - 1.d0 ) )
+                    net(i)%ks = 1.d0 + a * tanh( b * ( net(i)%l0 - 1.d0 ) )
                 end do
             ! 3.1 ks = 1.0 + a * tanh( b * ( l-l0 ) )
             case(31)
                 do i=1, nsps
-                    net(i)%ks = 1.d0 + opa * tanh( opb * net(i)%vdl )
+                    net(i)%ks = 1.d0 + a * tanh( b * net(i)%vdl )
                 end do
             ! 4. ks = 3 + randperm
             case(4)
                 perm = randperm(nsps)
                 do i=1, nsps
-                    net(i)%ks = 1.d0 + opa * tanh( opb * ( net(perm(i))%l0 - 1.d0 ) )
+                    net(i)%ks = 1.d0 + a * tanh( b * ( net(perm(i))%l0 - 1.d0 ) )
                 end do
                 deallocate(perm)
             ! 5. ks -> f( l - l_aver )
             case(5)
                 temp = sum( net(1:nsps)%l0 ) / nsps
                 do i=1, nsps
-                    net(i)%ks = 1.d0 + opa * tanh( opb * ( net(i)%l0 - temp ) )
+                    net(i)%ks = 1.d0 + a * tanh( b * ( net(i)%l0 - temp ) )
                 end do
+            ! 6. 4+5
+            case(6)
+                perm = randperm(nsps)
+                temp = sum( net(1:nsps)%l0 ) / nsps
+                do i=1, nsps
+                    net(i)%ks = 1.d0 + a * tanh( b * ( net(perm(i))%l0 - temp ) )
+                end do
+                deallocate(perm)
+            case(61)
+                perm = qsort( nsps, net(1:nsps)%l0 )
+                temp = net(perm(nint(nsps*rratio)))%l0
+                do i=1, nsps
+                    net(i)%ks = 1.d0 + a * tanh( b * ( net(perm(i))%l0 - temp ) )
+                end do
+                deallocate(perm)
             end select
         end associate
     end subroutine
@@ -262,7 +291,6 @@ contains
             nsps   => tnetwork%nsps, &
             sps    => tnetwork%sps   &
             )
-
 
             i = sps(tibond)%i
             j = sps(tibond)%j
