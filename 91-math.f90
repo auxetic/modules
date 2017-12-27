@@ -380,4 +380,41 @@ contains
         !     all done
     end function
 
+    pure function calc_angle( vec1, vec2 ) result(angle)
+        ! calc angle of vec1 and vec2
+        implicit none
+
+        real(8), dimension(2), intent(in) :: vec1, vec2
+        real(8) :: angle
+
+        complex :: v1, v2, v3
+
+        v1 = cmplx(vec1(1),vec1(2))
+        v2 = cmplx(vec2(1),vec2(2))
+
+        v3 = v2 / v1
+
+        angle = atan2(aimag(v3),real(v3))
+    end function
+
+    pure function calc_drangle( vec1, vec2 ) result(angle)
+        ! calc angle of vec1 and (vec2-vec1)
+        implicit none
+
+        real(8), dimension(2), intent(in) :: vec1, vec2
+        real(8) :: angle
+
+        real(8), dimension(2) :: vec3
+        complex :: v1, v2, v3
+
+        vec3 = vec2 - vec1
+
+        v1 = cmplx(vec1(1),vec1(2))
+        v2 = cmplx(vec3(1),vec3(2))
+
+        v3 = v2 / v1
+
+        angle = atan2(aimag(v3),real(v3))
+    end function
+
 end module
