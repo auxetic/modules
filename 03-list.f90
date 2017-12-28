@@ -356,7 +356,7 @@ contains
     end subroutine
 
     subroutine sortps( px, py, ps, tag, ncan )
-        use mo_math, only: swapr, swapi
+        use mo_math, only: swap
         implicit none
 
         integer :: ncan
@@ -370,10 +370,10 @@ contains
             imin = minloc( ps(i:ncan), 1 ) + i - 1
             if ( i == imin ) cycle
 
-            call swapr( px(i),  px(imin)  )
-            call swapr( py(i),  py(imin)  )
-            call swapr( ps(i),  ps(imin)  )
-            call swapi( tag(i), tag(imin) )
+            call swap( px(i),  px(imin)  )
+            call swap( py(i),  py(imin)  )
+            call swap( ps(i),  ps(imin)  )
+            call swap( tag(i), tag(imin) )
 
         end do
     end subroutine

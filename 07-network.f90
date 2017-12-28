@@ -168,7 +168,7 @@ contains
     end subroutine
 
     subroutine change_k_spring( tnetwork, tcon, opcase, opktan, oph, opa, opb, opketa, oprratio )
-        use mo_math, only: randperm, qsort
+        use mo_math, only: randperm, sortperm
         implicit none
 
         ! para list
@@ -258,7 +258,7 @@ contains
                 end do
                 deallocate(perm)
             case(61)
-                perm = qsort( nsps, net(1:nsps)%l0 )
+                perm = sortperm( nsps, net(1:nsps)%l0 )
                 temp = net(perm(nint(nsps*rratio)))%l0
                 do i=1, nsps
                     net(i)%ks = 1.d0 + a * tanh( b * ( net(perm(i))%l0 - temp ) )

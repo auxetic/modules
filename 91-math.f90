@@ -1,7 +1,28 @@
 module mo_math
     implicit none
 
+    interface swap
+        module procedure :: swap_real8, swap_integer
+    end interface
+
+    interface atan2
+        module procedure :: atan2_complex
+    end interface
+
 contains
+
+    subroutine init_rand(seed)
+        implicit none
+
+        integer :: seed
+        integer :: n
+        integer, allocatable, dimension(:) :: seed_array
+
+        call random_seed(size=n)
+        allocate( seed_array(n) )
+        seed_array = seed
+        call random_seed(put=seed_array)
+    end subroutine
 
     function randperm(n) result(redata)
         implicit none
@@ -38,40 +59,29 @@ contains
         uvec = uvec / norm2(uvec)
     end function
 
-    subroutine swapr(x, y)
-        implicit none
+    ! swap >
+        subroutine swap_real8(x, y)
+            implicit none
 
-        real(8), intent(inout) :: x, y
-        real(8) :: tmp
+            real(8), intent(inout) :: x, y
+            real(8) :: tmp
 
-        tmp = x
-        x   = y
-        y   = tmp
-    end subroutine
+            tmp = x
+            x   = y
+            y   = tmp
+        end subroutine
 
-    subroutine swapi(x, y)
-        implicit none
+        subroutine swap_integer(x, y)
+            implicit none
 
-        integer, intent(inout) :: x, y
-        integer :: tmp
+            integer, intent(inout) :: x, y
+            integer :: tmp
 
-        tmp = x
-        x   = y
-        y   = tmp
-    end subroutine
-
-    subroutine init_rand(seed)
-        implicit none
-
-        integer :: seed
-        integer :: n
-        integer, allocatable, dimension(:) :: seed_array
-
-        call random_seed(size=n)
-        allocate( seed_array(n) )
-        seed_array = seed
-        call random_seed(put=seed_array)
-    end subroutine
+            tmp = x
+            x   = y
+            y   = tmp
+        end subroutine
+    ! swap <
 
     pure function mean(a) result(re)
         implicit none
@@ -153,7 +163,7 @@ contains
         uvector = vector / norm2(vector)
     end function
 
-    function qsort(n, data) result(index)
+    function sortperm(n, data) result(index)
         implicit none
         !===================================================================
         !
@@ -380,24 +390,76 @@ contains
         !     all done
     end function
 
-    pure function calc_angle( vec1, vec2 ) result(angle)
+    recursive subroutine qsort(data)
+        implicit none
+
+        real(8), intent(inout) :: data(:)
+        integer :: iq
+
+        if ( size(data) > 1 ) then
+            call partition_data(data, iq)
+            call qsort(data(:iq-1))
+            call qsort(data(iq:))
+        end if
+        contains
+        subroutine partition_data(pdata, marker)
+            implicit none
+
+            real(8), intent(inout) :: pdata(:)
+            integer, intent(out)   :: marker
+            integer :: i, j
+            real(8) :: pivot
+
+            i=0
+            j=size(pdata)+1
+            pivot = pdata((i+j)/2)
+
+            do while (.true.)
+                i = i + 1
+                j = j - 1
+                do while ( pdata(i) < pivot )
+                   i = i + 1
+                end do
+                do while ( pdata(j) >  pivot )
+                    j = j - 1
+                end do
+                if ( i < j ) then
+                    call swap(pdata(i),pdata(j))
+                else if ( i == j ) then
+                    marker = i + 1; exit
+                else ! i>j
+                    marker = i; exit
+                end if
+            end do
+        end subroutine
+    end subroutine
+
+    pure function atan2_complex(x) result(re)
+        implicit none
+
+        complex(16), intent(in) :: x
+        real(8) :: re
+
+        re = atan2(aimag(x),real(x))
+    end function
+
+    pure function vec_angle( vec1, vec2 ) result(angle)
         ! calc angle of vec1 and vec2
         implicit none
 
         real(8), dimension(2), intent(in) :: vec1, vec2
         real(8) :: angle
 
-        complex :: v1, v2, v3
+        complex(16) :: v1, v2
 
         v1 = cmplx(vec1(1),vec1(2))
         v2 = cmplx(vec2(1),vec2(2))
 
-        v3 = v2 / v1
-
-        angle = atan2(aimag(v3),real(v3))
+        angle = atan2( v2/v1 )
+        !angle = atan2(aimag(v3),real(v3))
     end function
 
-    pure function calc_drangle( vec1, vec2 ) result(angle)
+    pure function dvec_angle( vec1, vec2 ) result(angle)
         ! calc angle of vec1 and (vec2-vec1)
         implicit none
 
@@ -405,16 +467,17 @@ contains
         real(8) :: angle
 
         real(8), dimension(2) :: vec3
-        complex :: v1, v2, v3
+        complex(16) :: v1, v2
 
         vec3 = vec2 - vec1
 
         v1 = cmplx(vec1(1),vec1(2))
         v2 = cmplx(vec3(1),vec3(2))
 
-        v3 = v2 / v1
+        angle = atan2( v2/v1 )
 
-        angle = atan2(aimag(v3),real(v3))
+        !v3 = v2 / v1
+        !angle = atan2(aimag(v3),real(v3))
     end function
 
 end module
