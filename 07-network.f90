@@ -20,6 +20,9 @@ module mo_network
         real(8) :: bcorr, gcorr, kscorr, ksmeancorr
         real(8), allocatable, dimension(:,:) :: kvec
         type(tpspring), allocatable, dimension(:) :: sps
+    contains
+        procedure :: dra => calc_spring_dra
+        procedure :: len => calc_spring_len
     end type
 
     type(tpnetwork) :: net
@@ -268,14 +271,14 @@ contains
         end associate
     end subroutine
 
-    function calc_spring_dra( tcon, tibond, tnetwork  ) result(tdra)
+    function calc_spring_dra( tnetwork, tcon, tibond ) result(tdra)
         implicit none
 
         ! para list
-        type(tpcon), intent(in)     :: tcon
-        integer, intent(in)         :: tibond
-        type(tpnetwork), intent(in) :: tnetwork
-        real(8), dimension(free) :: tdra
+        class(tpnetwork), intent(in) :: tnetwork
+        type(tpcon), intent(in)      :: tcon
+        integer, intent(in)          :: tibond
+        real(8), dimension(free)     :: tdra
 
         ! local
         integer :: i, j, k
@@ -312,17 +315,17 @@ contains
         end associate
     end function
 
-    function calc_spring_len( tcon, tibond, tnetwork  ) result(tl)
+    function calc_spring_len( tnetwork, tcon, tibond ) result(tl)
         implicit none
 
         ! para list
-        type(tpcon), intent(in)     :: tcon
-        integer, intent(in)         :: tibond
-        type(tpnetwork), intent(in) :: tnetwork
+        class(tpnetwork), intent(in) :: tnetwork
+        type(tpcon), intent(in)      :: tcon
+        integer, intent(in)          :: tibond
         real(8) :: dra(free), tl
 
-        dra = calc_spring_dra(tcon, tibond, tnetwork)
-        tl = sqrt(sum(dra**2))
+        dra = calc_spring_dra( tnetwork, tcon, tibond )
+        tl  = norm2(dra)
     end function
 
     subroutine calc_net_E_and_Wili( tnetwork, tcon )
@@ -350,7 +353,7 @@ contains
                 l0 = sps(ii)%l0
                 ks = sps(ii)%ks
 
-                dra  = calc_spring_dra( tcon, ii, tnetwork )
+                dra  = calc_spring_dra( tnetwork, tcon, ii )
                 lnow = sqrt(sum(dra**2))
 
                 sps(ii)%Es     = 0.5d0 * ks * ( lnow - l0 )**2
@@ -388,7 +391,7 @@ contains
                 l0 = sps(ii)%l0
                 ks = sps(ii)%ks
 
-                lnow = calc_spring_len( tcon, ii, tnetwork )
+                lnow = calc_spring_len( tnetwork, tcon, ii )
                 Es = 0.5d0 * ks * ( lnow - l0 )**2
                 sumEs = sumEs + Es
 
@@ -433,7 +436,7 @@ contains
                 l0 = sps(ii)%l0
                 ks = sps(ii)%ks
 
-                lnow = calc_spring_len( tcon, ii, tnetwork )
+                lnow = calc_spring_len( tnetwork, tcon, ii )
                 Es = 0.5d0 * ks * ( lnow - l0 )**2
                 sumEs = sumEs + Es
 
@@ -480,7 +483,7 @@ contains
                 l0 = sps(ii)%l0
                 ks = sps(ii)%ks
 
-                lnow = calc_spring_len( tcon, ii, tnetwork )
+                lnow = calc_spring_len( tnetwork, tcon, ii )
                 Es = 0.5d0 * ks * ( lnow - l0 )**2
                 sumEs = sumEs + Es
 
