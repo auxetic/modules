@@ -23,12 +23,14 @@ module mo_config
         ! property
         real(8) :: Ea, Ek, Ev, stress, press, pressxyz(free)
     contains
-        procedure :: dra => calc_dra
-        procedure :: len => calc_len
-        procedure :: calc_phi => calc_phi
+        procedure :: dra         => calc_dra
+        procedure :: len         => calc_len
+        procedure :: calc_phi    => calc_phi
+        procedure :: concompress => concompress
+        procedure :: conshear    => conshear
     end type
 
-    type(tpcon) :: con, con0, contemp, contemp2
+    type(tpcon) :: con, con0, contemp, contemp1, contemp2
 
 contains
 
@@ -479,7 +481,7 @@ contains
             )
 
             nxy = nint( sqrt( dble(natom) ) )
-            if ( nxy**2 /= natom ) then
+            if ( nxy**2 /= natom .and. mod(nxy,2) == 0 ) then
                 print*, "wrong natom"; stop
             end if
 
@@ -665,6 +667,56 @@ contains
             end do
 
         end associate
+    end subroutine
+
+    subroutine concompress( this, xyz, de, opaffine)
+        implicit none
+
+        ! para list
+        class(tpcon), intent(inout) :: this
+        integer, intent(in) :: xyz
+        real(8), intent(in) :: de
+        logical, optional   :: opaffine
+
+        ! local
+        logical :: affine_flag
+
+        this%la(xyz) = this%la(xyz) * ( 1.d0 - de )
+        this%lainv(xyz) = 1.d0 / this%la(1)
+
+        affine_flag = .true.
+        if ( present(opaffine) .and. ( opaffine .eqv. .false. ) ) affine_flag = .false.
+
+        if ( affine_flag ) then
+            this%ra(xyz,:) = this%ra(xyz,:) * ( 1.d0 - de )
+        end if
+    end subroutine
+
+    subroutine conshear( this, de, opy, opx, opaffine)
+        implicit none
+
+        ! para list
+        class(tpcon), intent(inout) :: this
+        real(8), intent(in) :: de
+        logical, optional   :: opaffine
+        integer, optional   :: opx, opy
+        integer :: x, y
+
+        ! local
+        logical :: affine_flag
+
+        x = 1; y = free
+        if ( present(opx) ) x = opx
+        if ( present(opy) ) y = opy
+
+        this%strain = this%strain + de
+
+        affine_flag = .true.
+        if ( present(opaffine) .and. ( opaffine .eqv. .false. ) ) affine_flag = .false.
+
+        if ( affine_flag ) then
+            this%ra(x,:) = this%ra(x,:) + de * this%ra(y,:)
+        end if
     end subroutine
 
 end module
