@@ -3,6 +3,7 @@ module mo_structure
     use mo_config
     use mo_list
     use mo_math
+    implicit none
 
 contains
 
@@ -17,18 +18,19 @@ contains
         !lcoal
         type(tpvoro) :: voroni
         integer :: i, j, k
-        real(8) :: angle
+        real(8) :: dra(free), angle
 
         call init_voro( voroni, tcon )
         call calc_voro( voroni )
-        
-        do i = 1, tcon%natom
-            psi(i) = (0.0, 0.0)
-            do k = 1, voroni%list(i)%nbsum
+
+        do i=1, tcon%natom
+            psi(i) = cmplx(0.0, 0.0)
+            do k=1, voroni%list(i)%nbsum
                 j      = voroni%list(i)%nblist(k)
-                angle  = atan2( tcon%ra(1,i) - tcon%ra(1,j), tcon%ra(2,i) - tcon%ra(2,j) )
+                dra    = tcon%dra(i,j)
+                angle  = atan2( dra(2), dra(1) )
                 psi(i) = psi(i) + cmplx( cos(n*angle), sin(n*angle) )
-            enddo
+            end do
             psi(i)  = psi(i) / voroni%list(i)%nbsum
         enddo
     end subroutine
