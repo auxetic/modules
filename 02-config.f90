@@ -257,7 +257,7 @@ contains
             ! primitive cell
             nxyz = nint( dble(natom/4)**(1.d0/3.d0) )
             if ( 4*nxyz**3 /= natom ) then
-                print*, "wrong natom"; stop
+                stop "wrong natom"
             end if
             a = la(1) / nxyz
 
@@ -399,7 +399,7 @@ contains
         tcon%phi = pi * sum(tcon%r**2) / product(tcon%la)
     end subroutine
 
-    Pure function calc_box_length(tcon) result(l)
+    pure function calc_box_length(tcon) result(l)
         implicit none
 
         ! var list
@@ -437,7 +437,7 @@ contains
 
             nxy = nint( sqrt( dble(natom) ) )
             if ( nxy**2 /= natom .and. mod(nxy,2) == 0 ) then
-                print*, "wrong natom"; stop
+                stop "wrong natom"
             end if
 
             tla(1) = sqrt( natom * pi / sqrt(12.d0) / phi )
@@ -446,7 +446,7 @@ contains
         end associate
     end function
 
-    function calc_dra( this, ti, tj ) result(dra)
+    pure function calc_dra( this, ti, tj ) result(dra)
         implicit none
 
         ! para list
@@ -488,7 +488,7 @@ contains
         end associate
     end function
 
-    function calc_len( this, ti, tj ) result(tl)
+    pure function calc_len( this, ti, tj ) result(tl)
         implicit none
 
         ! para list
@@ -553,7 +553,7 @@ contains
         end associate
     end subroutine
 
-    Pure function calc_phi(this) result(re)
+    pure function calc_phi(this) result(re)
         implicit none
 
         class(tpcon), intent(in) :: this

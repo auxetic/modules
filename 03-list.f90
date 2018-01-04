@@ -281,7 +281,12 @@ contains
         this%la     = tcon%la
         this%strain = tcon%strain
 
-        allocate( this%list(this%natom) )
+        if( .not. allocated(this%list) ) then
+            allocate( this%list(this%natom) )
+        else if( size(this%list) /= tcon%natom ) then
+            deallocate( this%list )
+            allocate( this%list(tcon%natom) )
+        end if
     end subroutine
 
     subroutine calc_voro( this )

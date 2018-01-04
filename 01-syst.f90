@@ -26,6 +26,7 @@ module mo_var
     integer :: itemp, itemp0, itemp1, itemp2, itemp3, itemp4
     real(8), allocatable, dimension(:)   :: tempvec
     real(8), allocatable, dimension(:,:) :: temparray
+    complex(16), allocatable, dimension(:) :: tempcpxvec
 
     ! main
     real(8) :: testp

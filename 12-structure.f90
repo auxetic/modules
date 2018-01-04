@@ -7,32 +7,36 @@ module mo_structure
 
 contains
 
-    subroutine calc_psi_n( tcon, n, psi )
+    function calc_psi(tcon, n) result(psi)
         implicit none
 
-        !var list
-        type(tpcon),                        intent(in)    :: tcon
-        integer,                            intent(in)    :: n
-        complex(16), dimension(tcon%natom), intent(inout) :: psi
+        ! var list
+        type(tpcon), intent(in) :: tcon
+        integer,     intent(in) :: n
 
-        !lcoal
+        ! result
+        complex(16), dimension(tcon%natom) :: psi
+
+        ! lcoal
         type(tpvoro) :: voroni
-        integer :: i, j, k
-        real(8) :: dra(free), angle
+        real(8)      :: nij(free)
+        complex(16)  :: cpxtemp
+        integer      :: i, j, k
 
         call init_voro( voroni, tcon )
         call calc_voro( voroni )
 
+        psi(:) = cmplx(0.0, 0.0)
+
         do i=1, tcon%natom
-            psi(i) = cmplx(0.0, 0.0)
             do k=1, voroni%list(i)%nbsum
-                j      = voroni%list(i)%nblist(k)
-                dra    = tcon%dra(i,j)
-                angle  = atan2( dra(2), dra(1) )
-                psi(i) = psi(i) + cmplx( cos(n*angle), sin(n*angle) )
+                j       = voroni%list(i)%nblist(k)
+                nij     = unitv( tcon%dra(i,j) )
+                cpxtemp = cmplx(nij(1),nij(2))
+                psi(i)  = psi(i) + cpxtemp**n
             end do
-            psi(i)  = psi(i) / voroni%list(i)%nbsum
         enddo
-    end subroutine
+        psi(:)  = psi(:) / voroni%list(:)%nbsum
+    end function
 
 end module
