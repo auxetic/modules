@@ -12,9 +12,8 @@ module mo_config
 
         ! box
         real(8) :: la(free), lainv(free)
-        real(8) :: lx, ly, lz, lxinv, lyinv, lzinv
-        real(8) :: lav(free), lxv, lyv, lzv
-        real(8) :: laf(free), lxf, lyf, lzf
+        real(8) :: lav(free)
+        real(8) :: laf(free)
         real(8) :: strain
         real(8) :: strainv, strainf
         real(8) :: phi
@@ -73,12 +72,6 @@ contains
             r      => tcon%r,     &
             la     => tcon%la,    &
             lainv  => tcon%lainv, &
-            lx     => tcon%lx,    &
-            lxinv  => tcon%lxinv, &
-            ly     => tcon%ly,    &
-            lyinv  => tcon%lyinv, &
-            lz     => tcon%lz,    &
-            lzinv  => tcon%lzinv, &
             strain => tcon%strain &
             )
 
@@ -89,10 +82,6 @@ contains
             ! box length
             la     = calc_box_length(tcon)
             lainv  = 1.d0 / la
-            lx     = la(1)
-            ly     = la(2)
-            lxinv  = lainv(1)
-            lyinv  = lainv(2)
             strain = 0.d0
 
             ! config
@@ -130,25 +119,17 @@ contains
             r      => tcon%r,     &
             la     => tcon%la,    &
             lainv  => tcon%lainv, &
-            lx     => tcon%lx,    &
-            ly     => tcon%ly,    &
-            lxinv  => tcon%lxinv, &
-            lyinv  => tcon%lyinv, &
             strain => tcon%strain &
             )
 
             ! box length
             la     = calc_box_trianglelattice( tcon )
             lainv  = 1.d0 / la
-            lx     = la(1)
-            ly     = la(2)
-            lxinv  = lainv(1)
-            lyinv  = lainv(2)
             strain = 0.d0
 
             ! cell numbers and unit
             nxy = nint( sqrt( dble(natom) ) )
-            a   = lx / nxy
+            a   = la(1) / nxy
             b   = a * sqrt(3.d0) / 2.d0
 
             ! radius
@@ -192,10 +173,6 @@ contains
             r      => tcon%r,     &
             la     => tcon%la,    &
             lainv  => tcon%lainv, &
-            lx     => tcon%lx,    &
-            ly     => tcon%ly,    &
-            lxinv  => tcon%lxinv, &
-            lyinv  => tcon%lyinv, &
             strain => tcon%strain &
             )
 
@@ -212,15 +189,11 @@ contains
             volume = sdisk / tcon%phi
             la = volume**(1.d0/2.d0)
             lainv = 1.d0 / la
-            lx     = la(1)
-            ly     = la(2)
-            lxinv  = lainv(1)
-            lyinv  = lainv(2)
             strain = 0.d0
 
             ! cell numbers and unit
             nxy = nint( sqrt( dble(natom) ) )
-            a   = lx / nxy
+            a   = la(1) / nxy
 
             ! config
             i=0
@@ -263,12 +236,6 @@ contains
             r      => tcon%r,     &
             la     => tcon%la,    &
             lainv  => tcon%lainv, &
-            lx     => tcon%lx,    &
-            ly     => tcon%ly,    &
-            lz     => tcon%lz,    &
-            lxinv  => tcon%lxinv, &
-            lyinv  => tcon%lyinv, &
-            lzinv  => tcon%lzinv, &
             strain => tcon%strain &
             )
 
@@ -285,17 +252,14 @@ contains
             volume = sdisk / tcon%phi
             la = volume**(1.d0/3.d0)
             lainv = 1.d0 / la
-            lx = la(1); lxinv = 1.d0 / lx
-            ly = la(2); lyinv = 1.d0 / ly
-            lz = la(3); lzinv = 1.d0 / lz
             strain = 0.d0
 
             ! primitive cell
             nxyz = nint( dble(natom/4)**(1.d0/3.d0) )
             if ( 4*nxyz**3 /= natom ) then
-                print*, "wrong natom"; stop
+                stop "wrong natom"
             end if
-            a = lx / nxyz
+            a = la(1) / nxyz
 
             ! config
             i = 0
@@ -350,12 +314,6 @@ contains
             r      => tcon%r,     &
             la     => tcon%la,    &
             lainv  => tcon%lainv, &
-            lx     => tcon%lx,    &
-            ly     => tcon%ly,    &
-            lz     => tcon%lz,    &
-            lxinv  => tcon%lxinv, &
-            lyinv  => tcon%lyinv, &
-            lzinv  => tcon%lzinv, &
             strain => tcon%strain &
             )
 
@@ -372,9 +330,6 @@ contains
             volume = sdisk / tcon%phi
             la = volume**(1.d0/3.d0)
             lainv = 1.d0 / la
-            lx = la(1); lxinv = 1.d0 / lx
-            ly = la(2); lyinv = 1.d0 / ly
-            lz = la(3); lzinv = 1.d0 / lz
             strain = 0.d0
 
             ! primitive cell
@@ -382,7 +337,7 @@ contains
             if ( 2*nxyz**3 /= natom ) then
                 print*, "wrong natom"; stop
             end if
-            a = lx / nxyz
+            a = la(1) / nxyz
 
             ! config
             i = 0
@@ -444,7 +399,7 @@ contains
         tcon%phi = pi * sum(tcon%r**2) / product(tcon%la)
     end subroutine
 
-    Pure function calc_box_length(tcon) result(l)
+    pure function calc_box_length(tcon) result(l)
         implicit none
 
         ! var list
@@ -482,7 +437,7 @@ contains
 
             nxy = nint( sqrt( dble(natom) ) )
             if ( nxy**2 /= natom .and. mod(nxy,2) == 0 ) then
-                print*, "wrong natom"; stop
+                stop "wrong natom"
             end if
 
             tla(1) = sqrt( natom * pi / sqrt(12.d0) / phi )
@@ -491,7 +446,7 @@ contains
         end associate
     end function
 
-    function calc_dra( this, ti, tj ) result(dra)
+    pure function calc_dra( this, ti, tj ) result(dra)
         implicit none
 
         ! para list
@@ -533,7 +488,7 @@ contains
         end associate
     end function
 
-    function calc_len( this, ti, tj ) result(tl)
+    pure function calc_len( this, ti, tj ) result(tl)
         implicit none
 
         ! para list
@@ -598,7 +553,7 @@ contains
         end associate
     end subroutine
 
-    Pure function calc_phi(this) result(re)
+    pure function calc_phi(this) result(re)
         implicit none
 
         class(tpcon), intent(in) :: this

@@ -271,13 +271,15 @@ contains
         end associate
     end subroutine
 
-    function calc_spring_dra( tnetwork, tcon, tibond ) result(tdra)
+    pure function calc_spring_dra( tnetwork, tcon, tibond ) result(tdra)
         implicit none
 
         ! para list
         class(tpnetwork), intent(in) :: tnetwork
         type(tpcon), intent(in)      :: tcon
         integer, intent(in)          :: tibond
+
+        ! result
         real(8), dimension(free)     :: tdra
 
         ! local
@@ -315,13 +317,15 @@ contains
         end associate
     end function
 
-    function calc_spring_len( tnetwork, tcon, tibond ) result(tl)
+    pure function calc_spring_len( tnetwork, tcon, tibond ) result(tl)
         implicit none
 
         ! para list
         class(tpnetwork), intent(in) :: tnetwork
         type(tpcon), intent(in)      :: tcon
         integer, intent(in)          :: tibond
+
+        ! result
         real(8) :: dra(free), tl
 
         dra = calc_spring_dra( tnetwork, tcon, tibond )

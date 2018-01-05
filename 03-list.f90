@@ -33,7 +33,7 @@ module mo_list
         integer :: natom
         type(tpvoro_one), allocatable, dimension(:) :: list
         real(8), allocatable, dimension(:,:) :: center, vertex
-        real(8) :: lx, ly, strain
+        real(8) :: la(free), strain
     contains
         procedure :: init      => init_voro
         procedure :: decompose => calc_voro
@@ -278,11 +278,15 @@ contains
 
         this%natom  = tcon%natom
         this%center = tcon%ra
-        this%lx     = tcon%lx
-        this%ly     = tcon%ly
+        this%la     = tcon%la
         this%strain = tcon%strain
 
-        allocate( this%list(this%natom) )
+        if( .not. allocated(this%list) ) then
+            allocate( this%list(this%natom) )
+        else if( size(this%list) /= tcon%natom ) then
+            deallocate( this%list )
+            allocate( this%list(tcon%natom) )
+        end if
     end subroutine
 
     subroutine calc_voro( this )
@@ -302,8 +306,7 @@ contains
         associate( natom  => this%natom,  &
                    list   => this%list,   &
                    con    => this%center, &
-                   lx     => this%lx,     &
-                   ly     => this%ly,     &
+                   la     => this%la,     &
                    strain => this%strain  &
                    )
 
@@ -317,10 +320,9 @@ contains
                 if ( i == j ) cycle
 
                 raij = con(:,j) - rai
-                cory = nint( raij(2) / ly )
-                raij(1) = raij(1) - cory * strain * ly
-                raij(1) = raij(1) - anint( raij(1) / lx ) * lx
-                raij(2) = raij(2) - anint( raij(2) / ly ) * ly
+                cory = nint( raij(2) / la(2) )
+                raij(1) = raij(1) - cory * strain * la(2)
+                raij(:) = raij(:) - anint( raij(:) / la ) * la
 
                 rijsq = sum(raij**2)
 

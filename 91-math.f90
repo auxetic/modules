@@ -154,10 +154,10 @@ contains
         re(3) = a(1) * b(2) - a(2) * b(1)
     end function
 
-    function unitv(vector) result(uvector)
+    pure function unitv(vector) result(uvector)
         implicit none
 
-        real(8), dimension(:) :: vector
+        real(8), intent(in),  dimension(:) :: vector
         real(8), allocatable, dimension(:) :: uvector
 
         uvector = vector / norm2(vector)
