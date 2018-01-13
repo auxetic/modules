@@ -11,7 +11,7 @@ module mo_config
         integer, allocatable, dimension(:)   :: pinflag
 
         ! box
-        real(8) :: la(free), lainv(free)
+        real(8) :: la(free)
         real(8) :: lav(free)
         real(8) :: laf(free)
         real(8) :: strain
@@ -71,7 +71,6 @@ contains
             va     => tcon%va,    &
             r      => tcon%r,     &
             la     => tcon%la,    &
-            lainv  => tcon%lainv, &
             strain => tcon%strain &
             )
 
@@ -81,7 +80,6 @@ contains
 
             ! box length
             la     = calc_box_length(tcon)
-            lainv  = 1.d0 / la
             strain = 0.d0
 
             ! config
@@ -118,13 +116,11 @@ contains
             ra     => tcon%ra,    &
             r      => tcon%r,     &
             la     => tcon%la,    &
-            lainv  => tcon%lainv, &
             strain => tcon%strain &
             )
 
             ! box length
             la     = calc_box_trianglelattice( tcon )
-            lainv  = 1.d0 / la
             strain = 0.d0
 
             ! cell numbers and unit
@@ -146,7 +142,7 @@ contains
             end do
 
             do i=1, natom
-                ra(:,i) = ra(:,i) - anint( ra(:,i) * lainv ) * la
+                ra(:,i) = ra(:,i) - anint( ra(:,i) / la ) * la
             end do
 
         end associate
@@ -172,7 +168,6 @@ contains
             ra     => tcon%ra,    &
             r      => tcon%r,     &
             la     => tcon%la,    &
-            lainv  => tcon%lainv, &
             strain => tcon%strain &
             )
 
@@ -188,7 +183,6 @@ contains
             sdisk = sqrt(pi**free) / gamma(dble(free)/2.d0+1) * sum(r**free)
             volume = sdisk / tcon%phi
             la = volume**(1.d0/2.d0)
-            lainv = 1.d0 / la
             strain = 0.d0
 
             ! cell numbers and unit
@@ -210,7 +204,7 @@ contains
             end do
 
             do i=1, natom
-                ra(:,i) = ra(:,i) - anint( ra(:,i) * lainv ) * la
+                ra(:,i) = ra(:,i) - anint( ra(:,i) / la ) * la
             end do
 
         end associate
@@ -235,7 +229,6 @@ contains
             ra     => tcon%ra,    &
             r      => tcon%r,     &
             la     => tcon%la,    &
-            lainv  => tcon%lainv, &
             strain => tcon%strain &
             )
 
@@ -251,7 +244,6 @@ contains
             sdisk = sqrt(pi**free) / gamma(dble(free)/2.d0+1) * sum(r**free)
             volume = sdisk / tcon%phi
             la = volume**(1.d0/3.d0)
-            lainv = 1.d0 / la
             strain = 0.d0
 
             ! primitive cell
@@ -313,7 +305,6 @@ contains
             ra     => tcon%ra,    &
             r      => tcon%r,     &
             la     => tcon%la,    &
-            lainv  => tcon%lainv, &
             strain => tcon%strain &
             )
 
@@ -329,7 +320,6 @@ contains
             sdisk = sqrt(pi**free) / gamma(dble(free)/2.d0+1) * sum(r**free)
             volume = sdisk / tcon%phi
             la = volume**(1.d0/3.d0)
-            lainv = 1.d0 / la
             strain = 0.d0
 
             ! primitive cell
@@ -386,7 +376,6 @@ contains
         ! read config
         open(901,file=tfilename)
             read(901, *) tcon%la, tcon%strain
-            tcon%lainv = 1.d0 / tcon%la
             do i=1, tnatom
                 read(901,*) tcon%ra(:,i), tcon%r(i)
             end do
@@ -464,7 +453,6 @@ contains
         associate(                &
             ra     => this%ra,    &
             la     => this%la,    &
-            lainv  => this%lainv, &
             strain => this%strain &
             )
 
@@ -473,11 +461,11 @@ contains
 
             dra = raj - rai
 
-            cory = nint( dra(free) * lainv(free) )
+            cory = nint( dra(free) / la(free) )
             dra(1) = dra(1) - strain * la(free) * cory
 
             do k=1, free-1
-                iround(k) = nint( dra(k) * lainv(k) )
+                iround(k) = nint( dra(k) / la(k) )
             end do
             iround(free) = cory
 
@@ -513,7 +501,7 @@ contains
         logical,     intent(in), optional :: opsumxyz  ! set center of mass to zero
 
         ! local
-        real(8) :: temp
+        real(8) :: lainv(free), temp
         integer :: iround(free), cory
         integer :: i, k
 
@@ -521,9 +509,10 @@ contains
             natom  => tcon%natom, &
             ra     => tcon%ra,    &
             la     => tcon%la,    &
-            lainv  => tcon%lainv, &
             strain => tcon%strain &
             )
+
+            lainv = 1.d0 / la
 
             do i=1, natom
 
@@ -637,7 +626,6 @@ contains
         logical :: affine_flag
 
         this%la(xyz) = this%la(xyz) * ( 1.d0 - de )
-        this%lainv(xyz) = 1.d0 / this%la(1)
 
         affine_flag = .true.
         if ( present(opaffine) .and. ( opaffine .eqv. .false. ) ) affine_flag = .false.
@@ -729,14 +717,12 @@ subroutine save_config_debug( tcon, tfilename )
         fa     => tcon%fa,    &
         r      => tcon%r,     &
         la     => tcon%la,    &
-        lainv  => tcon%lainv, &
         strain => tcon%strain &
         )
 
         open(901,file=tfilename)
             write(901,'(3es26.16)') dble(natom), tcon%phi, 0.d0
             write(901,'(3es26.16)') la, strain
-            write(901,'(3es26.16)') lainv, strain
             do i=1, natom
                 write(901,'(7es26.16)') ra(:,i), r(i), va(:,i), fa(:,i)
             end do

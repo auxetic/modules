@@ -33,7 +33,6 @@ contains
             fa       => tcon%fa,       &
             Ea       => tcon%Ea,       &
             la       => tcon%la,       &
-            lainv    => tcon%lainv,    &
             strain   => tcon%strain,   &
             stress   => tcon%stress,   &
             press    => tcon%press,    &
@@ -92,9 +91,9 @@ contains
 
             end do
 
-            stress   = stress  * product(lainv) / free
-            press    = wili    * product(lainv) / free
-            pressxyz = wilixyz * product(lainv)
+            stress   = stress  / product(la) / free
+            press    = wili    / product(la) / free
+            pressxyz = wilixyz / product(la)
 
         end associate
     end subroutine
@@ -125,7 +124,6 @@ contains
             fa       => tcon%fa,       &
             Ea       => tcon%Ea,       &
             la       => tcon%la,       &
-            lainv    => tcon%lainv,    &
             strain   => tcon%strain,   &
             stress   => tcon%stress,   &
             press    => tcon%press,    &
@@ -193,9 +191,9 @@ contains
 
             end do
 
-            stress   = stress  * product(lainv) / free
-            press    = wili    * product(lainv) / free
-            pressxyz = wilixyz * product(lainv)
+            stress   = stress  / product(la) / free
+            press    = wili    / product(la) / free
+            pressxyz = wilixyz / product(la)
 
         end associate
     end subroutine
@@ -219,7 +217,6 @@ contains
             pinflag  => tcon%pinflag,  &
             Ea       => tcon%Ea,       &
             la       => tcon%la,       &
-            lainv    => tcon%lainv,    &
             strain   => tcon%strain,   &
             stress   => tcon%stress,   &
             press    => tcon%press,    &
@@ -280,9 +277,9 @@ contains
 
             end do
 
-            stress   = stress  * product(lainv) / free
-            press    = wili    * product(lainv) / free
-            pressxyz = wilixyz * product(lainv)
+            stress   = stress  / product(la) / free
+            press    = wili    / product(la) / free
+            pressxyz = wilixyz / product(la)
 
         end associate
     end subroutine
@@ -295,7 +292,7 @@ contains
 
         ! local
         real(8), dimension(free) :: rai, raj, dra
-        real(8) :: ri, rj, rij2, rij, dij, fr, wij, wili, wilixyz(free)
+        real(8) :: lainv(free), ri, rj, rij2, rij, dij, fr, wij, wili, wilixyz(free)
         integer :: iround(free), cory
         integer :: i, j, k
 
@@ -306,12 +303,13 @@ contains
             fa       => tcon%fa,      &
             Ea       => tcon%Ea,      &
             la       => tcon%la,      &
-            lainv    => tcon%lainv,   &
             strain   => tcon%strain,  &
             stress   => tcon%stress,  &
             press    => tcon%press,   &
             pressxyz => tcon%pressxyz &
             )
+
+            lainv = 1.d0 / la
 
             Ea     = 0.d0
             fa     = 0.d0
@@ -367,9 +365,9 @@ contains
 
             end do
 
-            stress   = stress  * product(lainv) / free
-            press    = wili    * product(lainv) / free
-            pressxyz = wilixyz * product(lainv)
+            stress   = stress  / product(la) / free
+            press    = wili    / product(la) / free
+            pressxyz = wilixyz / product(la)
 
         end associate
     end subroutine
@@ -394,7 +392,6 @@ contains
             fa       => tcon%fa,       &
             Ea       => tcon%Ea,       &
             la       => tcon%la,       &
-            lainv    => tcon%lainv,    &
             strain   => tcon%strain,   &
             stress   => tcon%stress,   &
             press    => tcon%press,    &
@@ -446,9 +443,9 @@ contains
 
             end do
 
-            stress   = stress  * product(lainv) / free
-            press    = wili    * product(lainv) / free
-            pressxyz = wilixyz * product(lainv)
+            stress   = stress  / product(la) / free
+            press    = wili    / product(la) / free
+            pressxyz = wilixyz / product(la)
 
         end associate
     end subroutine

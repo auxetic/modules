@@ -188,6 +188,7 @@ contains
         logical :: cs_flag
         logical :: pin_flag
 
+        real(8) :: lainv(free)
         real(8) :: dt, beta, temp
         real(8) :: onembeta, betavndfn
         integer :: cumn
@@ -261,10 +262,11 @@ contains
             strainf  => tcon%strainf,  &
             stress   => tcon%stress,   &
             la       => tcon%la,       &
-            lainv    => tcon%lainv,    &
             lav      => tcon%lav,      &
             laf      => tcon%laf       &
             )
+
+            lainv = 1.d0 / la
 
             ! initial sets
             fa      = 0.d0 ; va      = 0.d0

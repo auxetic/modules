@@ -74,7 +74,7 @@ contains
         type(tplist), intent(inout) :: tnb
 
         ! local
-        real(8) :: dra(free), rai(free), raj(free), ri, rj, rij2, dij
+        real(8) :: lainv(free), dra(free), rai(free), raj(free), ri, rj, rij2, dij
         integer :: cory, iround(free)
         integer :: i, j, k, itemp
 
@@ -83,10 +83,11 @@ contains
             ra     => tcon%ra,     &
             r      => tcon%r,      &
             la     => tcon%la,     &
-            lainv  => tcon%lainv,  &
             strain => tcon%strain, &
             list   => tnb%list     &
             )
+
+            lainv = 1.d0 / la
 
             ! set nbsum to zero
             list(:)%nbsum = 0
@@ -161,7 +162,6 @@ contains
             ra     => tcon%ra,     &
             r      => tcon%r,      &
             la     => tcon%la,     &
-            lainv  => tcon%lainv,  &
             strain => tcon%strain, &
             list   => tnb%list,    &
             nbi    => tnb%nbi      &

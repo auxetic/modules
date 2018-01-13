@@ -58,7 +58,7 @@ contains
 
         ! local
         integer :: i, j, k
-        real(8) :: dra(free), rij2, dij
+        real(8) :: lainv(free), dra(free), rij2, dij
         integer :: cory, iround(free)
 
         associate(                   &
@@ -66,11 +66,12 @@ contains
             ra     => tcon%ra,       &
             r      => tcon%r,        &
             la     => tcon%la,       &
-            lainv  => tcon%lainv,    &
             strain => tcon%strain,   &
             nsps   => tnetwork%nsps, &
             sps    => tnetwork%sps   &
             )
+
+            lainv = 1.d0 / la
 
             nsps = 0
             do i=1, natom
@@ -124,7 +125,7 @@ contains
 
         ! local
         integer :: i, j, k, ii
-        real(8) :: dra(free), rij2
+        real(8) :: lainv(free), dra(free), rij2
         integer :: cory, iround(free)
 
         associate(                   &
@@ -132,11 +133,12 @@ contains
             ra     => tcon%ra,       &
             r      => tcon%r,        &
             la     => tcon%la,       &
-            lainv  => tcon%lainv,    &
             strain => tcon%strain,   &
             nsps   => tnetwork%nsps, &
             sps    => tnetwork%sps   &
             )
+
+            lainv = 1.d0 / la
 
             do ii=1, nsps
 
@@ -291,7 +293,6 @@ contains
             ra     => tcon%ra,       &
             r      => tcon%r,        &
             la     => tcon%la,       &
-            lainv  => tcon%lainv,    &
             strain => tcon%strain,   &
             nsps   => tnetwork%nsps, &
             sps    => tnetwork%sps   &
@@ -302,11 +303,11 @@ contains
 
             tdra = ra(:,j) - ra(:,i)
 
-            cory = nint( tdra(free) * lainv(free) )
+            cory = nint( tdra(free) / la(free) )
             tdra(1) = tdra(1) - cory * strain * la(free)
 
             do k=1, free-1
-                iround(k) = nint( tdra(k) * lainv(k) )
+                iround(k) = nint( tdra(k) / la(k) )
             end do
             iround(free) = cory
 
@@ -407,7 +408,7 @@ contains
 
             end do
 
-            mb = 2.d0 * sumEs / ( 2.d0 * test )**2 * product(tcon%lainv)
+            mb = 2.d0 * sumEs / ( 2.d0 * test )**2 / product(tcon%la)
 
         end associate
     end subroutine
@@ -452,7 +453,7 @@ contains
 
             end do
 
-            mgs = 2.d0 * sumEs / test**2 * product(tcon%lainv)
+            mgs = 2.d0 * sumEs / test**2 / product(tcon%la)
 
         end associate
     end subroutine
@@ -501,7 +502,7 @@ contains
 
             end do
 
-            mgxy = 0.5d0 * sumEs / test**2 * product(tcon%lainv)
+            mgxy = 0.5d0 * sumEs / test**2 / product(tcon%la)
 
             mg = 0.5d0 * ( mgxy + mgs )
 
@@ -517,7 +518,7 @@ contains
 
         ! local
         integer :: i, j, k, ii
-        real(8) :: dra(free), ks
+        real(8) :: lainv(free), dra(free), ks
         integer :: cory, iround(free)
 
         associate(                   &
@@ -525,12 +526,13 @@ contains
             ra     => tcon%ra,       &
             r      => tcon%r,        &
             la     => tcon%la,       &
-            lainv  => tcon%lainv,    &
             strain => tcon%strain,   &
             nsps   => tnetwork%nsps, &
             sps    => tnetwork%sps,  &
             kvec   => tnetwork%kvec  &
             )
+
+            lainv = 1.d0 / la
 
             kvec = 0.d0
 
