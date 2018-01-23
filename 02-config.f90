@@ -23,6 +23,7 @@ module mo_config
         real(8) :: Ea, Ek, Ev, stress, press, pressxyz(free)
     contains
         procedure :: dra         => calc_dra
+        procedure :: vec         => calc_vec
         procedure :: len         => calc_len
         procedure :: calc_phi    => calc_phi
         procedure :: concompress => concompress
@@ -474,6 +475,87 @@ contains
             end do
 
         end associate
+    end function
+
+    pure function calc_vec( this, ti, traj ) result(dra)
+        implicit none
+
+        ! para list
+        class(tpcon), intent(in) :: this
+        integer,      intent(in) :: ti
+        real(8), dimension(free), intent(in) :: traj
+
+        ! results
+        real(8), dimension(free) :: dra
+
+        ! local
+        real(8) :: rai(free)
+        integer :: k, cory, iround(free)
+
+        associate(                &
+            ra     => this%ra,    &
+            la     => this%la,    &
+            strain => this%strain &
+            )
+
+            rai = ra(:,ti)
+
+            dra = traj - rai
+
+            cory = nint( dra(free) / la(free) )
+            dra(1) = dra(1) - strain * la(free) * cory
+
+            do k=1, free-1
+                iround(k) = nint( dra(k) / la(k) )
+            end do
+            iround(free) = cory
+
+            do k=1, free
+                dra(k) = dra(k) - iround(k) * la(k)
+            end do
+
+        end associate
+    end function
+
+    pure function find_closest( this, traj, n ) result(list)
+        use mo_math, only: swap
+        implicit none
+
+        ! para list
+        class(tpcon), intent(in) :: this
+        real(8), dimension(free), intent(in) :: traj
+        integer, intent(in) :: n
+
+        ! result
+        integer :: list(n)
+
+        ! local
+        real(8) :: closest(n), dis
+        integer :: i, j, itemp
+        real(8) :: rtemp
+
+        closest = 1.d8
+        list = 0
+
+        do i=1, this%natom
+            dis = norm2(this%vec(i, traj))
+            if ( dis < closest(n) ) then
+                closest(n) = dis
+                list(n) = i
+                do j=n, 2, -1
+                    if ( closest(j) < closest(j-1) ) then
+                        itemp = list(j)
+                        list(j) = list(j-1)
+                        list(j-1) = itemp
+                        rtemp = closest(j)
+                        closest(j) = closest(j-1)
+                        closest(j-1) = rtemp
+                    else
+                        exit
+                    end if
+                end do
+            end if
+        end do
     end function
 
     pure function calc_len( this, ti, tj ) result(tl)

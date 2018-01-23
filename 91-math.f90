@@ -480,4 +480,44 @@ contains
         !angle = atan2(aimag(v3),real(v3))
     end function
 
+    pure function findfirst(data,x) result(iloc)
+        ! find first value in data equal to x
+        ! return index
+        implicit none
+
+        ! para list
+        integer, intent(in) :: data(:)
+        integer, intent(in) :: x
+
+        ! result
+        integer :: iloc
+
+        ! local
+        integer :: n, istart, imed, iend, i
+
+        n = size(data)
+        iloc = 0
+
+        istart = 1
+        iend   = n
+        imed   = (istart+n)/2
+
+        do while ( iend - istart > 10 )
+            if ( x <= data(imed) ) then
+                iend = imed
+                imed = (istart+iend)/2
+            else
+                istart = imed
+                imed = (istart+iend)/2
+            end if
+        end do
+
+        do i=istart, iend
+            if ( data(i)==x ) then
+                iloc = i
+                exit
+            end if
+        end do
+    end function
+
 end module

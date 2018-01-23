@@ -21,8 +21,9 @@ module mo_network
         real(8), allocatable, dimension(:,:) :: kvec
         type(tpspring), allocatable, dimension(:) :: sps
     contains
-        procedure :: dra => calc_spring_dra
-        procedure :: len => calc_spring_len
+        procedure :: dra    => calc_spring_dra
+        procedure :: len    => calc_spring_len
+        procedure :: isbond => isbond
     end type
 
     type(tpnetwork) :: net
@@ -171,6 +172,67 @@ contains
 
         end associate
     end subroutine
+
+    pure function isbond(tnetwork,ti,tj) result(ibond)
+        ! Return bond index linked ti and tj in network.
+        ! If there is no bond, return 0.
+        use mo_math, only: findfirst
+        implicit none
+
+        ! para list
+        class(tpnetwork), intent(in) :: tnetwork
+        integer,          intent(in) :: ti, tj
+
+        ! result
+        integer :: ibond
+
+        ! local
+        integer :: i, j, itest
+
+        if ( tj > ti ) then
+            i = ti; j = tj
+        else
+            j = ti; i = tj
+        end if
+
+        associate( sps => tnetwork%sps )
+
+            ibond = 0
+            itest = findfirst(sps(:)%i, i)
+            if ( itest /= 0 ) then
+                do while ( sps(itest)%i== i )
+                    if ( sps(itest)%j == j ) then
+                        ibond = itest
+                        exit
+                    end if
+                    itest = itest + 1
+                end do
+            end if
+
+        end associate
+    end function
+
+    pure function find_triangle(this, tcon, traj ) result(list)
+        implicit none
+
+        ! para list
+        class(tpnetwork), intent(in) :: this
+        type(tpcon),      intent(in) :: tcon
+        real(8),          intent(in) :: traj(free)
+
+        ! results
+        integer :: list(3)
+
+        ! local
+        integer :: nbs(3)
+
+        ! get nearest neighbors
+        nbs = find_closest( tcon, traj, 3 )
+
+        list(1) = this%isbond(nbs(1),nbs(2))
+        list(2) = this%isbond(nbs(1),nbs(3))
+        list(3) = this%isbond(nbs(2),nbs(3))
+    end function
 
     subroutine change_k_spring( tnetwork, tcon, opcase, opktan, oph, opa, opb, opketa, oprratio )
         use mo_math, only: randperm, sortperm
