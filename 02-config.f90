@@ -9,6 +9,7 @@ module mo_config
         real(8), allocatable, dimension(:,:) :: ra, va, fa
         real(8), allocatable, dimension(:)   :: r
         integer, allocatable, dimension(:)   :: pinflag
+        real(8), allocatable, dimension(:)   :: radius_dispersity
 
         ! box
         real(8) :: la(free)
@@ -47,6 +48,31 @@ contains
 
         allocate( tcon%ra(free,tnatom), tcon%r(tnatom), tcon%va(free,tnatom), tcon%fa(free,tnatom) )
     end subroutine
+
+    subroutine set_radius_dispersity( tcon, eta, tseed )
+        implicit none
+
+        ! var list
+        type(tpcon),       intent(inout) :: tcon
+        real(8),           intent(in)    :: eta
+        integer, optional, intent(in)    :: tseed
+
+        !local
+        real(8), dimension(:) :: dis(tcon%natom)
+       
+        if ( present( tseed ) ) then
+            call init_rand(tseed)
+        end if
+
+        if ( .not. allocated(tcon%radius_dispersity) ) then
+            allocate( tcon%radius_dispersity(tcon%natom) )
+            call random_number(dis)
+            tcon%radius_dispersity = (dis - 0.5d0)
+        end if
+        
+        tcon%r = tcon%r + tcon%radius_dispersity * eta
+        
+    end subroutine set_radius_dispersity
 
     subroutine gen_rand_config( tcon, tseed, tphi )
         implicit none
