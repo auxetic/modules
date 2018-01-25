@@ -9,6 +9,7 @@ module mo_config
         real(8), allocatable, dimension(:,:) :: ra, va, fa
         real(8), allocatable, dimension(:)   :: r
         integer, allocatable, dimension(:)   :: pinflag
+        real(8), allocatable, dimension(:)   :: radius_dispersity
 
         ! box
         real(8) :: la(free)
@@ -46,6 +47,31 @@ contains
         if ( present( tphi ) ) tcon%phi = tphi
 
         allocate( tcon%ra(free,tnatom), tcon%r(tnatom), tcon%va(free,tnatom), tcon%fa(free,tnatom) )
+    end subroutine
+
+    subroutine add_radius_dispersity( tcon, deta, opseed )
+        implicit none
+
+        ! var list
+        type(tpcon),       intent(inout) :: tcon
+        real(8),           intent(in)    :: deta
+        integer, optional, intent(in)    :: opseed
+
+        if ( present(opseed) ) then
+            call init_rand(opseed)
+            if ( .not. allocated(tcon%radius_dispersity) ) then
+                allocate( tcon%radius_dispersity(tcon%natom) )
+            end if
+            call random_number(tcon%radius_dispersity)
+            tcon%radius_dispersity = tcon%radius_dispersity - 0.5d0
+        else
+            if ( .not. allocated(tcon%radius_dispersity) ) then
+                print*, "Error, You should give seed at least one time"
+                stop
+            end if
+        end if
+
+        tcon%r = tcon%r + tcon%radius_dispersity * deta
     end subroutine
 
     subroutine gen_rand_config( tcon, tseed, tphi )
