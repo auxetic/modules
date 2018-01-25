@@ -49,30 +49,30 @@ contains
         allocate( tcon%ra(free,tnatom), tcon%r(tnatom), tcon%va(free,tnatom), tcon%fa(free,tnatom) )
     end subroutine
 
-    subroutine set_radius_dispersity( tcon, eta, tseed )
+    subroutine add_radius_dispersity( tcon, deta, opseed )
         implicit none
 
         ! var list
         type(tpcon),       intent(inout) :: tcon
-        real(8),           intent(in)    :: eta
-        integer, optional, intent(in)    :: tseed
+        real(8),           intent(in)    :: deta
+        integer, optional, intent(in)    :: opseed
 
-        !local
-        real(8), dimension(:) :: dis(tcon%natom)
-       
-        if ( present( tseed ) ) then
-            call init_rand(tseed)
+        if ( present(opseed) ) then
+            call init_rand(opseed)
+            if ( .not. allocated(tcon%radius_dispersity) ) then
+                allocate( tcon%radius_dispersity(tcon%natom) )
+            end if
+            call random_number(tcon%radius_dispersity)
+            tcon%radius_dispersity = tcon%radius_dispersity - 0.5d0
+        else
+            if ( .not. allocated(tcon%radius_dispersity) ) then
+                print*, "Error, You should give seed at least one time"
+                stop
+            end if
         end if
 
-        if ( .not. allocated(tcon%radius_dispersity) ) then
-            allocate( tcon%radius_dispersity(tcon%natom) )
-            call random_number(dis)
-            tcon%radius_dispersity = (dis - 0.5d0)
-        end if
-        
-        tcon%r = tcon%r + tcon%radius_dispersity * eta
-        
-    end subroutine set_radius_dispersity
+        tcon%r = tcon%r + tcon%radius_dispersity * deta
+    end subroutine
 
     subroutine gen_rand_config( tcon, tseed, tphi )
         implicit none
