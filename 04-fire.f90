@@ -106,18 +106,19 @@ contains
             ! main
             do step=1, stepmax
 
-                if ( nonnetwork_flag ) then
-                    if( check_list( nbfire, tcon ) ) then
-                        call make_list( nbfire, tcon )
-                    end if
-                end if
-
                 dt2  = 0.5d0 * dt
                 dt22 = 0.5d0 * dt**2
 
                 ! velocity verlet method / move 1
                 ra = ra + va * dt + fa * dt22
                 va = va + fa * dt2
+
+                ! check list
+                if ( nonnetwork_flag ) then
+                    if( check_list( nbfire, tcon ) ) then
+                        call make_list( nbfire, tcon )
+                    end if
+                end if
 
                 ! velocity verlet method / force
                 if ( nonnetwork_flag ) then
