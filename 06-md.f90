@@ -116,7 +116,7 @@ contains
                 va(i,:) = va(i,:) - temp
             end do
 
-            temp = 0.5d0 * sum( va**2 ) / ( natom * free )
+            temp = sum( va**2 ) / ( natom * free )
             va = sqrt( tTk / temp ) * va
 
         end associate
