@@ -1,13 +1,23 @@
-cmake_minimum_required (VERSION 2.6)
+cmake_minimum_required (VERSION 2.8)
 
 project(main Fortran)
 
-# source file
-#if ( "${CMAKE_Fortran_COMPILER_ID}" STREQUAL "GNU" )
-#    file(GLOB SRC_LIST "*.f90" "gnu/*.f90")
-#elseif ( "${CMAKE_Fortran_COMPILER_ID}" STREQUAL "Intel" )
-#    file(GLOB SRC_LIST "*.f90")
-#endif()
+# Lapack
+find_package( LAPACK REQUIRED )
+set (BLA_VENDOR OpenBLAS)
+# set (BLA_VENDOR Intel)
+if ( LAPACK_FOUND STREQUAL false )
+    set (BLA_VENDOR All)
+endif()
+if ( BLA_VENDOR STREQUAL "OpenBLAS" )
+    set( LAPACK_LINKER_FLAGS "-lopenblas" )
+elseif ( BLA_VENDOR STREQUAL "Intel")
+    set( LAPACK_LINKER_FLAGS "-lmkl_rt -lmkl_core -lmkl_sequential" )
+elseif( BLA_VENDOR STREQUAL "All" )
+    set( LAPACK_LINKER_FLAGS "-llapack" )
+endif()
+
+# Source
 file(GLOB SRC_LIST "*.f90")
 
 
@@ -21,14 +31,22 @@ set (CMAKE_Fortran_FLAGS "-O3 ")
 #set ( CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -O0 -g -C" )
 #set ( CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -Wunused-variable" )
 
+# add Lapack
+set ( CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} ${LAPACK_LINKER_FLAGS}" )
+
+# main
 if ( "${CMAKE_Fortran_COMPILER_ID}" STREQUAL "GNU" )
-    set ( CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -llapack -ffree-line-length-none" )
+    set ( CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -ffree-line-length-none" )
 elseif ( "${CMAKE_Fortran_COMPILER_ID}" STREQUAL "Intel" )
-    set ( CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -mkl=sequential" )
+    set ( CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -free" )
 endif()
-MESSAGE( "Fortran COMPILER = " ${CMAKE_Fortran_COMPILER_ID} )
+
+# mesg
+MESSAGE( "" )
+MESSAGE( "Fortran COMPILER      = " ${CMAKE_Fortran_COMPILER_ID} )
 MESSAGE( "Fortran COMPILE FLAGS = " ${CMAKE_Fortran_FLAGS} )
+MESSAGE( "Lapack Vendor         = " ${BLA_VENDOR} )
+MESSAGE( "" )
 
 # compile
 add_executable (main ${SRC_LIST})
-
