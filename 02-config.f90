@@ -1,32 +1,55 @@
 module mo_config
+    !
+    !  base struct and method of configuration generating, storing...
+    !
     use mo_syst
     use mo_math, only: init_rand
     implicit none
 
     type tpcon
+        ! Atom
+        !! number of particles
         integer :: natom
-        ! configuration, velocity, force
+        !! configuration, velocity, force
         real(8), allocatable, dimension(:,:) :: ra, va, fa
+        !! radius
         real(8), allocatable, dimension(:)   :: r
-        integer, allocatable, dimension(:)   :: pinflag
+        !! v for polydisperse system
         real(8), allocatable, dimension(:)   :: radius_dispersity
+        !! v for pin particle
+        integer, allocatable, dimension(:)   :: pinflag
 
         ! box
+        !! volume fraction
+        real(8) :: phi
+        !! lengthes of box, la = (lx, ly, [lz])
         real(8) :: la(free)
+        !! v for vary lengthes of box
         real(8) :: lav(free)
         real(8) :: laf(free)
+        !! strain, for shear
         real(8) :: strain
         real(8) :: strainv, strainf
-        real(8) :: phi
+
         ! sets
         real(8) :: T
-        ! property
-        real(8) :: Ea, Ek, Ev, stress, press, pressxyz(free)
+        ! properties
+        !! energy
+        real(8) :: Ea, Ek, Ev
+        !! stress tensor
+        real(8) :: stress, press
+        !!! pressures of x, y and z
+        real(8) :: pressxyz(free)
     contains
+        ! con%dra(i,j) => (xij, yij, zij)
         procedure :: dra         => calc_dra
+        ! con%vec(i, [xk,yk,zk]) => round( xj-xk, yj-yk, zj-zk )
         procedure :: vec         => calc_vec
+        ! con%dra(i,j) => ||rij||
         procedure :: len         => calc_len
+        ! con%calc_phi() => phi
         procedure :: calc_phi    => calc_phi
+        ! compress and shear
         procedure :: concompress => concompress
         procedure :: conshear    => conshear
     end type
@@ -36,6 +59,9 @@ module mo_config
 contains
 
     subroutine init_system( tcon, tnatom, tphi )
+        !
+        ! initiate system, allocate memory of system
+        !
         implicit none
 
         ! var list
@@ -75,6 +101,9 @@ contains
     end subroutine
 
     subroutine gen_rand_config( tcon, tseed, tphi )
+        !
+        !  generate random configuration with given seed and phi
+        !
         implicit none
 
         ! var list
@@ -125,6 +154,10 @@ contains
     end subroutine
 
     subroutine gen_lattice_triangle( tcon, tphi )
+        !
+        !  generate 2D triangle lattice
+        !  phi_c = pi / 2 / sqrt(3) .= 0.9068996821171089
+        !
         implicit none
 
         ! var list
@@ -176,6 +209,9 @@ contains
     end subroutine
 
     subroutine gen_lattice_sc( tcon, tphi )
+        !
+        !  generate 2d simple-cube lattice
+        !
         implicit none
 
         ! var list
@@ -238,6 +274,9 @@ contains
     end subroutine
 
     subroutine gen_lattice_fcc( tcon, tphi )
+        !
+        !  3D fcc
+        !
         implicit none
 
         ! var list
@@ -314,6 +353,9 @@ contains
     end subroutine
 
     subroutine gen_lattice_bcc( tcon, tphi )
+        !
+        !  3D bcc
+        !
         implicit none
 
         ! var list
@@ -382,6 +424,9 @@ contains
     end subroutine
 
     subroutine read_config( tcon, tfilename, tnatom, tphi )
+        !
+        !  read configuration from text file
+        !
         implicit none
 
         ! var list
@@ -463,6 +508,9 @@ contains
     end function
 
     pure function calc_dra( this, ti, tj ) result(dra)
+        !
+        !  dra = rj - ri = rij = [xij, yij, zij]
+        !
         implicit none
 
         ! para list
@@ -504,6 +552,9 @@ contains
     end function
 
     pure function calc_vec( this, ti, traj ) result(dra)
+        !
+        !  calculate vector distance of particle i and point[x,y,z]
+        !
         implicit none
 
         ! para list
@@ -544,6 +595,9 @@ contains
     end function
 
     pure function find_closest( this, traj, n ) result(list)
+        !
+        !  select nth closest particles to point[x,y,z]
+        !
         use mo_math, only: swap
         implicit none
 
@@ -585,6 +639,9 @@ contains
     end function
 
     pure function calc_len( this, ti, tj ) result(tl)
+        !
+        !  l = ||dra||
+        !
         implicit none
 
         ! para list
@@ -602,6 +659,9 @@ contains
     end function
 
     subroutine trim_config( tcon, opsumxyz )
+        !
+        !  make sure all the partiles locate in the periodical cell
+        !
         implicit none
 
         ! var list
@@ -651,6 +711,10 @@ contains
     end subroutine
 
     pure function calc_phi(this) result(re)
+        !
+        !  calculate volume fraction
+        !  phi = volume of particles / volume of box
+        !
         implicit none
 
         class(tpcon), intent(in) :: this

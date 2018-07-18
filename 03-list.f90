@@ -1,28 +1,45 @@
 module mo_list
+    !
+    !  verlet list, see more at page 147 of <computer simulation of liquids>
+    !
     use mo_syst
     use mo_config
     implicit none
 
-    integer, private, parameter :: listmax = 16
+    ! global constants.
+    !! skin
     real(8), private, parameter :: nlcut = 0.35d0
+    !! for sake of memory saving, we consider listmax neighbor of one particle at most
+    !! enlarge this if you study 3D system or high volume fraction system
+    integer, private, parameter :: listmax = 16
 
+    ! neighbor list of one particle
     type tplistone
+        ! neighbor number
         integer    :: nbsum
+        ! neighbor index
         integer    :: nblist(listmax)
+        ! precalculated relative relation, used for distance calculation in perodical cell
         integer(1) :: iround(free,listmax)
         integer(1) :: cory(listmax)
+        !
         real(4)    :: con0(free)
     end type
 
+    ! neighbor list struct of system
     type tplist
         integer                                    :: natom
         type(tplistone), allocatable, dimension(:) :: list
+        ! contact number
         integer, allocatable, dimension(:)         :: nbi
+        ! tag particle is rattler or not
         integer, allocatable, dimension(:)         :: rattlerflag
     end type
 
     type(tplist) :: nb
 
+
+    ! voronoi cell
     type tpvoro_one
         integer :: nbsum
         integer :: nblist(listmax)
@@ -44,6 +61,9 @@ module mo_list
 contains
 
     subroutine init_list(tnb, tcon)
+        !
+        !  allocate memory
+        !
         implicit none
 
         ! var list
@@ -67,6 +87,9 @@ contains
     end subroutine
 
     subroutine make_list(tnb, tcon)
+        !
+        !  make list of system
+        !
         implicit none
 
         ! var list
@@ -138,6 +161,9 @@ contains
     end subroutine
 
     subroutine calc_z( tnb, tcon )
+        !
+        !  calculate coordination number
+        !
         implicit none
 
         ! var list
@@ -208,6 +234,9 @@ contains
     end subroutine
 
     function check_list( tnb, tcon ) result(flag)
+        !
+        !  determine remake list or not
+        !
         implicit none
 
         ! var list

@@ -1,4 +1,7 @@
 module mo_fire
+    !
+    !  FIRE method of local minimization, see more at paper https://doi.org/10.1103/PhysRevLett.97.170201
+    !
     use mo_syst
     use mo_config
     use mo_list
