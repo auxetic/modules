@@ -220,7 +220,7 @@ contains
         type(tpcon),      intent(in) :: tcon
         real(8),          intent(in) :: traj(free)
 
-        ! results
+        ! result
         integer :: list(3)
 
         ! local

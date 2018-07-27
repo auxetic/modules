@@ -12,10 +12,12 @@ contains
         use mo_math, only: randuvec
         implicit none
 
+        ! para list
         type(tpcon) :: tcon
         real(8), allocatable, dimension(:,:) :: tradisorder
         integer :: tseed
 
+        ! local
         real(8) :: temp
         integer :: i
 
@@ -37,6 +39,7 @@ contains
     subroutine make_disorder( tcon, tradisorder, teta )
         implicit none
 
+        ! para list
         type(tpcon) :: tcon
         real(8), allocatable, dimension(:,:) :: tradisorder
         real(8) :: teta

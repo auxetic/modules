@@ -27,6 +27,7 @@ contains
     subroutine init_corr( tcorr, nbins, vmin, vmax )
         implicit none
 
+        ! para list
         type(tpcorr) :: tcorr
         integer :: nbins
         real(8) :: vmin, vmax
@@ -41,8 +42,11 @@ contains
     pure function calc_xi( this, i ) result(re)
         implicit none
 
+        ! para list
         class(tpcorr), intent(in) :: this
         integer,       intent(in) :: i
+
+        ! result
         real(8) :: re
 
         re = this%vmin + ( i - 0.5 ) * this%wbin
@@ -51,8 +55,11 @@ contains
     pure function calc_corr( this, i ) result(re)
         implicit none
 
+        ! para list
         class(tpcorr), intent(in) :: this
         integer,       intent(in) :: i
+
+        ! result
         real(8) :: re
 
         re = 0
@@ -65,7 +72,10 @@ contains
         use mo_math, only: corr
         implicit none
 
+        ! para list
         class(tpcorrab), intent(in) :: this
+
+        ! result
         real(8) :: re
 
         re = corr(this%a, this%b)

@@ -14,7 +14,10 @@ contains
     subroutine init_rand(seed)
         implicit none
 
+        ! para list
         integer :: seed
+
+        ! local
         integer :: n
         integer, allocatable, dimension(:) :: seed_array
 
@@ -26,10 +29,17 @@ contains
 
     function randperm(n) result(redata)
         implicit none
+
+        ! para list
         integer, intent(in) :: n
+
+        ! result
         integer, dimension(n) :: redata
+
+        ! local
         integer :: i, itemp
         real(8) :: rtemp
+
         redata(1) = 1
         do i=2, n
             call random_number(rtemp)
@@ -46,7 +56,10 @@ contains
     function randuvec(n) result(uvec)
         implicit none
 
+        ! para list
         integer, intent(in) :: n
+
+        ! result
         real(8) :: uvec(n)
 
         call random_number(uvec)
@@ -63,7 +76,10 @@ contains
         subroutine swap_real8(x, y)
             implicit none
 
+            ! para list
             real(8), intent(inout) :: x, y
+
+            ! local
             real(8) :: tmp
 
             tmp = x
@@ -74,7 +90,10 @@ contains
         subroutine swap_integer(x, y)
             implicit none
 
+            ! para list
             integer, intent(inout) :: x, y
+
+            ! local
             integer :: tmp
 
             tmp = x
@@ -86,7 +105,10 @@ contains
     pure function mean(a) result(re)
         implicit none
 
+        ! para list
         real(8), intent(in), dimension(:) :: a
+
+        ! result
         real(8) :: re
 
         re = sum(a) / size(a)
@@ -95,9 +117,14 @@ contains
     pure function std(a) result(re)
         implicit none
 
+        ! para list
         real(8), intent(in), dimension(:) :: a
+
+        ! result
+        real(8) :: re
+
         integer :: ilen
-        real(8) :: mean_of_a, re
+        real(8) :: mean_of_a
 
         ilen = size(a)
 
@@ -110,10 +137,14 @@ contains
     pure function corr(a, b) result(re)
         implicit none
 
+        ! para list
         real(8), intent(in), dimension(:) :: a, b
-        real(8) :: re
-        integer :: ilen
 
+        ! result
+        real(8) :: re
+
+        ! local
+        integer :: ilen
         real(8) :: sigma_of_a, sigma_of_b
 
         ilen = size(a)
@@ -128,7 +159,10 @@ contains
     pure function dot(a,b) result(re)
         implicit none
 
+        ! para list
         real(8), intent(in), dimension(:) :: a, b
+
+        ! result
         real(8) :: re
 
         re = sum(a*b)
@@ -137,7 +171,10 @@ contains
     pure function times2(a,b) result(re)
         implicit none
 
+        ! para list
         real(8), intent(in)  :: a(2), b(2)
+
+        ! result
         real(8) :: re
 
         re = a(1) * b(2) - a(2) * b(1)
@@ -146,7 +183,10 @@ contains
     pure function times3(a,b) result(re)
         implicit none
 
+        ! para list
         real(8), intent(in)  :: a(3), b(3)
+
+        ! result
         real(8) :: re(3)
 
         re(1) = a(2) * b(3) - a(3) * b(2)
@@ -157,7 +197,10 @@ contains
     pure function unitv(vector) result(uvector)
         implicit none
 
+        ! para list
         real(8), intent(in),  dimension(:) :: vector
+
+        ! result
         real(8), allocatable, dimension(:) :: uvector
 
         uvector = vector / norm2(vector)
@@ -393,7 +436,10 @@ contains
     recursive subroutine qsort(data)
         implicit none
 
+        ! para list
         real(8), intent(inout) :: data(:)
+
+        ! local
         integer :: iq
 
         if ( size(data) > 1 ) then
@@ -405,8 +451,11 @@ contains
         subroutine partition_data(pdata, marker)
             implicit none
 
+            ! para list
             real(8), intent(inout) :: pdata(:)
             integer, intent(out)   :: marker
+
+            ! local
             integer :: i, j
             real(8) :: pivot
 
@@ -437,7 +486,10 @@ contains
     pure function atan2_complex(x) result(re)
         implicit none
 
+        ! para list
         complex(16), intent(in) :: x
+
+        ! result
         real(8) :: re
 
         re = atan2(aimag(x),real(x))
@@ -447,9 +499,13 @@ contains
         ! calc angle of vec1 and vec2
         implicit none
 
+        ! para list
         real(8), dimension(2), intent(in) :: vec1, vec2
+
+        ! result
         real(8) :: angle
 
+        ! local
         complex(16) :: v1, v2
 
         v1 = cmplx(vec1(1),vec1(2))
@@ -463,9 +519,13 @@ contains
         ! calc angle of vec1 and (vec2-vec1)
         implicit none
 
+        ! para list
         real(8), dimension(2), intent(in) :: vec1, vec2
+
+        ! result
         real(8) :: angle
 
+        ! local
         real(8), dimension(2) :: vec3
         complex(16) :: v1, v2
 

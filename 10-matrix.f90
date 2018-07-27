@@ -5,19 +5,29 @@ module mo_mode
     implicit none
 
     type tpmatrix
+        ! dynamic matrix; inverse matrix
         real(8), allocatable, dimension(:,:)   :: dymatrix, dymatrix0, invmatrix
+        ! eigenvalues of matrix; participation ratio
         real(8), allocatable, dimension(:)     :: egdymatrix, pw
+        ! vars related to works of Maloney
         real(8), allocatable, dimension(:)     :: varXi_x, varXi_y, varXi_s
-        real(8), allocatable, dimension(:)     :: psi_th, psi_liu
+        ! Tong Hua's \psi
+        real(8), allocatable, dimension(:)     :: psi_th
+        ! third order matrix
         real(8), allocatable, dimension(:,:,:) :: trimatrix
-        real(8), allocatable, dimension(:)     :: modez
-        integer :: ndim, mdim, natom
+        ! ndim = free * m
+        ! mdim = ndim + freedom of box
+        integer :: natom, ndim, mdim
+        ! flags of box's freedom
         logical :: boxflag   = .false.      ! can box length change
         logical :: xyflag    = .false.      ! can box length change seperately
         logical :: shearflag = .false.      ! can box be changed by shear
     contains
+        ! calculate eigen-problem
         procedure :: solve   => solve_mode
+        ! calculate participation ratio
         procedure :: calc_pw => calc_pw
+        ! calculate inverse matrix
         procedure :: inv     => calc_inverse_matrix
     end type
 
@@ -65,7 +75,6 @@ contains
                 allocate( tmode%dymatrix(mdim,mdim), tmode%egdymatrix(mdim) )
                !allocate( tmode%dymatrix0(mdim,mdim) )
                !allocate( tmode%trimatrix(mdim,mdim,mdim) )
-               !allocate( tmode%modez(mdim) )
             end if
 
         end associate
@@ -645,6 +654,9 @@ contains
     end subroutine
 
     subroutine calc_psi_th( tmode, istart )
+        !
+        !  \phi_th^i = \sum_\alpha \frac{1}{\omega_alpha^2} ||e_\omega_\alpha^i||^2
+        !
         implicit none
 
         ! para list
@@ -680,51 +692,6 @@ contains
                 do i=1, natom
                     temp = 1.d0 / egdymatrix(j) * sum( dymatrix(free*(i-1)+1:free*i, j)**2 )
                     psi_th(i) = psi_th(i) + temp
-                end do
-            end do
-
-        end associate
-    end subroutine
-
-    subroutine calc_psi_liu( tmode, varXi_x, varXi_y, istart )
-        implicit none
-
-        ! para list
-        type(tpmatrix), intent(inout) :: tmode
-        real(8), intent(in) :: varXi_x(:), varXi_y(:)
-        integer, optional, intent(in) :: istart
-
-        ! local
-        integer :: lc_istart
-        integer :: i, j
-        real(8) :: temp, temp1, temp2
-
-        if ( .not. allocated( tmode%psi_liu ) ) then
-            allocate( tmode%psi_liu( tmode%natom ) )
-        end if
-
-        associate(                          &
-            dymatrix   => tmode%dymatrix,   &
-            egdymatrix => tmode%egdymatrix, &
-            psi_liu    => tmode%psi_liu,    &
-            ndim       => tmode%ndim,       &
-            natom      => tmode%natom       &
-            )
-
-            psi_liu = 0.d0
-
-            if ( .not. present( istart ) ) then
-                lc_istart = free + 1
-            else
-                lc_istart = istart
-            end if
-
-            do j=lc_istart, ndim
-                do i=1, natom
-                    temp1 = sum( dymatrix(free*(i-1)+1:free*i, j) * varXi_x(free*(i-1)+1:free*i) )
-                    temp2 = sum( dymatrix(free*(i-1)+1:free*i, j) * varXi_y(free*(i-1)+1:free*i) )
-                    temp = 1.d0 / egdymatrix(j) * temp1 * temp2
-                    psi_liu(i) = psi_liu(i) + temp
                 end do
             end do
 
@@ -825,6 +792,7 @@ contains
     subroutine solve_mode( this, oprange )
         implicit none
 
+        ! para list
         class(tpmatrix) :: this
         integer, optional :: oprange
 
@@ -850,9 +818,11 @@ contains
     subroutine calc_inverse_matrix( this, nu_ratter )
         implicit none
 
+        ! para list
         class(tpmatrix), intent(inout) :: this
         integer, intent(in)            :: nu_ratter
 
+        ! local
         integer :: i
 
         this%invmatrix = this%dymatrix
@@ -874,6 +844,7 @@ contains
     subroutine calc_pw( this )
         implicit none
 
+        ! para list
         class(tpmatrix) :: this
 
         ! local
@@ -906,13 +877,13 @@ contains
     subroutine solve_matrix(a,order,b, rangevar)
         implicit none
 
-        !-- variables input and output
+        ! para list
         integer :: order
         real(8),dimension(1:order,1:order) :: a
         real(8),dimension(1:order) :: b
         integer :: rangevar
 
-        !-- local variables
+        ! local
         character :: jobz = 'V'
         character :: range = 'A'
         character :: uplo = 'U'
@@ -993,3 +964,50 @@ contains
     end subroutine
 
 end module
+
+! deprecated
+    ! subroutine calc_psi_liu( tmode, varXi_x, varXi_y, istart )
+    !     implicit none
+    !
+    !     ! para list
+    !     type(tpmatrix), intent(inout) :: tmode
+    !     real(8), intent(in) :: varXi_x(:), varXi_y(:)
+    !     integer, optional, intent(in) :: istart
+    !
+    !     ! local
+    !     integer :: lc_istart
+    !     integer :: i, j
+    !     real(8) :: temp, temp1, temp2
+    !
+    !     if ( .not. allocated( tmode%psi_liu ) ) then
+    !         allocate( tmode%psi_liu( tmode%natom ) )
+    !     end if
+    !
+    !     associate(                          &
+    !         dymatrix   => tmode%dymatrix,   &
+    !         egdymatrix => tmode%egdymatrix, &
+    !         psi_liu    => tmode%psi_liu,    &
+    !         ndim       => tmode%ndim,       &
+    !         natom      => tmode%natom       &
+    !         )
+    !
+    !         psi_liu = 0.d0
+    !
+    !         if ( .not. present( istart ) ) then
+    !             lc_istart = free + 1
+    !         else
+    !             lc_istart = istart
+    !         end if
+    !
+    !         do j=lc_istart, ndim
+    !             do i=1, natom
+    !                 temp1 = sum( dymatrix(free*(i-1)+1:free*i, j) * varXi_x(free*(i-1)+1:free*i) )
+    !                 temp2 = sum( dymatrix(free*(i-1)+1:free*i, j) * varXi_y(free*(i-1)+1:free*i) )
+    !                 temp = 1.d0 / egdymatrix(j) * temp1 * temp2
+    !                 psi_liu(i) = psi_liu(i) + temp
+    !             end do
+    !         end do
+    !
+    !     end associate
+    ! end subroutine
+    !

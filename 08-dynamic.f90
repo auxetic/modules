@@ -136,6 +136,7 @@ contains
     subroutine endof_msd( tmsd )
         implicit none
 
+        ! para list
         type(tpmsd), intent(inout) :: tmsd
 
         associate(                    &
@@ -248,6 +249,7 @@ contains
     subroutine endof_vcorr( tvcorr )
         implicit none
 
+        ! para list
         type(tpvcorr), intent(inout) :: tvcorr
 
         associate(                          &

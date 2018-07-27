@@ -66,7 +66,7 @@ contains
         !
         implicit none
 
-        ! var list
+        ! para list
         type(tplist), intent(inout) :: tnb
         type(tpcon),  intent(in)    :: tcon
 
@@ -92,7 +92,7 @@ contains
         !
         implicit none
 
-        ! var list
+        ! para list
         type(tpcon),  intent(in)    :: tcon
         type(tplist), intent(inout) :: tnb
 
@@ -166,7 +166,7 @@ contains
         !
         implicit none
 
-        ! var list
+        ! para list
         type(tpcon),  intent(in)    :: tcon
         type(tplist), intent(inout) :: tnb
 
@@ -239,10 +239,12 @@ contains
         !
         implicit none
 
-        ! var list
+        ! para list
         type(tplist), intent(in) :: tnb
         type(tpcon),  intent(in) :: tcon
-        logical                  :: flag
+
+        ! result
+        logical :: flag
 
         ! local
         real(8) :: maxdis, dra(free), dr2
@@ -271,10 +273,14 @@ contains
     function calc_rattler( tcon, tnblist ) result(flag)
         implicit none
 
+        ! para list
         type(tpcon),  intent(in)           :: tcon
         type(tplist), intent(in), optional :: tnblist
-        integer, dimension(tcon%natom)     :: flag
 
+        ! result
+        integer, dimension(tcon%natom) :: flag
+
+        ! local
         type(tplist) :: lclist
         integer      :: i
 
@@ -302,6 +308,7 @@ contains
     subroutine init_voro( this, tcon )
         implicit none
 
+        ! para list
         class(tpvoro), intent(inout) :: this
         type(tpcon),  intent(in)     :: tcon
 
@@ -321,8 +328,10 @@ contains
     subroutine calc_voro( this )
         implicit none
 
+        ! para list
         class(tpvoro), intent(inout) :: this
 
+        ! local
         integer, parameter :: maxcan = 200
         integer, dimension(maxcan) :: verts
         real(8), dimension(maxcan) :: px, py, ps
@@ -390,10 +399,12 @@ contains
         use mo_math, only: swap
         implicit none
 
+        ! para list
         integer :: ncan
         real(8), dimension(ncan) :: px, py, ps
         integer, dimension(ncan) :: tag
 
+        ! local
         integer :: i, imin
 
         do i=1, ncan-1

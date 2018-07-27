@@ -175,6 +175,7 @@ contains
     subroutine mini_fire_cp( tcon, tnet, opboxp_set, opxyzp_set, opxp_set, opyp_set, opzp_set, opstress_set, oppin_flag )
         implicit none
 
+        ! para list
         type(tpcon),     intent(inout)        :: tcon
         type(tpnetwork), intent(in), optional :: tnet
         real(8),         intent(in), optional :: opboxp_set    ! target press
@@ -183,6 +184,7 @@ contains
         real(8),         intent(in), optional :: opstress_set
         logical,         intent(in), optional :: oppin_flag
 
+        ! local
         real(8) :: dstrain
         logical :: nonnetwork_flag
         real(8) :: boxp_set,  xyzp_set(free)
@@ -422,7 +424,7 @@ contains
 
             end do
 
-            print*, tcon%Ea
+            ! print*, tcon%Ea
 
         end associate
     end subroutine

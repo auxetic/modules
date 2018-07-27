@@ -64,7 +64,7 @@ contains
         !
         implicit none
 
-        ! var list
+        ! para list
         type(tpcon),       intent(inout) :: tcon
         integer,           intent(in)    :: tnatom
         real(8), optional, intent(in)    :: tphi
@@ -78,7 +78,7 @@ contains
     subroutine add_radius_dispersity( tcon, deta, opseed )
         implicit none
 
-        ! var list
+        ! para list
         type(tpcon),       intent(inout) :: tcon
         real(8),           intent(in)    :: deta
         integer, optional, intent(in)    :: opseed
@@ -106,7 +106,7 @@ contains
         !
         implicit none
 
-        ! var list
+        ! para list
         type(tpcon), intent(inout)        :: tcon
         integer,     intent(inout)        :: tseed
         real(8),     intent(in), optional :: tphi
@@ -160,7 +160,7 @@ contains
         !
         implicit none
 
-        ! var list
+        ! para list
         type(tpcon), intent(inout)        :: tcon
         real(8),     intent(in), optional :: tphi
 
@@ -214,7 +214,7 @@ contains
         !
         implicit none
 
-        ! var list
+        ! para list
         type(tpcon), intent(inout)        :: tcon
         real(8),     intent(in), optional :: tphi
 
@@ -279,7 +279,7 @@ contains
         !
         implicit none
 
-        ! var list
+        ! para list
         type(tpcon), intent(inout)        :: tcon
         real(8),     intent(in), optional :: tphi
 
@@ -358,7 +358,7 @@ contains
         !
         implicit none
 
-        ! var list
+        ! para list
         type(tpcon), intent(inout)        :: tcon
         real(8),     intent(in), optional :: tphi
 
@@ -429,7 +429,7 @@ contains
         !
         implicit none
 
-        ! var list
+        ! para list
         type(tpcon),  intent(inout)        :: tcon
         character(*), intent(in)           :: tfilename
         integer,      intent(in)           :: tnatom
@@ -463,9 +463,11 @@ contains
     pure function calc_box_length(tcon) result(l)
         implicit none
 
-        ! var list
+        ! para list
         type(tpcon), intent(in) :: tcon
-        real(8)                 :: l
+
+        ! result
+        real(8) :: l
 
         ! local
         real(8) :: phi
@@ -484,8 +486,10 @@ contains
     function calc_box_trianglelattice( tcon ) result( tla )
         implicit none
 
-        ! var list
+        ! para list
         type(tpcon), intent(in)  :: tcon
+
+        ! result
         real(8), dimension(free) :: tla
 
         ! local
@@ -518,7 +522,7 @@ contains
         integer,      intent(in) :: ti
         integer,      intent(in) :: tj
 
-        ! results
+        ! result
         real(8), dimension(free) :: dra
 
         ! local
@@ -562,7 +566,7 @@ contains
         integer,      intent(in) :: ti
         real(8), dimension(free), intent(in) :: traj
 
-        ! results
+        ! result
         real(8), dimension(free) :: dra
 
         ! local
@@ -648,7 +652,7 @@ contains
         class(tpcon), intent(in) :: this
         integer,      intent(in) :: ti, tj
 
-        ! results
+        ! result
         real(8) :: tl
 
         ! local
@@ -664,7 +668,7 @@ contains
         !
         implicit none
 
-        ! var list
+        ! para list
         type(tpcon), intent(inout)        :: tcon
         logical,     intent(in), optional :: opsumxyz  ! set center of mass to zero
 
@@ -717,8 +721,13 @@ contains
         !
         implicit none
 
+        ! para list
         class(tpcon), intent(in) :: this
+
+        ! result
         real(8) :: re
+
+        ! local
         real(8) :: sdisk, volume
 
         volume = product( this%la(1:free) )
@@ -841,7 +850,7 @@ subroutine save_config_to( tcon, tfilename )
     use mo_config
     implicit none
 
-    ! var list
+    ! para list
     type(tpcon),  intent(in) :: tcon
     character(*), intent(in) :: tfilename
 
@@ -875,7 +884,7 @@ subroutine save_config_debug( tcon, tfilename )
     use mo_config
     implicit none
 
-    ! var list
+    ! para list
     type(tpcon),  intent(in) :: tcon
     character(*), intent(in) :: tfilename
 
@@ -908,7 +917,7 @@ subroutine save_config_copy( tcon, tfilename )
     use mo_config
     implicit none
 
-    ! var list
+    ! para list
     type(tpcon),  intent(in) :: tcon
     character(*), intent(in) :: tfilename
 

@@ -10,7 +10,7 @@ contains
     function calc_psi(tcon, n) result(psi)
         implicit none
 
-        ! var list
+        ! para list
         type(tpcon), intent(in) :: tcon
         integer,     intent(in) :: n
 

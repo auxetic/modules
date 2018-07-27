@@ -18,9 +18,11 @@ contains
     subroutine calc_force( tcon, tnb )
         implicit none
 
+        ! para list
         type(tpcon)  :: tcon
         type(tplist) :: tnb
 
+        ! local
         real(8), dimension(free) :: rai, raj, dra
         real(8) :: ri, rj, rij2, rij, dij, fr, wij, wili, wilixyz(free)
         integer :: iround(free), cory
@@ -101,9 +103,11 @@ contains
     subroutine calc_force_gel( tcon, tnb )
         implicit none
 
+        ! para list
         type(tpcon)  :: tcon
         type(tplist) :: tnb
 
+        ! local
         ! gel
         real(8), parameter :: rcut = 0.1d0
         real(8), parameter :: kout = 0.5d0
@@ -201,9 +205,11 @@ contains
     subroutine calc_force_pin( tcon, tnb )
         implicit none
 
+        ! para list
         type(tpcon)  :: tcon
         type(tplist) :: tnb
 
+        ! local
         real(8), dimension(free) :: rai, raj, dra
         real(8) :: ri, rj, rij2, rij, dij, fr, wij, wili, wilixyz(free)
         integer :: iround(free), cory
