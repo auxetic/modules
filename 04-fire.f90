@@ -11,7 +11,7 @@ module mo_fire
 
 !-- fire var
     real(8), private, parameter :: fmax    = 1.d-12
-    integer, private, parameter :: stepmax = 1e6
+    integer, private, parameter :: stepmax = 1e7
     integer, private :: step
 !--
     real(8), private, parameter :: dt0   = 3.d-2
@@ -159,6 +159,10 @@ contains
 
                 temp = maxval( abs(fa) )
                 if ( temp < fmax ) exit
+
+                if ( step == stepmax ) then
+                    stop("subroutine reached step maximum and existed with no force balance")
+                end if
 
                 !if( step == 1 ) write(*,*) 'step', '    dt         ', '              fmax   '
 
@@ -407,9 +411,13 @@ contains
                 end if
                 if ( cs_flag ) temp = max( temp, abs( stress - stress_set ) )
 
-                if ( temp < fmax .or. step == (stepmax-1)  ) then
+                if ( temp < fmax ) then
                     !write(*,'(5es16.6)') 1.0, tcon%press, tcon%pressx, tcon%pressy, tcon%stress
                     exit
+                end if
+
+                if ( step == stepmax ) then
+                    stop("subroutine reached step maximum and existed with no force balance")
                 end if
 
                 !if( step == 1 ) write(*,*) 'step', '    dt         ', '              fmax   '
