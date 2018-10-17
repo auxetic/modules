@@ -1,10 +1,15 @@
-cmake_minimum_required (VERSION 2.8)
+cmake_minimum_required (VERSION 3.0)
 
 project(main Fortran)
 
 # Lapack
 find_package( LAPACK REQUIRED )
-set (BLA_VENDOR OpenBLAS)
+if ( "${CMAKE_Fortran_COMPILER_ID}" STREQUAL "GNU" )
+    set (BLA_VENDOR OpenBLAS)
+elseif ( "${CMAKE_Fortran_COMPILER_ID}" STREQUAL "Intel" )
+    set (BLA_VENDOR Intel)
+endif()
+# set (BLA_VENDOR OpenBLAS)
 # set (BLA_VENDOR Intel)
 if ( LAPACK_FOUND STREQUAL false )
     set (BLA_VENDOR All)
