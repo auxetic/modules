@@ -92,7 +92,7 @@ contains
             tcon%radius_dispersity = tcon%radius_dispersity - 0.5d0
         else
             if ( .not. allocated(tcon%radius_dispersity) ) then
-                print*, "Error, You should give seed at least one time"
+                write(*,*) "Error, You should give seed at least one time"
                 stop
             end if
         end if
@@ -394,7 +394,7 @@ contains
             ! primitive cell
             nxyz = nint( dble(natom/2)**(1.d0/3.d0) )
             if ( 2*nxyz**3 /= natom ) then
-                print*, "wrong natom"; stop
+                write(*,*) "wrong natom"; stop
             end if
             a = la(1) / nxyz
 

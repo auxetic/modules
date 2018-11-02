@@ -56,11 +56,11 @@ program main
            !write(*,'(i8,4es16.6)') i, mode%dymatrix(mode%mdim-2:mode%mdim,i)!, mode1%dymatrix(mode1%mdim,i)
            !write(*,'(4es26.16)') eta, mode%egdymatrix(mode%mdim-2:mode%mdim)
            !write(*,'(5es16.6)') confire%ra(:,i), confire%r(i), mode%dymatrix(free*(i-1)+1:free*i,5)
-           !print*, i, mode1%dymatrix(i,mode%mdim-1) / mode%dymatrix(i,mode%mdim-1)
+           !write(*,*) i, mode1%dymatrix(i,mode%mdim-1) / mode%dymatrix(i,mode%mdim-1)
         end do
 
-        print*, eta, mode%dymatrix(mode1%mdim+1,mode1%mdim+2), temp1
-       !print*,''
+        write(*,*) eta, mode%dymatrix(mode1%mdim+1,mode1%mdim+2), temp1
+       !write(*,*)''
 
     end do
 

@@ -161,7 +161,8 @@ contains
                 if ( temp < fmax ) exit
 
                 if ( step == stepmax ) then
-                    stop("subroutine reached step maximum and existed with no force balance")
+                    write(*,*) "subroutine reached step maximum and existed with no force balance"
+                    stop
                 end if
 
                 !if( step == 1 ) write(*,*) 'step', '    dt         ', '              fmax   '
@@ -221,7 +222,7 @@ contains
         if ( present( opboxp_set ) ) then
             if ( present(opxp_set) .or. present(opyp_set) .or. present(opzp_set) .or. &
                 &present(opxyzp_set) ) then
-                print*, "Error set in cp"
+                write(*,*) "Error set in cp"
                 stop
             end if
             boxp_set  = opboxp_set
@@ -231,7 +232,7 @@ contains
         xyzp_flag = .false.
         if ( present(opxyzp_set) ) then
             if ( present(opxp_set) .or. present(opyp_set) .or. present(opzp_set) ) then
-                print*, "Error set in xyzp_set"
+                write(*,*) "Error set in xyzp_set"
                 stop
             end if
             xyzp_set  = opxyzp_set
@@ -417,7 +418,8 @@ contains
                 end if
 
                 if ( step == stepmax ) then
-                    stop("subroutine reached step maximum and existed with no force balance")
+                    write(*,*) "subroutine reached step maximum and existed with no force balance"
+                    stop
                 end if
 
                 !if( step == 1 ) write(*,*) 'step', '    dt         ', '              fmax   '
@@ -432,7 +434,7 @@ contains
 
             end do
 
-            ! print*, tcon%Ea
+            ! write(*,*) tcon%Ea
 
         end associate
     end subroutine

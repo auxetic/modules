@@ -60,7 +60,7 @@ program main
         confire2%lainv = 1.d0 / confire2%la
         call mini_fire_cv( confire2, tnet=net )
         call calc_gixy( confire2, net, testp )
-        print*, net%mb, net%mgs, net%mgxy
+        write(*,*) net%mb, net%mgs, net%mgxy
 
         ! corr
 

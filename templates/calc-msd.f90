@@ -39,7 +39,7 @@ program main
 
         call md_nvt( con, nb )
 
-        if ( mod( step, 10000 ) == 0 ) print*, step
+        if ( mod( step, 10000 ) == 0 ) write(*,*) step
         !call calc_msd( con, msd1 )
         call calc_vcorr( con, vcorr )
 
@@ -50,10 +50,10 @@ program main
     call endof_vcorr( vcorr )
 
     !do step=1, msd1%nhistmax
-    !    print*, 1.d-2 * (step-1) * msd1%ndt, msd1%msd(step), msd1%alpha2(step)
+    !    write(*,*) 1.d-2 * (step-1) * msd1%ndt, msd1%msd(step), msd1%alpha2(step)
     !end do
     do step=1, vcorr%nhistmax
-        print*, 1.d-2 * (step-1) * vcorr%ndt, vcorr%vcorr(step)
+        write(*,*) 1.d-2 * (step-1) * vcorr%ndt, vcorr%vcorr(step)
     end do
 contains
 

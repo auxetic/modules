@@ -572,7 +572,7 @@ contains
                         yij = dra(2)
 
                         !if ( present( opflag ) ) then
-                        !    print*, "oh.."
+                        !    write(*,*) "oh.."
                         !    stop
                         !end if
                         !call kernel_matrix_fix( mdim, dymatrix, i, j, natom, vr, vrr, xij, yij, rij )
@@ -915,7 +915,7 @@ contains
             il = 1
             iu = rangevar
         else
-            print*, "error rangevar set"
+            write(*,*) "error rangevar set"
             stop
         end if
 

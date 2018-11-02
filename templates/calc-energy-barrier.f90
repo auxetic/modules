@@ -33,7 +33,7 @@ program main
 
     do step=1, 1000
         call clac_modez( mode, temp1 )
-        print*, maxval(abs(mode%modez/mode%dymatrix(:,15)))
+        write(*,*) maxval(abs(mode%modez/mode%dymatrix(:,15)))
     end do
 
 contains

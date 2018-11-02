@@ -298,7 +298,7 @@ contains
             if ( lclist%nbi(i) == 0 ) then
                 flag(i) = 1
             elseif ( lclist%nbi(i) <= (free-1) ) then
-                print*, "There exist unstable particle(s)"
+                write(*,*) "There exist unstable particle(s)"
                 stop
             end if
         end do
@@ -366,7 +366,7 @@ contains
 
                 if ( rijsq < rcut**2 ) then
                     if ( k == maxcan ) then
-                        print*, k
+                        write(*,*) k
                         cycle
                     end if
                     k      = k + 1
