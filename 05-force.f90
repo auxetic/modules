@@ -96,7 +96,6 @@ contains
             stress   = stress  / product(la) / free
             press    = wili    / product(la) / free
             pressxyz = wilixyz / product(la)
-
         end associate
     end subroutine
 
@@ -198,7 +197,6 @@ contains
             stress   = stress  / product(la) / free
             press    = wili    / product(la) / free
             pressxyz = wilixyz / product(la)
-
         end associate
     end subroutine
 
@@ -286,7 +284,6 @@ contains
             stress   = stress  / product(la) / free
             press    = wili    / product(la) / free
             pressxyz = wilixyz / product(la)
-
         end associate
     end subroutine
 
@@ -360,7 +357,7 @@ contains
 
                     fr = wij / rij2
 
-                    wilixyz = wilixyz + fr * dra(1)**2
+                    wilixyz = wilixyz + fr * dra(:)**2
 
                     fa(:,j) = fa(:,j) + fr * dra
                     fa(:,i) = fa(:,i) - fr * dra
@@ -374,7 +371,127 @@ contains
             stress   = stress  / product(la) / free
             press    = wili    / product(la) / free
             pressxyz = wilixyz / product(la)
+        end associate
+    end subroutine
 
+    subroutine calc_force_lj_withoutlist( tcon )
+        implicit none
+
+        ! para list
+        type(tpcon) :: tcon
+
+        ! local
+        real(8), dimension(free) :: rai, raj, dra
+        real(8) :: lainv(free), ri, rj, rij2, rij, dij, fr, wij, wili, wilixyz(free)
+        real(8) :: srinv, srinv3, srinv6, srinv12
+        integer :: iround(free), cory
+        integer :: i, j, k
+
+        ! lj
+        !! V = econs * exx * [ (sxx/r)^12 - (sxx/r)^6 ]
+        real(8), parameter :: econs = 4.d0 ! or 1.d0/72.d0
+        real(8) :: exx, sxx                ! dummy coeffcient
+        real(8), parameter :: eaa = 1.d0,  saa = 1.d0
+        real(8), parameter :: ebb = 0.5d0, sbb = 0.88d0
+        real(8), parameter :: eab = 1.5d0, sab = 0.8d0
+        !! cut
+        real(8), parameter :: rcut = 2.5d0
+        real(8), parameter :: rcutinv = 1.d0/rcut
+        !! smooth Vnew(r_cut) = 0
+        !! smooth Fnew(r_cut) = 0
+        !! Vnew(r) = V(r) - V(r_cut) - V'(r)*(r-r_cut)
+        !! energy smooth V(r_cut) = Vcut * ess
+        real(8), parameter :: Vcut = rcutinv**12 - rcutinv**6
+        !! force  smooth // V'(r_cut) = - 1/sxx * [ 12/r_cut^13 - 6/r_cut^6 ] = Dvcut / sxx * ess
+        real(8), parameter :: DVcut = - (12*rcutinv**13 - 6*rcutinv**7)
+
+
+        associate(                    &
+            natom    => tcon%natom,   &
+            ra       => tcon%ra,      &
+            fa       => tcon%fa,      &
+            Ea       => tcon%Ea,      &
+            la       => tcon%la,      &
+            strain   => tcon%strain,  &
+            stress   => tcon%stress,  &
+            press    => tcon%press,   &
+            pressxyz => tcon%pressxyz &
+            )
+
+            lainv = 1.d0 / la
+
+            Ea     = 0.d0
+            fa     = 0.d0
+            stress = 0.d0
+            wili   = 0.d0; wilixyz = 0.d0
+
+            do i=1, natom-1
+
+                rai = ra(:,i)
+
+                do j=i+1, natom
+
+                    if (     i<=natom/2 .and. j<=natom/2 ) then
+                        exx = eaa
+                        sxx = saa
+                    elseif ( i>natom/2  .and. j>natom/2  ) then
+                        exx = ebb
+                        sxx = sbb
+                    else
+                        exx = eab
+                        sxx = sab
+                    end if
+
+                    raj = ra(:,j)
+                    dra = raj - rai
+
+                    cory = nint( dra(free) * lainv(free) )
+                    dra(1) = dra(1) - strain * la(free) * cory
+
+                    do k=1, free-1
+                        iround(k) = nint( dra(k) * lainv(k) )
+                    end do
+                    iround(free) = cory
+
+                    do k=1, free
+                        dra(k) = dra(k) - iround(k) * la(k)
+                    end do
+
+                    rij2 = sum( dra**2 )
+
+                    if ( rij2 > (rcut*sxx)**2 ) cycle
+
+                    rij = sqrt(rij2)
+
+                    srinv   = sxx / rij
+                    srinv3  = srinv  * srinv * srinv
+                    srinv6  = srinv3 * srinv3
+                    srinv12 = srinv6 * srinv6
+
+                    Ea = Ea + exx * ( srinv12 - srinv6 - Vcut - (DVcut/sxx)*(rij-rcut*sxx) )
+
+                    ! wij = fr * r = - V'(r) * r
+                    wij  = exx * ( 12*srinv12 - 6*srinv6 + DVcut/sxx*rij )
+                    wili = wili + wij
+
+                    fr = wij / rij2
+
+                    wilixyz = wilixyz + fr * dra(:)**2
+
+                    fa(:,j) = fa(:,j) + fr * dra
+                    fa(:,i) = fa(:,i) - fr * dra
+
+                    stress = stress - 2 * dra(1) * dra(2) * fr
+
+                end do
+
+            end do
+
+            Ea       = econs * Ea
+            fa       = econs * fa
+            stress   = econs * stress  / product(la) / free
+            press    = econs * wili    / product(la) / free
+            pressxyz = econs * wilixyz / product(la)
         end associate
     end subroutine
 
@@ -452,7 +569,6 @@ contains
             stress   = stress  / product(la) / free
             press    = wili    / product(la) / free
             pressxyz = wilixyz / product(la)
-
         end associate
     end subroutine
 
