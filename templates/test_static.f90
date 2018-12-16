@@ -30,7 +30,7 @@ program main
 
         print*, step
 
-    enddo
+    end do
 
 
     call outp_fourier( fourier, set_fourier%file_sq )

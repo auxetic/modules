@@ -80,7 +80,7 @@ contains
         type(tpcon),     intent(inout)           :: tcon
         type(tpnetwork), intent(in),    optional :: tnet
 
-        logical, external, optional :: force_type 
+        logical, external, optional :: force_type
         logical :: get_force
 
         ! local
@@ -108,11 +108,11 @@ contains
             ! calc fortran before iteration
             if ( nonnetwork_flag ) then
                 call make_list( nbfire, tcon )
-                if (present( force_type )) then                
+                if (present( force_type )) then
                     get_force = force_type( tcon, nbfire )
                 else
                     call calc_force_h( tcon, nbfire )
-                endif
+                end if
             else
                 call calc_force_spring( tcon, tnet )
             end if
@@ -136,11 +136,11 @@ contains
 
                 ! velocity verlet method / force
                 if ( nonnetwork_flag ) then
-                    if (present( force_type )) then                
+                    if (present( force_type )) then
                         get_force = force_type( tcon, nbfire )
                     else
                         call calc_force_h( tcon, nbfire )
-                    endif
+                    end if
                 else
                     call calc_force_spring( tcon, tnet )
                 end if

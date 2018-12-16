@@ -35,7 +35,7 @@ contains
                 cpxtemp = cmplx(nij(1),nij(2))
                 psi(i)  = psi(i) + cpxtemp**n
             end do
-        enddo
+        end do
         psi(:)  = psi(:) / voroni%list(:)%nbsum
     end function
 
