@@ -12,9 +12,10 @@ program main
     ! system
     call init_system( con, sets%natom, sets%phi )
     call gen_rand_config( con, sets%seed )
-    call init_fourier( fourier, con, set_fourier%cutoff)
+    call init_fourier( fourier, con, tcutoff = set_fourier%cutoff, tbin = set_fourier%bin)
 
-    do step=1, 500
+
+    do step=1, 100
 
         sets%seed = step
         call gen_rand_config( con, sets%seed )
