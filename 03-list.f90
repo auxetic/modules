@@ -505,17 +505,17 @@ contains
                 ne = ne + 1
                 if ( verts(i) /= 2 ) then    ! it is supposed that every neighbor contribute 2 vertex
                     flag = .false.
-                endif
-            endif
+                end if
+            end if
         end do
 
         if ( flag .eqv. .false. ) then
             write (*,'('' **** vertex error: degeneracy ? **** '')')
-        endif
+        end if
 
         if ( ne /= nv ) then
             write(*,'('' **** edge   error: degeneracy ? ****  '')')
-        endif
+        end if
     end subroutine
 
 end module

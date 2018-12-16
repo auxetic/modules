@@ -63,7 +63,7 @@ contains
         if(free .ne. 2) then
             write(*,*) "the module is only for 2d, modify it, if you need 3d version"
             stop
-        endif
+        end if
 
         associate(                            &
             ! qsc     => tfourier%qsc,        &
@@ -110,19 +110,19 @@ contains
                 if(qtest(i) >= tcutoff) then
                     dimq = i
                     exit
-                endif
+                end if
             end do
             deallocate( qtest )
         else
             dimq = dimqtest
-        endif
+        end if
 
         ! write(*,*) dimq, dimqtest, countn
 
         if(dimq < 1) then
             write(*,*) "the cutoff is too larger, please reenter"
             stop
-        endif
+        end if
 
         allocate( tfourier%qsc (dimq) )
         allocate( tfourier%sqsc(dimq) )
@@ -188,7 +188,7 @@ contains
         if(free .ne. 2) then
             write(*,*) "the module is only for 2d, modify it, if you need 3d version"
             stop
-        endif
+        end if
 
         if(tcalc_flag) then
 
@@ -235,7 +235,7 @@ contains
             ave_times = ave_times + 1
 
             end associate
-        endif
+        end if
     end subroutine
 
     subroutine outp_fourier( tfourier, tfile_sq, tbin )
@@ -269,7 +269,7 @@ contains
         if(ave_times < 1) then
             write(*,*) "fail to output, no calculation of fourier is done"
             return
-        endif
+        end if
 
         ave_num = ave_num * ave_times
         sqsc = sqsc / dble(ave_num)
@@ -295,12 +295,12 @@ contains
                         temp_qsc  = temp_qsc  / dble(counti)
                         temp_sqsc = temp_sqsc / dble(counti)
                         write(2,*) temp_qsc, temp_sqsc
-                    endif
+                    end if
                     counti    = 0
                     temp_qsc  = 0.d0
                     temp_sqsc = 0.d0
                     maxqsc = maxqsc + tbin
-                endif
+                end if
                 temp_qsc  = temp_qsc  + out_qsc(i)
                 temp_sqsc = temp_sqsc + out_sqsc(i)
                 counti    = counti + 1
@@ -312,7 +312,7 @@ contains
                 write(1,*) out_qsc(i), out_sqsc(i)
             end do
             close(1)
-        endif
+        end if
 
         deallocate( out_qsc )
         deallocate( out_sqsc )
