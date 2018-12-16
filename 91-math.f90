@@ -9,7 +9,7 @@ module mo_math
         module procedure :: atan2_complex
     end interface
 
-    interface qsort 
+    interface qsort
         module procedure :: qsort_real8, qsort_integer
     end interface
 
@@ -437,119 +437,109 @@ contains
         !     all done
     end function
 
-
-
-
-
-    recursive subroutine qsort_real8(data)
-        implicit none
-
-        ! para list
-        real(8), intent(inout) :: data(:)
-
-        ! local
-        integer :: iq
-
-        if ( size(data) > 1 ) then
-            call partition_data(data, iq)
-            call qsort(data(:iq-1))
-            call qsort(data(iq:))
-        end if
-        contains
-        subroutine partition_data(pdata, marker)
+    ! qsort >
+        ! for real
+        recursive subroutine qsort_real8(data)
             implicit none
 
             ! para list
-            real(8), intent(inout) :: pdata(:)
-            integer, intent(out)   :: marker
+            real(8), intent(inout) :: data(:)
 
             ! local
-            integer :: i, j
-            real(8) :: pivot
+            integer :: iq
 
-            i=0
-            j=size(pdata)+1
-            pivot = pdata((i+j)/2)
+            if ( size(data) > 1 ) then
+                call partition_data(data, iq)
+                call qsort(data(:iq-1))
+                call qsort(data(iq:))
+            end if
+            contains
+            subroutine partition_data(pdata, marker)
+                implicit none
 
-            do while (.true.)
-                i = i + 1
-                j = j - 1
-                do while ( pdata(i) < pivot )
-                   i = i + 1
-                end do
-                do while ( pdata(j) >  pivot )
+                ! para list
+                real(8), intent(inout) :: pdata(:)
+                integer, intent(out)   :: marker
+
+                ! local
+                integer :: i, j
+                real(8) :: pivot
+
+                i=0
+                j=size(pdata)+1
+                pivot = pdata((i+j)/2)
+
+                do while (.true.)
+                    i = i + 1
                     j = j - 1
+                    do while ( pdata(i) < pivot )
+                       i = i + 1
+                    end do
+                    do while ( pdata(j) >  pivot )
+                        j = j - 1
+                    end do
+                    if ( i < j ) then
+                        call swap(pdata(i),pdata(j))
+                    else if ( i == j ) then
+                        marker = i + 1; exit
+                    else ! i>j
+                        marker = i; exit
+                    end if
                 end do
-                if ( i < j ) then
-                    call swap(pdata(i),pdata(j))
-                else if ( i == j ) then
-                    marker = i + 1; exit
-                else ! i>j
-                    marker = i; exit
-                end if
-            end do
+            end subroutine
         end subroutine
-    end subroutine
 
-
-
-
-
-
-    recursive subroutine qsort_integer(data)
-        implicit none
-
-        ! para list
-        integer, intent(inout) :: data(:)
-
-        ! local
-        integer :: iq
-
-        if ( size(data) > 1 ) then
-            call partition_data(data, iq)
-            call qsort(data(:iq-1))
-            call qsort(data(iq:))
-        end if
-        contains
-        subroutine partition_data(pdata, marker)
+        ! for integer
+        recursive subroutine qsort_integer(data)
             implicit none
 
             ! para list
-            integer, intent(inout) :: pdata(:)
-            integer, intent(out)   :: marker
+            integer, intent(inout) :: data(:)
 
             ! local
-            integer :: i, j
-            integer :: pivot
+            integer :: iq
 
-            i=0
-            j=size(pdata)+1
-            pivot = pdata((i+j)/2)
+            if ( size(data) > 1 ) then
+                call partition_data(data, iq)
+                call qsort(data(:iq-1))
+                call qsort(data(iq:))
+            end if
+            contains
+            subroutine partition_data(pdata, marker)
+                implicit none
 
-            do while (.true.)
-                i = i + 1
-                j = j - 1
-                do while ( pdata(i) < pivot )
-                   i = i + 1
-                end do
-                do while ( pdata(j) >  pivot )
+                ! para list
+                integer, intent(inout) :: pdata(:)
+                integer, intent(out)   :: marker
+
+                ! local
+                integer :: i, j
+                integer :: pivot
+
+                i=0
+                j=size(pdata)+1
+                pivot = pdata((i+j)/2)
+
+                do while (.true.)
+                    i = i + 1
                     j = j - 1
+                    do while ( pdata(i) < pivot )
+                       i = i + 1
+                    end do
+                    do while ( pdata(j) >  pivot )
+                        j = j - 1
+                    end do
+                    if ( i < j ) then
+                        call swap(pdata(i),pdata(j))
+                    else if ( i == j ) then
+                        marker = i + 1; exit
+                    else ! i>j
+                        marker = i; exit
+                    end if
                 end do
-                if ( i < j ) then
-                    call swap(pdata(i),pdata(j))
-                else if ( i == j ) then
-                    marker = i + 1; exit
-                else ! i>j
-                    marker = i; exit
-                end if
-            end do
+            end subroutine
         end subroutine
-    end subroutine
-
-
-
-
-
+    ! swap <
 
     pure function atan2_complex(x) result(re)
         implicit none
