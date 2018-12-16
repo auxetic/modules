@@ -322,7 +322,7 @@ contains
             index(l)=indexp
             indexp=index(p)
             datap=data(indexp)
-        endif
+        end if
 
         if (datap .gt. data(index(r))) then
             if (data(index(l)) .gt. data(index(r))) then
@@ -330,11 +330,11 @@ contains
                 index(l)=index(r)
             else
                 index(p)=index(r)
-            endif
+            end if
             index(r)=indexp
             indexp=index(p)
             datap=data(indexp)
-        endif
+        end if
 
         ! now we swap values between the right and left sides and/or
         ! move datap until all smaller values are on the left and all
@@ -407,9 +407,9 @@ contains
                 l=lstk(istk)
                 r=rstk(istk)
                 istk=istk-1
-            endif
+            end if
             goto 200
-        endif
+        end if
 
         900 continue
 
@@ -427,9 +427,9 @@ contains
                     p=p-1
                     if (p.gt.0) then
                         if (data(index(p)).gt.datap) goto 920
-                    endif
+                    end if
                 index(p+1) = indexp
-            endif
+            end if
         950 continue
 
         !===================================================================

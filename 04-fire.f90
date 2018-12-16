@@ -68,13 +68,20 @@ contains
         end if
     end subroutine
 
+
+
+
+
     ! main 1
-    subroutine mini_fire_cv( tcon, tnet )
+    subroutine mini_fire_cv( tcon, tnet, force_type)
         implicit none
 
         ! para list
-        type(tpcon),     intent(inout)        :: tcon
-        type(tpnetwork), intent(in), optional :: tnet
+        type(tpcon),     intent(inout)           :: tcon
+        type(tpnetwork), intent(in),    optional :: tnet
+
+        logical, external, optional :: force_type
+        logical :: get_force
 
         ! local
         logical :: nonnetwork_flag
@@ -101,7 +108,11 @@ contains
             ! calc fortran before iteration
             if ( nonnetwork_flag ) then
                 call make_list( nbfire, tcon )
-                call calc_force_h( tcon, nbfire )
+                if (present( force_type )) then
+                    get_force = force_type( tcon, nbfire )
+                else
+                    call calc_force_h( tcon, nbfire )
+                end if
             else
                 call calc_force_spring( tcon, tnet )
             end if
@@ -125,7 +136,11 @@ contains
 
                 ! velocity verlet method / force
                 if ( nonnetwork_flag ) then
-                    call calc_force_h( tcon, nbfire )
+                    if (present( force_type )) then
+                        get_force = force_type( tcon, nbfire )
+                    else
+                        call calc_force_h( tcon, nbfire )
+                    end if
                 else
                     call calc_force_spring( tcon, tnet )
                 end if
