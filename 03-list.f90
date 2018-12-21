@@ -8,10 +8,10 @@ module mo_list
 
     ! global constants.
     !! skin
-    real(8), private, parameter :: nlcut = 0.35d0
+    real(8), private, parameter :: set_nlcut = 0.50d0
     !! for sake of memory saving, we consider listmax neighbor of one particle at most
     !! enlarge this if you study 3D system or high volume fraction system
-    integer, private, parameter :: listmax = 16
+    integer, private, parameter :: listmax = 32
 
     ! neighbor list of one particle
     type tplistone
@@ -34,6 +34,7 @@ module mo_list
         integer, allocatable, dimension(:)         :: nbi
         ! tag particle is rattler or not
         integer, allocatable, dimension(:)         :: rattlerflag
+        real(8)    :: nlcut
     end type
 
     type(tplist) :: nb
@@ -75,6 +76,7 @@ contains
 
         tnatom    = tcon%natom
         tnb%natom = tnatom
+        tnb%nlcut = set_nlcut
 
         if ( allocated(tnb%list) ) then
             if ( size(tnb%list) /= tnatom ) then
@@ -107,9 +109,11 @@ contains
             r      => tcon%r,      &
             la     => tcon%la,     &
             strain => tcon%strain, &
-            list   => tnb%list     &
+            list   => tnb%list,    &
+            nlcut  => tnb%nlcut    &
             )
 
+            nlcut = set_nlcut
             lainv = 1.d0 / la
 
             ! set nbsum to zero
@@ -159,6 +163,92 @@ contains
 
         end associate
     end subroutine
+
+
+   subroutine full_make_list(tnb, tcon)
+        !
+        !  make list for all the particles
+        !
+        implicit none
+
+        ! para list
+        type(tpcon),  intent(in)    :: tcon
+        type(tplist), intent(inout) :: tnb
+
+        ! local
+        real(8) :: lainv(free), dra(free), rai(free), raj(free), ri, rj, rij2, dij
+        integer :: cory, iround(free)
+        integer :: i, j, k, itemp
+
+        associate(                 &
+            natom  => tcon%natom,  &
+            ra     => tcon%ra,     &
+            r      => tcon%r,      &
+            la     => tcon%la,     &
+            strain => tcon%strain, &
+            list   => tnb%list,    &
+            nlcut  => tnb%nlcut    &
+            )
+
+            nlcut = set_nlcut
+            lainv = 1.d0 / la
+
+            ! set nbsum to zero
+            list(:)%nbsum = 0
+
+            do i=1, natom
+
+                list(i)%con0 = ra(:,i)
+                rai          = ra(:,i)
+                ri           = r(i)
+
+                do j=i+1, natom
+
+                    raj = ra(:,j)
+                    rj  = r(j)
+
+                    dra = raj - rai
+
+                    cory   = nint( dra(free) * lainv(free) )
+                    dra(1) = dra(1) - strain * la(free) * cory
+
+                    do k=1, free-1
+                        iround(k) = nint( dra(k) * lainv(k) )
+                    end do
+                    iround(free) = cory
+
+                    do k=1, free
+                        dra(k) = dra(k) - iround(k) * la(k)
+                    end do
+
+                    rij2 = sum( dra**2 )
+                    dij  = ri + rj
+
+                    if ( rij2 > ( dij+nlcut )**2 ) cycle
+
+                    if ( list(i)%nbsum < listmax ) then
+                        itemp                   = list(i)%nbsum
+                        itemp                   = itemp + 1
+                        list(i)%nbsum           = itemp
+                        list(i)%nblist(itemp)   = j
+                        list(i)%iround(:,itemp) = iround
+                        list(i)%cory(itemp)     = cory
+                    end if
+                    if ( list(j)%nbsum < listmax ) then
+                        itemp                   = list(j)%nbsum
+                        itemp                   = itemp + 1
+                        list(j)%nbsum           = itemp
+                        list(j)%nblist(itemp)   = i
+                        list(j)%iround(:,itemp) = - iround
+                        list(j)%cory(itemp)     = - cory
+                    end if
+
+                end do
+            end do
+
+        end associate
+    end subroutine
+
 
     subroutine calc_z( tnb, tcon )
         !
@@ -252,7 +342,8 @@ contains
 
         associate(               &
             natom => tcon%natom, &
-            ra    => tcon%ra     &
+            ra    => tcon%ra,    &
+            nlcut => tnb%nlcut   &
             )
 
             maxdis = 0.d0
@@ -262,10 +353,10 @@ contains
                 if ( maxdis < dr2 ) maxdis = dr2
             end do
 
-        end associate
-
         flag = .false.
         if ( maxdis > 0.25 * nlcut**2 ) flag = .true.
+
+        end associate
     end function
 
     ! ToDo
