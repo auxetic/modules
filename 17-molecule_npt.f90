@@ -6,22 +6,22 @@ module  mo_molecule_npt
     use mo_extra_molecule
     implicit none
 !Assumption: 1) Integration method: prediction-correction; 2) Ensemble simulation: constraint method; 3) Soft particles; 4) Using neighbor list 5) The length unit is the averaged particle diameter
-
-    procedure(abstract_extra_force), pointer :: tp_abstr_force => null() !the force type in this module shall be abstract_extra_force
+!procedure(abstract_extra_force), pointer :: tp_abstr_force => null() !the force type in this module shall be abstract_extra_force
 
     type, extends(Base_molecule), public :: tpmolecule_npt
-        real(8), private :: gear0 = 3.d0 / 8.d0
-        real(8), private :: gear2 = 3.d0 / 4.d0
-        real(8), private :: gear3 = 1.d0 / 6.d0
+        real(8) :: gear0 = 3.d0 / 8.d0
+        real(8) :: gear2 = 3.d0 / 4.d0
+        real(8) :: gear3 = 1.d0 / 6.d0
 
-        real(8), private :: dt, temper, pre, resc_prob
-        real(8), private :: c1, c2, c3
-        real(8), private :: coeff0, coeff2, coeff3
+        real(8) :: dt, temper, pre, resc_prob
+        real(8) :: c1, c2, c3
+        real(8) :: coeff0, coeff2, coeff3
         
-        real(8), private :: lagr_t, lagr_p, unit_v
-        real(8), private :: la1(free), la2(free), la3(free), la_list(free)
-        real(8), private, allocatable, dimension(:,:) :: ra1, ra2, ra3
-        real(8), private, allocatable, dimension(:,:) :: va1, va2, va3
+        real(8) :: lagr_t, lagr_p
+        real(8) :: unit_v, nlcut0
+        real(8) :: la1(free), la2(free), la3(free), la_list(free)
+        real(8), allocatable, dimension(:,:) :: ra1, ra2, ra3
+        real(8), allocatable, dimension(:,:) :: va1, va2, va3
     contains
         procedure, pass  :: initial  =>  initial_npt
         procedure, pass  :: body     =>  body_npt
@@ -31,14 +31,14 @@ module  mo_molecule_npt
         procedure, pass :: correc    =>  correc_npt
         procedure, pass :: constri   =>  constri_npt
         procedure, pass :: rescale_t =>  rescale_t_npt 
-        procedure, pass :: rescale_p =>  rescale_p_npt            
+        procedure, pass :: rescale_p =>  rescale_p_npt        
     end type tpmolecule_npt
 
-    private ::  predic_npt
-    private ::  correc_npt
-    private ::  constri_npt
-    private ::  rescale_t_npt   
-    private ::  rescale_p_npt     
+    !private ::  predic_npt
+    !private ::  correc_npt
+    !private ::  constri_npt
+    !private ::  rescale_t_npt   
+    !private ::  rescale_p_npt     
     
 contains
 
@@ -104,16 +104,21 @@ contains
         coeff2 = this%gear2 * c1 / c2
         coeff3 = this%gear3 * c1 / c3   
 
+        !do i = 1, natom
+        !    call one_make_list (tnb, tcon, i)        
+        !end do
+        !call full_make_list( tnb, tcon)
+        call make_list( tnb, tcon)
+        la_list = la
+        this%nlcut0 = tnb%nlcut
+
         unit_v = sum( (2.d0*radius)**dble(free) ) / dble(natom) 
         
         call random_number(va)        
         call rescale_t_npt( this, tcon )
         call rescale_p_npt( this, tcon, tnb, tp_abstr_force )
 
-        call make_list( tnb, tcon)
-        la_list = la
-
-        get_force = tp_abstr_force( tcon, tnb ) 
+        get_force = tp_abstr_force( tcon, tnb, 0 ) 
 
         call constri_npt( this, tcon )
 
@@ -161,18 +166,15 @@ contains
  
         temp = dble(free) * (tcon%la(1) - this%la_list(1)) 
         if(temp < 0) then
-            tnb%nlcut = tnb%nlcut + temp
+            tnb%nlcut = this%nlcut0 + temp
         endif
 
-        if ( tnb%nlcut < 1.d-2 .or. check_list( nb, con )) then            
-            call make_list( nb, con )
+        if ( tnb%nlcut < 1.d-2 .or. check_list( tnb, tcon )) then            
+            call make_list( tnb, tcon )
             this%la_list = tcon%la
-            !print *, 'make list', tnb%nlcut
         end if
 
-        !call make_list( tnb, tcon)
-
-        get_force = tp_abstr_force( tcon, tnb )
+        get_force = tp_abstr_force( tcon, tnb, 0 )
 
         call constri_npt( this, tcon )
 
@@ -350,39 +352,46 @@ contains
         logical,               external      :: tp_abstr_force 
 
         !local 
-        real(8) :: pvar, temp
+        real(8) :: pvar, ttemper, temp, factor
         logical :: get_force
 
         associate(                     &
             unit_v   => this%unit_v,   &
-            temper   => this%temper,   &
             pre      => this%pre,      &
             la_list  => this%la_list,  &
             natom    => tcon%natom,    & 
-            la       => tcon%la,       &     
+            ra       => tcon%ra,       &
+            la       => tcon%la,       &
+            chixi    => ex_var%chixi,  &      
             vili     => ex_var%vili    &           
             )  
 
-        temp = sum( tcon%va**2.d0 ) / dble(free)
+        ttemper = sum( tcon%va**2.d0 ) / dble(free)
 
         call make_list( tnb, tcon )
         la_list = la
-        get_force = tp_abstr_force( tcon, tnb )
-        pvar = ( temp + vili ) * unit_v / product( la ) 
+        get_force = tp_abstr_force( tcon, tnb, 0 )
+        pvar = ( ttemper + vili ) * unit_v / product( la ) 
 
         do while( abs( (pre-pvar)/pre ) > 1.d-2)
-            if (pre > pvar) then
-                la = la * (1.d0 - 1.d-4/dble(free))
-            else 
-                la = la / (1.d0 - 1.d-4/dble(free))
+
+            factor = 1.d0 + (pvar - pre) / (pvar + chixi/dble(free**2)/product(la) ) / dble(free)
+            
+            la = la * factor            
+            ra = ra * factor
+            
+            temp = dble(free) * (tcon%la(1) - this%la_list(1)) 
+            if(temp < 0) then
+                tnb%nlcut = this%nlcut0 + temp
             endif
-            tnb%nlcut = tnb%nlcut + dble(free) * ( la(1) - la_list(1) )  
-            if ( tnb%nlcut<1.d-2 ) then 
+            if ( tnb%nlcut < 1.d-2 ) then            
                 call make_list( tnb, tcon )
-                la_list = la
-            end if
-            get_force = tp_abstr_force( tcon, nb )     
-            pvar = ( temp + vili ) * unit_v / product( la ) 
+                this%la_list = tcon%la
+            end if           
+
+            get_force = tp_abstr_force( tcon, tnb, 0 )     
+            pvar = ( ttemper + vili ) * unit_v / product( la ) 
+
         end do  
 
         end associate
