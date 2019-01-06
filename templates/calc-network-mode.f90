@@ -40,10 +40,11 @@ program main
         call remake_network( net, confire )
 
         call init_mode( mode, confire, opxyflag=.true., opshearflag=.true.)
-        call make_dymatrix_free_boundary_net_3( mode, confire, net )
+        call make_dymatrix( mode, confire, net, opflag=3 )
+        
 
         call init_mode( mode1, confire )
-        call make_dymatrix_net( mode1, confire, net )
+        call make_dymatrix( mode1, confire, net )
         call mode1%solve
 
         temp1 = 0.d0

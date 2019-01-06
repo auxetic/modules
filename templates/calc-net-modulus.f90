@@ -41,7 +41,6 @@ program main
         ! B
         confire2 = confire
         confire2%la = confire2%la * ( 1.d0 - testp )
-        confire2%lainv = 1.d0 / confire2%la
         confire2%ra = confire2%ra * ( 1.d0 - testp )
 
         call mini_fire_cv( confire2, tnet=net )
@@ -57,7 +56,6 @@ program main
         confire2 = confire
         confire2%la(1) = confire2%la(1) * ( 1.d0 - testp )
         confire2%la(2) = confire2%la(2) * ( 1.d0 + testp )
-        confire2%lainv = 1.d0 / confire2%la
         call mini_fire_cv( confire2, tnet=net )
         call calc_gixy( confire2, net, testp )
         write(*,*) net%mb, net%mgs, net%mgxy
