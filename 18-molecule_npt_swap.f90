@@ -35,12 +35,15 @@ contains
         class(tpmolecule_npt_swap), intent(inout) :: this
         type(tpcon),                intent(inout) :: tcon
         type(tplist),               intent(inout) :: tnb  
-        type(tpset_molecule),       intent(in)    :: tset_molecule   
+        class(tpset_molecule),      intent(in)    :: tset_molecule   
         logical,                    external      :: tp_abstr_force
 
         !local
         integer :: i
         logical :: get_force
+
+        select type(tset_molecule)        
+        type is (tpset_npt_swap)
 
         associate(                    &
             unit_v   =>  this%unit_v, &   
@@ -132,6 +135,7 @@ contains
         end associate
         end associate
 
+        end select
     end subroutine
 
 

@@ -10,7 +10,7 @@ program main
     implicit none
     
     type( tpmolecule_npt_swap ) :: test_npt_swap
-    type( tpset_molecule )      :: set_npt_swap
+    type( tpset_npt_swap )      :: set_npt_swap
     type( tpout_molecule )      :: out_npt_swap    
     
     ! vars

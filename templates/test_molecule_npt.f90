@@ -9,7 +9,7 @@ program main
     implicit none
     
     type( tpmolecule_npt ) :: test_npt
-    type( tpset_molecule ) :: set_npt
+    type( tpset_npt ) :: set_npt
     type( tpout_molecule ) :: out_npt    
     
     ! vars

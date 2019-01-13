@@ -49,13 +49,16 @@ contains
         class(tpmolecule_npt), intent(inout) :: this
         type(tpcon),           intent(inout) :: tcon
         type(tplist),          intent(inout) :: tnb  
-        type(tpset_molecule),  intent(in)    :: tset_molecule   
+        class(tpset_molecule), intent(in)    :: tset_molecule  
         logical,               external      :: tp_abstr_force
 
         !local
         integer :: i
         logical :: get_force
 
+        select type(tset_molecule)        
+        type is (tpset_npt)
+        
         associate(                    &
             unit_v   =>  this%unit_v, &   
             temper   =>  this%temper, &   
@@ -74,8 +77,8 @@ contains
             la2      =>  this%la2,    &
             la3      =>  this%la3,    &            
     
-            lagr_t   => this%lagr_t,  &
-            lagr_p   => this%lagr_p,  &
+            lagr_t   =>  this%lagr_t, &
+            lagr_p   =>  this%lagr_p, &
 
             natom    =>  tcon%natom,  &
             radius   =>  tcon%r,      & 
@@ -145,6 +148,8 @@ contains
 
         end associate
         end associate
+
+        end select
     end subroutine
 
 

@@ -11,11 +11,18 @@ module  mo_molecule
 ! 1) input: for setting and resetting    
     type, public :: tpset_molecule 
         real(8)  :: dt             !the time step in the simulation
-        real(8)  :: temper         !temperature 
-        real(8)  :: pre            !pressure      
-        real(8)  :: resc_prob      !resc_rate 
-        real(8)  :: swap_prob      !swap 'rate' times par particle       
+        real(8)  :: temper         !temperature  
+        real(8)  :: resc_prob      !probability of rescaling per step    
     end type
+
+    type, extends(tpset_molecule), public :: tpset_npt
+        real(8)  :: pre            !pressure     
+    end type
+
+    type, extends(tpset_npt), public :: tpset_npt_swap
+        real(8)  :: swap_prob      !probability of swap per particle         
+    end type
+
 ! 2) output: instant qualities
     type, public :: tpout_molecule 
         real(8)  :: Ea, Ek, Ev     !the kinetic energy, potential energy and total energy
@@ -48,7 +55,7 @@ module  mo_molecule
             class(Base_molecule), intent(inout) :: this
             type(tpcon),          intent(inout) :: tcon
             type(tplist),         intent(inout) :: tnb  
-            type(tpset_molecule), intent(in)    :: tset_molecule   
+            class(tpset_molecule),intent(in)    :: tset_molecule   
             logical,              external      :: tp_abstr_force
         end subroutine
 
