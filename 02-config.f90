@@ -54,7 +54,7 @@ module mo_config
         procedure :: conshear    => conshear
     end type
 
-    type(tpcon) :: con, con0, contemp, contemp1, contemp2
+    type(tpcon), target :: con, con0, contemp, contemp1, contemp2
 
 contains
 
