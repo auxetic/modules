@@ -35,7 +35,7 @@ cp templates/calc_msd.f90 main.f90
 mkdir build && cd build
 source /opt/rh/devtoolset-3/enable  # 可选，使用高版本gfortran。
 export FC=ifort                     # 可选
-cmake ..
+cmake ..                            # 如果cmake失败，请尝试 “cmake3 ..”
 make                                # ubuntu可能链接lapack失败，原因未知，请使用RedHat系linux系统
 ./main
 ```
@@ -59,9 +59,7 @@ make                                # ubuntu可能链接lapack失败，原因未
 #### list
 1. 定义tplist、tplistone结构，包含粒子邻居编号，ra_ij除以盒子边长后的取整信息
 2. 定义子过程分别对应列表空间分配、列表、列表检查
-
-- [x] 检查自由粒子（rattler）
-- [x] 配位数
+3. 检查自由粒子（rattler）、计算配位数
 
 
 #### fire
@@ -72,18 +70,14 @@ make                                # ubuntu可能链接lapack失败，原因未
 
 
 #### md
-1. 分子动力学相关
-2. 子过程md_nvt，实现NVT MD模拟的一步积分
-
-- [ ] npt
-
+1. 分子动力学相关 (16)
+2. 子过程md_nvt，实现NVT MD模拟的一步积分 (08)
+3. md_npt (16, 17)
+4. md_npt with swap mc (16, 18)
 
 #### force
-1. 子过程calc_foce计算作用力，需要列表信息
-2. 子过程calc_force_withoutlist，无需列表
-
-- [ ] Lenard-Jones
-
+1. subtroutine force (05)
+2. function force (05, 15)
 
 #### network
 1. 定义tpspring，tpnetwork结构，记录弹簧网络体系
@@ -96,11 +90,11 @@ make                                # ubuntu可能链接lapack失败，原因未
 2. msd, fkt, 速度关联
 
 
-#### ToDo struc
-1. 静态结构计算
-
-- [ ] gr sk
-- [ ] psi4 psi6
+#### struc
+1. field (19)
+2. correlation in the fourier space (13), eg: sk
+3. correlation in the real space (20), eg: gr 
+4. voronoi cell (03), psi(12)
 
 
 #### matrix
@@ -109,9 +103,6 @@ make                                # ubuntu可能链接lapack失败，原因未
 3. 子过程solve_matrix，调用Lapack解矩阵本征值，可选择只解前rangevar部分
 4. 子过程calc_pw，计算参与度
 
-- [x] 考虑盒子可压缩膨胀和剪切的情形
-- [ ] Psi_th
-
-
-
-#### ToDo Voronois Cell
+#### math
+1. random number, sort, swap, etc.(91)
+2. integral(14) 
