@@ -71,7 +71,7 @@ make                                # ubuntu可能链接lapack失败，原因未
 
 #### md
 1. 分子动力学相关 (16)
-2. 子过程md_nvt，实现NVT MD模拟的一步积分 (08)
+2. 子过程md_nvt，实现NVT MD模拟的一步积分 (06)
 3. md_npt (16, 17)
 4. md_npt with swap mc (16, 18)
 
