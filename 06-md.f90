@@ -2,7 +2,7 @@ module mo_md
     use mo_syst
     use mo_config
     use mo_list
-!   use mo_network
+    ! use mo_network
     use mo_force
     implicit none
 
@@ -123,4 +123,3 @@ contains
     end subroutine
 
 end module
-
