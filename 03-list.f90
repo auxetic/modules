@@ -178,7 +178,7 @@ contains
         ! local
         real(8) :: lainv(free), dra(free), rai(free), raj(free), ri, rj, rij2, dij
         integer :: cory, iround(free)
-        integer :: i, j, k, jj, itemp
+        integer :: i, j, k, itemp
 
         associate(                 &
             natom  => tcon%natom,  &
@@ -244,9 +244,9 @@ contains
             end do
 
         end associate
-   end subroutine
+    end subroutine
 
-   subroutine full_make_list( tnb, tcon )
+    subroutine full_make_list( tnb, tcon )
         !
         !  make list for all the particles
         !
@@ -329,7 +329,6 @@ contains
 
         end associate
     end subroutine
-
 
     subroutine calc_z( tnb, tcon )
         !
