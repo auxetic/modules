@@ -9,11 +9,11 @@ module mo_fire
     use mo_force
     implicit none
 
-!-- fire var
+    !-- fire var
     real(8), private, parameter :: fmax    = 1.d-12
     integer, private, parameter :: stepmax = 1e7
     integer, private :: step
-!--
+    !--
     real(8), private, parameter :: dt0   = 3.d-2
     real(8), private, parameter :: dtmax = 3.d-1
     real(8), private, parameter :: beta0 = 1.d-1
@@ -21,7 +21,7 @@ module mo_fire
     real(8), private, parameter :: fdec  = 0.5d0
     real(8), private, parameter :: fbeta = 0.99d0
     integer, private, parameter :: nmin  = 5
-!--
+    !--
     real(8), private :: dt, dt2, dt22, beta, power, fn, vn
     integer, private :: count
 
@@ -67,10 +67,6 @@ contains
             call calc_force_spring( tcon, tnet )
         end if
     end subroutine
-
-
-
-
 
     ! main 1
     subroutine mini_fire_cv( tcon, tnet, force_type)

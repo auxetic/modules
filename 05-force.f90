@@ -18,19 +18,13 @@ module mo_force
         end function
     end interface
 
-
 contains
 
-
-
-
-
-
-logical function calc_fun_force_lj( tcon, tnb )
+    logical function calc_fun_force_lj( tcon, tnb )
         implicit none
-        ! Warning: 
-        ! 1) pay attention to the range of list, make sure it is long enough to cover the interacted particles;  
-        ! 2) the texture is 50:50, which is different from the KA model! 
+        ! Warning:
+        ! 1) pay attention to the range of list, make sure it is long enough to cover the interacted particles;
+        ! 2) the texture is 50:50, which is different from the KA model!
 
         ! para list
         type(tpcon),  intent(inout) :: tcon
@@ -73,13 +67,13 @@ logical function calc_fun_force_lj( tcon, tnb )
             press    => tcon%press,   &
             pressxyz => tcon%pressxyz &
             )
-            
+
             Ea     = 0.d0
             fa     = 0.d0
             stress = 0.d0
             wili   = 0.d0; wilixyz = 0.d0
 
-       if ( present(tnb) ) then
+        if ( present(tnb) ) then
 
             associate(list => tnb%list)
 
@@ -90,7 +84,7 @@ logical function calc_fun_force_lj( tcon, tnb )
                 do jj=1, list(i)%nbsum
 
                     j = list(i)%nblist(jj)
-                    
+
                     if (     i<=natom/2 .and. j<=natom/2 ) then
                         exx = eaa
                         sxx = saa
@@ -145,7 +139,7 @@ logical function calc_fun_force_lj( tcon, tnb )
 
             end do
 
-            end associate            
+            end associate
 
         else
 
@@ -225,19 +219,13 @@ logical function calc_fun_force_lj( tcon, tnb )
 
         calc_fun_force_lj = .true.
 
-        return 
-
+        return
     end function
 
-
-
-
-
-
-  logical function calc_fun_force( tcon, tnb )
+    logical function calc_fun_force( tcon, tnb )
         implicit none
 
-         ! para list
+        ! para list
         type(tpcon),  intent(inout) :: tcon
         type(tplist), intent(in), optional :: tnb
 
@@ -378,15 +366,13 @@ logical function calc_fun_force_lj( tcon, tnb )
         pressxyz = wilixyz / product(la)
 
         end associate
-   
+
         calc_fun_force = .true.
 
-        return 
-
+        return
     end function
 
-
- subroutine calc_force( tcon, tnb )
+    subroutine calc_force( tcon, tnb )
         implicit none
 
         ! para list
@@ -400,17 +386,17 @@ logical function calc_fun_force_lj( tcon, tnb )
         integer :: iround(free), cory
         integer :: i, j, k, jj
 
-        associate(                     &
-            natom    => tcon%natom,    &
-            radius   => tcon%r,        &
-            ra       => tcon%ra,       &
-            fa       => tcon%fa,       &
-            Ea       => tcon%Ea,       &
-            la       => tcon%la,       &
-            strain   => tcon%strain,   &
-            stress   => tcon%stress,   &
-            press    => tcon%press,    &
-            pressxyz => tcon%pressxyz  &
+        associate(                    &
+            natom    => tcon%natom,   &
+            radius   => tcon%r,       &
+            ra       => tcon%ra,      &
+            fa       => tcon%fa,      &
+            Ea       => tcon%Ea,      &
+            la       => tcon%la,      &
+            strain   => tcon%strain,  &
+            stress   => tcon%stress,  &
+            press    => tcon%press,   &
+            pressxyz => tcon%pressxyz &
             )
 
         Ea     = 0.d0
@@ -531,7 +517,6 @@ logical function calc_fun_force_lj( tcon, tnb )
 
         end associate
     end subroutine
-
 
     subroutine calc_force_gel( tcon, tnb )
         implicit none
@@ -721,13 +706,11 @@ logical function calc_fun_force_lj( tcon, tnb )
         end associate
     end subroutine
 
-
-
     subroutine calc_force_lj( tcon, tnb )
         implicit none
-        ! Warning: 
-        ! 1) pay attention to the range of list, make sure it is long enough to cover the interacted particles;  
-        ! 2) the texture is 50:50, which is different from the KA model! 
+        ! Warning:
+        ! 1) pay attention to the range of list, make sure it is long enough to cover the interacted particles;
+        ! 2) the texture is 50:50, which is different from the KA model!
 
         ! para list
         type(tpcon),  intent(inout) :: tcon
@@ -770,7 +753,7 @@ logical function calc_fun_force_lj( tcon, tnb )
             press    => tcon%press,   &
             pressxyz => tcon%pressxyz &
             )
-            
+
             Ea     = 0.d0
             fa     = 0.d0
             stress = 0.d0
@@ -787,7 +770,7 @@ logical function calc_fun_force_lj( tcon, tnb )
                 do jj=1, list(i)%nbsum
 
                     j = list(i)%nblist(jj)
-                    
+
                     if (     i<=natom/2 .and. j<=natom/2 ) then
                         exx = eaa
                         sxx = saa
@@ -842,7 +825,7 @@ logical function calc_fun_force_lj( tcon, tnb )
 
             end do
 
-            end associate            
+            end associate
 
         else
 

@@ -12,7 +12,6 @@ module mo_integral
 
     procedure(abstract_func), pointer :: abstract_func_h => null()
 
-
 contains
 
     function integral( abstract_func, tlow_x, tup_x, tnbins ) result( integration )

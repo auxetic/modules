@@ -178,7 +178,7 @@ contains
         ! local
         real(8) :: lainv(free), dra(free), rai(free), raj(free), ri, rj, rij2, dij
         integer :: cory, iround(free)
-        integer :: i, j, k, jj, itemp
+        integer :: i, j, k, itemp
 
         associate(                 &
             natom  => tcon%natom,  &
@@ -229,29 +229,24 @@ contains
                     list(i)%iround(:,itemp) = iround
                     list(i)%cory(itemp)     = cory
                 end if
-                                
+
                 if ( list(j)%nbsum < listmax ) then
                     itemp = list(j)%nbsum
-                    do jj = 1, itemp     
-                        if( list(j)%nblist(jj) .eq. i ) then
-                            goto 30
-                        end if
-                    end do
-                    itemp                   = itemp + 1
-                    list(j)%nbsum           = itemp
-                    list(j)%nblist(itemp)   = i
-                    list(j)%iround(:,itemp) = - iround
-                    list(j)%cory(itemp)     = - cory
+                    if ( all( list(j)%nblist(1:itemp) /= i ) ) then
+                        itemp                   = itemp + 1
+                        list(j)%nbsum           = itemp
+                        list(j)%nblist(itemp)   = i
+                        list(j)%iround(:,itemp) = - iround
+                        list(j)%cory(itemp)     = - cory
+                    end if
                 end if
-
-30              continue
 
             end do
 
         end associate
-   end subroutine
+    end subroutine
 
-   subroutine full_make_list( tnb, tcon )
+    subroutine full_make_list( tnb, tcon )
         !
         !  make list for all the particles
         !
@@ -334,7 +329,6 @@ contains
 
         end associate
     end subroutine
-
 
     subroutine calc_z( tnb, tcon )
         !
