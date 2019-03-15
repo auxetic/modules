@@ -239,7 +239,7 @@ contains
             boxp_set  = opboxp_set
             boxp_flag = .true.
         end if
-        ! 3.2 constant box press, change box xy length indenpently
+        ! 3.2 constant box press, change box xy length seperately.
         xyzp_flag = .false.
         if ( present(opxyzp_set) ) then
             if ( present(opxp_set) .or. present(opyp_set) .or. present(opzp_set) ) then
@@ -333,13 +333,22 @@ contains
 
                 ! velocity verlet method / move 1 / box
                 if ( cp_flag ) then
-                    la  = la  + lav * dt + laf * dt22
-                    lav = lav + laf * dt2
                     !v affine deformation
-                    if ( boxp_flag ) ra = ra * ( lainv(1) * la(1) )
-                    do i=1, free
-                        if ( xyzp_flag(i) ) ra(i,:) = ra(i,:) * ( lainv(i)*la(i) )
-                    end do
+                    if ( boxp_flag ) then
+                        la(1)  = la(1)  + lav(1) * dt + laf(1) * dt22
+                        lav(1) = lav(1) + laf(1) * dt2
+                        !
+                        la(2:free) = la(2:free) * ( la(1)*lainv(1) )
+                        ra = ra * ( la(1)*lainv(1) )
+                    else
+                        do i=1, free
+                            if ( xyzp_flag(i) ) then
+                                la(i)   = la(i)  + lav(i) * dt + laf(i) * dt22
+                                lav(i)  = lav(i) + laf(i) * dt2
+                                ra(i,:) = ra(i,:) * ( lainv(i)*la(i) )
+                            end if
+                        end do
+                    end if
                     !^
                     lainv = 1.d0 / la
                 end if
