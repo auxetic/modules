@@ -604,10 +604,11 @@ contains
                         l0 = list(ii)%l0
                         ks = list(ii)%ks
 
-                        dra = calc_dra( tcon, i, j )
-                        rij2 = sum(dra**2)
+                        !dra = calc_dra( tcon, i, j )
+                        !rij2 = sum(dra**2)
 
-                        rij  = sqrt(rij2)
+                        !rij  = sqrt(rij2)
+                        rij = l0
 
                         ! \partial V_ij / \partial r_ij
                        !vr = - ( 1.d0 - rij/dij )**(alpha-1) / dij
