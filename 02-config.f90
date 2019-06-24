@@ -6,7 +6,7 @@ module mo_config
     use mo_math, only: init_rand
     implicit none
 
-    type tpcon
+    type con_t
         ! Atom
         !! number of particles
         integer :: natom
@@ -54,7 +54,7 @@ module mo_config
         procedure :: conshear    => conshear
     end type
 
-    type(tpcon), target :: con, con0, contemp, contemp1, contemp2
+    type(con_t), target :: con, con0, contemp, contemp1, contemp2
 
 contains
 
@@ -65,7 +65,7 @@ contains
         implicit none
 
         ! para list
-        type(tpcon),       intent(inout) :: tcon
+        type(con_t),       intent(inout) :: tcon
         integer,           intent(in)    :: tnatom
         real(8), optional, intent(in)    :: tphi
 
@@ -79,7 +79,7 @@ contains
         implicit none
 
         ! para list
-        type(tpcon),       intent(inout) :: tcon
+        type(con_t),       intent(inout) :: tcon
         real(8),           intent(in)    :: deta
         integer, optional, intent(in)    :: opseed
 
@@ -107,7 +107,7 @@ contains
         implicit none
 
         ! para list
-        type(tpcon), intent(inout)        :: tcon
+        type(con_t), intent(inout)        :: tcon
         integer,     intent(inout)        :: tseed
         real(8),     intent(in), optional :: tphi
 
@@ -161,7 +161,7 @@ contains
         implicit none
 
         ! para list
-        type(tpcon), intent(inout)        :: tcon
+        type(con_t), intent(inout)        :: tcon
         real(8),     intent(in), optional :: tphi
 
         ! local
@@ -215,7 +215,7 @@ contains
         implicit none
 
         ! para list
-        type(tpcon), intent(inout)        :: tcon
+        type(con_t), intent(inout)        :: tcon
         real(8),     intent(in), optional :: tphi
 
         ! local
@@ -280,7 +280,7 @@ contains
         implicit none
 
         ! para list
-        type(tpcon), intent(inout)        :: tcon
+        type(con_t), intent(inout)        :: tcon
         real(8),     intent(in), optional :: tphi
 
         ! local
@@ -359,7 +359,7 @@ contains
         implicit none
 
         ! para list
-        type(tpcon), intent(inout)        :: tcon
+        type(con_t), intent(inout)        :: tcon
         real(8),     intent(in), optional :: tphi
 
         ! local
@@ -430,7 +430,7 @@ contains
         implicit none
 
         ! para list
-        type(tpcon),  intent(inout)        :: tcon
+        type(con_t),  intent(inout)        :: tcon
         character(*), intent(in)           :: tfilename
         integer,      intent(in)           :: tnatom
         real(8),      intent(in), optional :: tphi
@@ -464,7 +464,7 @@ contains
         implicit none
 
         ! para list
-        type(tpcon), intent(in) :: tcon
+        type(con_t), intent(in) :: tcon
 
         ! result
         real(8) :: l
@@ -487,7 +487,7 @@ contains
         implicit none
 
         ! para list
-        type(tpcon), intent(in)  :: tcon
+        type(con_t), intent(in)  :: tcon
 
         ! result
         real(8), dimension(free) :: tla
@@ -518,7 +518,7 @@ contains
         implicit none
 
         ! para list
-        class(tpcon), intent(in) :: this
+        class(con_t), intent(in) :: this
         integer,      intent(in) :: ti
         integer,      intent(in) :: tj
 
@@ -562,7 +562,7 @@ contains
         implicit none
 
         ! para list
-        class(tpcon), intent(in) :: this
+        class(con_t), intent(in) :: this
         integer,      intent(in) :: ti
         real(8), dimension(free), intent(in) :: traj
 
@@ -606,7 +606,7 @@ contains
         implicit none
 
         ! para list
-        class(tpcon), intent(in) :: this
+        class(con_t), intent(in) :: this
         real(8), dimension(free), intent(in) :: traj
         integer, intent(in) :: n
 
@@ -649,7 +649,7 @@ contains
         implicit none
 
         ! para list
-        class(tpcon), intent(in) :: this
+        class(con_t), intent(in) :: this
         integer,      intent(in) :: ti, tj
 
         ! result
@@ -669,7 +669,7 @@ contains
         implicit none
 
         ! para list
-        type(tpcon), intent(inout)        :: tcon
+        type(con_t), intent(inout)        :: tcon
         logical,     intent(in), optional :: opsumxyz  ! set center of mass to zero
 
         ! local
@@ -722,7 +722,7 @@ contains
         implicit none
 
         ! para list
-        class(tpcon), intent(in) :: this
+        class(con_t), intent(in) :: this
 
         ! result
         real(8) :: re
@@ -746,7 +746,7 @@ contains
         implicit none
 
         ! para list
-        type(tpcon), intent(inout) :: tcon
+        type(con_t), intent(inout) :: tcon
         integer,     intent(in)    :: tn
 
         ! local
@@ -798,7 +798,7 @@ contains
         implicit none
 
         ! para list
-        class(tpcon), intent(inout) :: this
+        class(con_t), intent(inout) :: this
         integer, intent(in) :: xyz
         real(8), intent(in) :: de
         logical, optional   :: opaffine
@@ -820,7 +820,7 @@ contains
         implicit none
 
         ! para list
-        class(tpcon), intent(inout) :: this
+        class(con_t), intent(inout) :: this
         real(8), intent(in) :: de
         logical, optional   :: opaffine
         integer, optional   :: opx, opy
@@ -851,7 +851,7 @@ subroutine save_config_to( tcon, tfilename )
     implicit none
 
     ! para list
-    type(tpcon),  intent(in) :: tcon
+    type(con_t),  intent(in) :: tcon
     character(*), intent(in) :: tfilename
 
     ! local
@@ -885,7 +885,7 @@ subroutine save_config_debug( tcon, tfilename )
     implicit none
 
     ! para list
-    type(tpcon),  intent(in) :: tcon
+    type(con_t),  intent(in) :: tcon
     character(*), intent(in) :: tfilename
 
     ! local
@@ -918,7 +918,7 @@ subroutine save_config_copy( tcon, tfilename )
     implicit none
 
     ! para list
-    type(tpcon),  intent(in) :: tcon
+    type(con_t),  intent(in) :: tcon
     character(*), intent(in) :: tfilename
 
     ! local

@@ -7,14 +7,14 @@ module mo_force
 
     abstract interface
         subroutine abstract_force( tcon, tnb )
-            import :: tpcon, tplist
-            type(tpcon),  intent(inout)  :: tcon
-            type(tplist), intent(in), optional :: tnb
+            import :: con_t, list_t
+            type(con_t),  intent(inout)  :: tcon
+            type(list_t), intent(in), optional :: tnb
         end subroutine
         logical function abstract_fun_force( tcon, tnb )
-            import :: tpcon, tplist
-            type(tpcon),  intent(inout)  :: tcon
-            type(tplist), intent(in), optional :: tnb
+            import :: con_t, list_t
+            type(con_t),  intent(inout)  :: tcon
+            type(list_t), intent(in), optional :: tnb
         end function
     end interface
 
@@ -27,8 +27,8 @@ contains
         ! 2) the texture is 50:50, which is different from the KA model!
 
         ! para list
-        type(tpcon),  intent(inout) :: tcon
-        type(tplist), intent(in), optional :: tnb
+        type(con_t),  intent(inout) :: tcon
+        type(list_t), intent(in), optional :: tnb
 
         ! local
         real(8), dimension(free) :: rai, raj, dra
@@ -226,8 +226,8 @@ contains
         implicit none
 
         ! para list
-        type(tpcon),  intent(inout) :: tcon
-        type(tplist), intent(in), optional :: tnb
+        type(con_t),  intent(inout) :: tcon
+        type(list_t), intent(in), optional :: tnb
 
         ! local
         real(8), dimension(free) :: rai, raj, dra
@@ -376,8 +376,8 @@ contains
         implicit none
 
         ! para list
-        type(tpcon),  intent(inout) :: tcon
-        type(tplist), intent(in), optional :: tnb
+        type(con_t),  intent(inout) :: tcon
+        type(list_t), intent(in), optional :: tnb
 
         ! local
         real(8), dimension(free) :: rai, raj, dra
@@ -522,8 +522,8 @@ contains
         implicit none
 
         ! para list
-        type(tpcon),  intent(inout) :: tcon
-        type(tplist), intent(in), optional :: tnb
+        type(con_t),  intent(inout) :: tcon
+        type(list_t), intent(in), optional :: tnb
 
         ! local
         ! gel
@@ -623,8 +623,8 @@ contains
         implicit none
 
         ! para list
-        type(tpcon),  intent(inout) :: tcon
-        type(tplist), intent(in), optional :: tnb
+        type(con_t),  intent(inout) :: tcon
+        type(list_t), intent(in), optional :: tnb
 
         ! local
         real(8), dimension(free) :: rai, raj, dra
@@ -713,8 +713,8 @@ contains
         ! 2) the texture is 50:50, which is different from the KA model!
 
         ! para list
-        type(tpcon),  intent(inout) :: tcon
-        type(tplist), intent(in), optional :: tnb
+        type(con_t),  intent(inout) :: tcon
+        type(list_t), intent(in), optional :: tnb
 
         ! local
         real(8), dimension(free) :: rai, raj, dra
@@ -908,8 +908,8 @@ contains
         implicit none
 
         ! para list
-        type(tpcon),     intent(inout)          :: tcon
-        type(tpnetwork), intent(in), optional   :: tnet
+        type(con_t),     intent(inout)          :: tcon
+        type(network_t), intent(in), optional   :: tnet
 
         ! local
         real(8), dimension(free) :: rai, raj, dra

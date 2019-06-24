@@ -1,13 +1,13 @@
 module mo_syst
     implicit none
 
-    type tpset
+    type set_t
         integer :: natom
         real(8) :: phi
         integer :: seed
         real(8) :: press
     end type
-    type(tpset) :: sets
+    type(set_t) :: sets
 
     real(8), parameter :: pi    = 3.1415926535897932d0
     real(8), parameter :: ratio = 1.4d0

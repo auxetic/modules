@@ -6,12 +6,12 @@ module mo_md
     use mo_force
     implicit none
 
-    type tpmdargs
+    type mdargs_t
         real(8) :: temper
         real(8) :: press
     end type
 
-    type(tpmdargs) :: mdargs
+    type(mdargs_t) :: mdargs
 
     real(8), private, parameter :: dt   = 1.d-2
     real(8), private, parameter :: dt2  = 1.d-4
@@ -41,7 +41,7 @@ contains
         implicit none
 
         ! para list
-        type(tpcon), intent(inout) :: tcon
+        type(con_t), intent(inout) :: tcon
 
         associate(                 &
             natom => tcon%natom,   &
@@ -59,8 +59,8 @@ contains
         implicit none
 
         ! para list
-        type(tpcon),    intent(inout)        :: tcon
-        type(tplist),   intent(in), optional :: tnb
+        type(con_t),    intent(inout)        :: tcon
+        type(list_t),   intent(in), optional :: tnb
 
         ! local
         real(8) :: chipxi
@@ -99,7 +99,7 @@ contains
         implicit none
 
         ! para list
-        type(tpcon), intent(inout) :: tcon
+        type(con_t), intent(inout) :: tcon
         real(8), intent(in) :: tTk
 
         ! local

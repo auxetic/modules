@@ -13,7 +13,7 @@ contains
         implicit none
 
         ! para list
-        type(tpcon) :: tcon
+        type(con_t) :: tcon
         real(8), allocatable, dimension(:,:) :: tradisorder
         integer :: tseed
 
@@ -40,7 +40,7 @@ contains
         implicit none
 
         ! para list
-        type(tpcon) :: tcon
+        type(con_t) :: tcon
         real(8), allocatable, dimension(:,:) :: tradisorder
         real(8) :: teta
 

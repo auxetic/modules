@@ -14,7 +14,7 @@ module mo_list
     integer, private, parameter :: listmax = 32
 
     ! neighbor list of one particle
-    type tplistone
+    type listone_t
         ! neighbor number
         integer    :: nbsum
         ! neighbor index
@@ -27,9 +27,9 @@ module mo_list
     end type
 
     ! neighbor list struct of system
-    type tplist
+    type list_t
         integer                                    :: natom
-        type(tplistone), allocatable, dimension(:) :: list
+        type(listone_t), allocatable, dimension(:) :: list
         ! contact number
         integer, allocatable, dimension(:)         :: nbi
         ! tag particle is rattler or not
@@ -37,19 +37,19 @@ module mo_list
         real(8)    :: nlcut
     end type
 
-    type(tplist) :: nb
+    type(list_t) :: nb
 
 
     ! voronoi cell
-    type tpvoro_one
+    type voro_one_t
         integer :: nbsum
         integer :: nblist(listmax)
         integer :: vid1(listmax), vid2(listmax)
     end type
 
-    type tpvoro
+    type voro_t
         integer :: natom
-        type(tpvoro_one), allocatable, dimension(:) :: list
+        type(voro_one_t), allocatable, dimension(:) :: list
         real(8), allocatable, dimension(:,:) :: center, vertex
         real(8) :: la(free), strain
     contains
@@ -57,7 +57,7 @@ module mo_list
         procedure :: decompose => calc_voro
     end type
 
-    type(tpvoro) :: voro
+    type(voro_t) :: voro
 
 contains
 
@@ -68,8 +68,8 @@ contains
         implicit none
 
         ! para list
-        type(tplist), intent(inout) :: tnb
-        type(tpcon),  intent(in)    :: tcon
+        type(list_t), intent(inout) :: tnb
+        type(con_t),  intent(in)    :: tcon
 
         ! local
         integer :: tnatom
@@ -95,8 +95,8 @@ contains
         implicit none
 
         ! para list
-        type(tpcon),  intent(in)    :: tcon
-        type(tplist), intent(inout) :: tnb
+        type(con_t),  intent(in)    :: tcon
+        type(list_t), intent(inout) :: tnb
 
         ! local
         real(8) :: lainv(free), dra(free), rai(free), raj(free), ri, rj, rij2, dij
@@ -171,8 +171,8 @@ contains
         implicit none
 
         ! para list
-        type(tpcon),  intent(in)    :: tcon
-        type(tplist), intent(inout) :: tnb
+        type(con_t),  intent(in)    :: tcon
+        type(list_t), intent(inout) :: tnb
         integer,      intent(in)    :: tn
 
         ! local
@@ -253,8 +253,8 @@ contains
         implicit none
 
         ! para list
-        type(tpcon),  intent(in)    :: tcon
-        type(tplist), intent(inout) :: tnb
+        type(con_t),  intent(in)    :: tcon
+        type(list_t), intent(inout) :: tnb
 
         ! local
         real(8) :: lainv(free), dra(free), rai(free), raj(free), ri, rj, rij2, dij
@@ -337,8 +337,8 @@ contains
         implicit none
 
         ! para list
-        type(tpcon),  intent(in)    :: tcon
-        type(tplist), intent(inout) :: tnb
+        type(con_t),  intent(in)    :: tcon
+        type(list_t), intent(inout) :: tnb
 
         ! local
         real(8) :: dra(free), rai(free), raj(free), ri, rj, rij2, dij
@@ -410,8 +410,8 @@ contains
         implicit none
 
         ! para list
-        type(tplist), intent(in) :: tnb
-        type(tpcon),  intent(in) :: tcon
+        type(list_t), intent(in) :: tnb
+        type(con_t),  intent(in) :: tcon
 
         ! result
         logical :: flag
@@ -445,14 +445,14 @@ contains
         implicit none
 
         ! para list
-        type(tpcon),  intent(in)           :: tcon
-        type(tplist), intent(in), optional :: tnblist
+        type(con_t),  intent(in)           :: tcon
+        type(list_t), intent(in), optional :: tnblist
 
         ! result
         integer, dimension(tcon%natom) :: flag
 
         ! local
-        type(tplist) :: lclist
+        type(list_t) :: lclist
         integer      :: i
 
         if ( present(tnblist) ) then
@@ -480,8 +480,8 @@ contains
         implicit none
 
         ! para list
-        class(tpvoro), intent(inout) :: this
-        type(tpcon),  intent(in)     :: tcon
+        class(voro_t), intent(inout) :: this
+        type(con_t),  intent(in)     :: tcon
 
         this%natom  = tcon%natom
         this%center = tcon%ra
@@ -500,7 +500,7 @@ contains
         implicit none
 
         ! para list
-        class(tpvoro), intent(inout) :: this
+        class(voro_t), intent(inout) :: this
 
         ! local
         integer, parameter :: maxcan = 200

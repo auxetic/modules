@@ -11,14 +11,14 @@ contains
         implicit none
 
         ! para list
-        type(tpcon), intent(in) :: tcon
+        type(con_t), intent(in) :: tcon
         integer,     intent(in) :: n
 
         ! result
         complex(16), dimension(tcon%natom) :: psi
 
         ! lcoal
-        type(tpvoro) :: voroni
+        type(voro_t) :: voroni
         real(8)      :: nij(free)
         complex(16)  :: cpxtemp
         integer      :: i, j, k

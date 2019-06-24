@@ -3,7 +3,7 @@ module mo_network
     use mo_config
     implicit none
 
-    type tpspring
+    type spring_t
         integer :: i, j
         integer :: cory, iround(free)
         real(8) :: l0, lvec(free)
@@ -13,20 +13,20 @@ module mo_network
         real(8) :: Es, Wili, Stress
     end type
 
-    type tpnetwork
+    type network_t
         integer :: nsps, max_of_springs
         integer :: natom
         real(8) :: mb, mg, mgs, mgxy
         real(8) :: bcorr, gcorr, kscorr, ksmeancorr
         real(8), allocatable, dimension(:,:) :: kvec
-        type(tpspring), allocatable, dimension(:) :: sps
+        type(spring_t), allocatable, dimension(:) :: sps
     contains
         procedure :: dra    => calc_spring_dra
         procedure :: len    => calc_spring_len
         procedure :: isbond => isbond
     end type
 
-    type(tpnetwork) :: net
+    type(network_t) :: net
 
 contains
 
@@ -34,8 +34,8 @@ contains
         implicit none
 
         ! para list
-        type(tpcon),     intent(in)    :: tcon
-        type(tpnetwork), intent(inout) :: tnetwork
+        type(con_t),     intent(in)    :: tcon
+        type(network_t), intent(inout) :: tnetwork
 
         associate(                                    &
             natom          => tnetwork%natom,         &
@@ -54,8 +54,8 @@ contains
         implicit none
 
         ! para list
-        type(tpnetwork), intent(inout) :: tnetwork
-        type(tpcon),     intent(in)    :: tcon
+        type(network_t), intent(inout) :: tnetwork
+        type(con_t),     intent(in)    :: tcon
 
         ! local
         integer :: i, j, k
@@ -121,8 +121,8 @@ contains
         implicit none
 
         ! para list
-        type(tpnetwork), intent(inout) :: tnetwork
-        type(tpcon),     intent(in)    :: tcon
+        type(network_t), intent(inout) :: tnetwork
+        type(con_t),     intent(in)    :: tcon
 
         ! local
         integer :: i, j, k, ii
@@ -180,7 +180,7 @@ contains
         implicit none
 
         ! para list
-        class(tpnetwork), intent(in) :: tnetwork
+        class(network_t), intent(in) :: tnetwork
         integer,          intent(in) :: ti, tj
 
         ! result
@@ -216,8 +216,8 @@ contains
         implicit none
 
         ! para list
-        class(tpnetwork), intent(in) :: this
-        type(tpcon),      intent(in) :: tcon
+        class(network_t), intent(in) :: this
+        type(con_t),      intent(in) :: tcon
         real(8),          intent(in) :: traj(free)
 
         ! result
@@ -239,8 +239,8 @@ contains
         implicit none
 
         ! para list
-        type(tpnetwork), intent(inout) :: tnetwork
-        type(tpcon),     intent(in)    :: tcon
+        type(network_t), intent(inout) :: tnetwork
+        type(con_t),     intent(in)    :: tcon
         integer,         optional      :: opcase
         real(8),         optional      :: opktan
         real(8),         optional      :: oph, opketa, opa, opb, oprratio
@@ -339,8 +339,8 @@ contains
         implicit none
 
         ! para list
-        class(tpnetwork), intent(in) :: tnetwork
-        type(tpcon), intent(in)      :: tcon
+        class(network_t), intent(in) :: tnetwork
+        type(con_t), intent(in)      :: tcon
         integer, intent(in)          :: tibond
 
         ! result
@@ -384,8 +384,8 @@ contains
         implicit none
 
         ! para list
-        class(tpnetwork), intent(in) :: tnetwork
-        type(tpcon), intent(in)      :: tcon
+        class(network_t), intent(in) :: tnetwork
+        type(con_t), intent(in)      :: tcon
         integer, intent(in)          :: tibond
 
         ! result
@@ -399,8 +399,8 @@ contains
         implicit none
 
         ! para list
-        type(tpcon),     intent(in)    :: tcon
-        type(tpnetwork), intent(inout) :: tnetwork
+        type(con_t),     intent(in)    :: tcon
+        type(network_t), intent(inout) :: tnetwork
 
         ! local
         integer :: ii, i, j
@@ -434,8 +434,8 @@ contains
         implicit none
 
         ! para list
-        type(tpcon),     intent(in)    :: tcon
-        type(tpnetwork), intent(inout) :: tnetwork
+        type(con_t),     intent(in)    :: tcon
+        type(network_t), intent(inout) :: tnetwork
         real(8),         intent(in)    :: test
 
         ! local
@@ -479,8 +479,8 @@ contains
         implicit none
 
         ! para list
-        type(tpcon),     intent(in)    :: tcon
-        type(tpnetwork), intent(inout) :: tnetwork
+        type(con_t),     intent(in)    :: tcon
+        type(network_t), intent(inout) :: tnetwork
         real(8),         intent(in)    :: test
 
         ! local
@@ -524,8 +524,8 @@ contains
         implicit none
 
         ! para list
-        type(tpcon),     intent(in)    :: tcon
-        type(tpnetwork), intent(inout) :: tnetwork
+        type(con_t),     intent(in)    :: tcon
+        type(network_t), intent(inout) :: tnetwork
         real(8),         intent(in)    :: test
 
         ! local
@@ -575,8 +575,8 @@ contains
         implicit none
 
         ! para list
-        type(tpnetwork), intent(inout) :: tnetwork
-        type(tpcon),     intent(in)    :: tcon
+        type(network_t), intent(inout) :: tnetwork
+        type(con_t),     intent(in)    :: tcon
 
         ! local
         integer :: i, j, k, ii
@@ -630,9 +630,9 @@ contains
         use mo_corr
         implicit none
 
-        type(tpcorr) :: tkvcorr
-        type(tpnetwork) :: tnetwork
-        type(tpcon) :: tcon
+        type(corr_t) :: tkvcorr
+        type(network_t) :: tnetwork
+        type(con_t) :: tcon
 
         integer :: i, j, ibin
         real(8) :: l
@@ -662,7 +662,7 @@ contains
         implicit none
 
         ! para list
-        type(tpnetwork), intent(inout) :: tnetwork
+        type(network_t), intent(inout) :: tnetwork
 
         ! local
         integer :: ii, jj, flag

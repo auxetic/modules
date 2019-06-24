@@ -26,8 +26,8 @@ module mo_fire
     integer, private :: count
 
 
-    type(tpcon)  :: confire, confire1, confire2
-    type(tplist) :: nbfire
+    type(con_t)  :: confire, confire1, confire2
+    type(list_t) :: nbfire
 
     procedure(abstract_force), pointer :: calc_force_h => null()
 
@@ -37,9 +37,9 @@ contains
         implicit none
 
         ! para list
-        type(tpcon),     intent(inout)        :: tconfire
-        type(tpcon),     intent(in)           :: tcon
-        type(tpnetwork), intent(in), optional :: tnet
+        type(con_t),     intent(inout)        :: tconfire
+        type(con_t),     intent(in)           :: tcon
+        type(network_t), intent(in), optional :: tnet
 
         ! copy con to confire
         tconfire = tcon
@@ -56,8 +56,8 @@ contains
         implicit none
 
         ! para list
-        type(tpcon),     intent(inout)           :: tcon
-        type(tpnetwork), intent(inout), optional :: tnet
+        type(con_t),     intent(inout)           :: tcon
+        type(network_t), intent(inout), optional :: tnet
 
         if ( .not. present( tnet ) ) then
             call make_list( nbfire, tcon )
@@ -73,8 +73,8 @@ contains
         implicit none
 
         ! para list
-        type(tpcon),     intent(inout)           :: tcon
-        type(tpnetwork), intent(in),    optional :: tnet
+        type(con_t),     intent(inout)           :: tcon
+        type(network_t), intent(in),    optional :: tnet
 
         logical, external, optional :: force_type
         logical :: get_force
@@ -192,8 +192,8 @@ contains
         implicit none
 
         ! para list
-        type(tpcon),     intent(inout)        :: tcon
-        type(tpnetwork), intent(in), optional :: tnet
+        type(con_t),     intent(inout)        :: tcon
+        type(network_t), intent(in), optional :: tnet
         real(8),         intent(in), optional :: opboxp_set    ! target press
         real(8),         intent(in), optional :: opxyzp_set
         real(8),         intent(in), optional :: opxp_set, opyp_set, opzp_set

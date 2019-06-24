@@ -55,7 +55,7 @@ contains
 
         ! para list
         type(tpfourier),     intent(inout) :: tfourier
-        type(tpcon),         intent(in)    :: tcon
+        type(con_t),         intent(in)    :: tcon
         real(8), intent(in), optional      :: tcutoff
         real(8), intent(in), optional      :: tbin
 
@@ -207,7 +207,7 @@ contains
 
         ! para list
         type(tpfourier), intent(inout) :: tfourier
-        type(tpcon),     intent(in)    :: tcon
+        type(con_t),     intent(in)    :: tcon
         logical,         intent(in)    :: tcalc_flag
 
         ! local
@@ -388,7 +388,7 @@ contains
 
         ! para list
         class(tpfourier), intent(in) :: this
-        type(tpcon),      intent(in) :: tcon
+        type(con_t),      intent(in) :: tcon
 
         ! result
         real(8) :: unit_d

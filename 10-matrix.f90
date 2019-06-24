@@ -4,7 +4,7 @@ module mo_mode
     use mo_network
     implicit none
 
-    type tpmatrix
+    type matrix_t
         ! dynamic matrix; inverse matrix
         real(8), allocatable, dimension(:,:)   :: dymatrix, dymatrix0, invmatrix
         ! eigenvalues of matrix; participation ratio
@@ -31,15 +31,15 @@ module mo_mode
         procedure :: inv     => calc_inverse_matrix
     end type
 
-    type(tpmatrix) :: mode, mode0, mode1, mode2
+    type(matrix_t) :: mode, mode0, mode1, mode2
 
 contains
     subroutine init_mode( tmode, tcon, opboxflag, opxyflag, opshearflag )
         implicit none
 
         ! para list
-        type(tpmatrix), intent(inout)        :: tmode
-        type(tpcon),    intent(in)           :: tcon
+        type(matrix_t), intent(inout)        :: tmode
+        type(con_t),    intent(in)           :: tcon
         logical,        intent(in), optional :: opboxflag, opxyflag, opshearflag
 
         ! local
@@ -527,9 +527,9 @@ contains
         implicit none
 
         ! para list
-        type(tpmatrix),  intent(inout)        :: tmode
-        type(tpcon),     intent(in)           :: tcon
-        type(tpnetwork), intent(in), optional :: tnet
+        type(matrix_t),  intent(inout)        :: tmode
+        type(con_t),     intent(in)           :: tcon
+        type(network_t), intent(in), optional :: tnet
         integer,         intent(in), optional :: opflag
 
         ! local
@@ -660,7 +660,7 @@ contains
         implicit none
 
         ! para list
-        type(tpmatrix), intent(inout) :: tmode
+        type(matrix_t), intent(inout) :: tmode
         integer, optional, intent(in) :: istart
 
         ! local
@@ -702,8 +702,8 @@ contains
         implicit none
 
         ! para list
-        type(tpmatrix), intent(inout) :: tmode
-        type(tpcon), intent(in) :: tcon
+        type(matrix_t), intent(inout) :: tmode
+        type(con_t), intent(in) :: tcon
 
         ! local
         integer :: i, j
@@ -793,7 +793,7 @@ contains
         implicit none
 
         ! para list
-        class(tpmatrix) :: this
+        class(matrix_t) :: this
         integer, optional :: oprange
 
         ! local
@@ -819,7 +819,7 @@ contains
         implicit none
 
         ! para list
-        class(tpmatrix), intent(inout) :: this
+        class(matrix_t), intent(inout) :: this
         integer, intent(in)            :: nu_ratter
 
         ! local
@@ -845,7 +845,7 @@ contains
         implicit none
 
         ! para list
-        class(tpmatrix) :: this
+        class(matrix_t) :: this
 
         ! local
         integer :: i, j

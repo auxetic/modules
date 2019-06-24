@@ -3,7 +3,7 @@ module mo_dynamic
     use mo_config
     implicit none
 
-    type tpmsd
+    type msd_t
         integer :: natom                                ! Number of particles
         integer :: nhistmax                             ! length of histdata
         integer :: ndt                                  ! sample frequency
@@ -18,7 +18,7 @@ module mo_dynamic
         real(8), allocatable, dimension(:,:) :: histdata ! array used to stor history config
     end type
 
-    type tpvcorr
+    type vcorr_t
         integer :: natom
         integer :: nhistmax
         integer :: ndt
@@ -30,8 +30,8 @@ module mo_dynamic
         real(8), allocatable, dimension(:,:) :: histdata
     end type
 
-    type(tpmsd) :: msd1
-    type(tpvcorr) :: vcorr
+    type(msd_t) :: msd1
+    type(vcorr_t) :: vcorr
 
 contains
 
@@ -39,8 +39,8 @@ contains
         implicit none
 
         ! para list
-        type(tpcon), intent(in)    :: tcon
-        type(tpmsd), intent(inout) :: tmsd
+        type(con_t), intent(in)    :: tcon
+        type(msd_t), intent(inout) :: tmsd
         integer, intent(in)        :: tndt
         integer, intent(in)        :: tnhistmax
 
@@ -74,8 +74,8 @@ contains
         implicit none
 
         ! para list
-        type(tpcon), intent(in)    :: tcon
-        type(tpmsd), intent(inout) :: tmsd
+        type(con_t), intent(in)    :: tcon
+        type(msd_t), intent(inout) :: tmsd
 
         ! local
         integer :: idx
@@ -137,7 +137,7 @@ contains
         implicit none
 
         ! para list
-        type(tpmsd), intent(inout) :: tmsd
+        type(msd_t), intent(inout) :: tmsd
 
         associate(                    &
             natom    => tmsd%natom,   &
@@ -157,8 +157,8 @@ contains
         implicit none
 
         ! para list
-        type(tpcon),   intent(in)    :: tcon
-        type(tpvcorr), intent(inout) :: tvcorr
+        type(con_t),   intent(in)    :: tcon
+        type(vcorr_t), intent(inout) :: tvcorr
         integer,       intent(in)    :: tndt
         integer,       intent(in)    :: tnhistmax
 
@@ -189,8 +189,8 @@ contains
         implicit none
 
         ! para list
-        type(tpcon),   intent(in)    :: tcon
-        type(tpvcorr), intent(inout) :: tvcorr
+        type(con_t),   intent(in)    :: tcon
+        type(vcorr_t), intent(inout) :: tvcorr
 
         ! local
         integer :: idx
@@ -250,7 +250,7 @@ contains
         implicit none
 
         ! para list
-        type(tpvcorr), intent(inout) :: tvcorr
+        type(vcorr_t), intent(inout) :: tvcorr
 
         associate(                          &
             vcorrcount => tvcorr%vcorrcount &

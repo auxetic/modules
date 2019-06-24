@@ -1,7 +1,7 @@
 module mo_corr
     implicit none
 
-    type tpcorr
+    type corr_t
         integer :: nbins
         real(8) :: wbin
         real(8) :: vmin, vmax
@@ -12,15 +12,15 @@ module mo_corr
         procedure :: corr => calc_corr
     end type
 
-    type tpcorrab
+    type corrab_t
         real(8), allocatable, dimension(:) :: a, b
         real(8) :: corrab
     contains
         procedure :: corr => calc_corrab
     end type
 
-    type(tpcorr)   :: kvcorr
-    type(tpcorrab) :: corrab
+    type(corr_t)   :: kvcorr
+    type(corrab_t) :: corrab
 
 contains
 
@@ -28,7 +28,7 @@ contains
         implicit none
 
         ! para list
-        type(tpcorr) :: tcorr
+        type(corr_t) :: tcorr
         integer :: nbins
         real(8) :: vmin, vmax
 
@@ -43,7 +43,7 @@ contains
         implicit none
 
         ! para list
-        class(tpcorr), intent(in) :: this
+        class(corr_t), intent(in) :: this
         integer,       intent(in) :: i
 
         ! result
@@ -56,7 +56,7 @@ contains
         implicit none
 
         ! para list
-        class(tpcorr), intent(in) :: this
+        class(corr_t), intent(in) :: this
         integer,       intent(in) :: i
 
         ! result
@@ -73,7 +73,7 @@ contains
         implicit none
 
         ! para list
-        class(tpcorrab), intent(in) :: this
+        class(corrab_t), intent(in) :: this
 
         ! result
         real(8) :: re
