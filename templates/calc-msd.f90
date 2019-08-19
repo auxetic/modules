@@ -24,7 +24,7 @@ program main
     call pre_nvt( con )
 
     ! msd
-    !call init_msd( con, msd1, 100, 200 )
+    call init_msd( con, msd1, 500, 200, 1.d-2, 7.2d0 )
     call init_vcorr( con, vcorr, 10, 200 )
 
     ! main
@@ -40,27 +40,33 @@ program main
         call md_nvt( con, nb )
 
         if ( mod( step, 10000 ) == 0 ) write(*,*) step
-        !call calc_msd( con, msd1 )
+        call calc_msd( con, msd1 )
         call calc_vcorr( con, vcorr )
 
     end do
 
-    !call save_config_to( con, "./con.dat" )
+    ! call save_config_to( con, "./con.dat" )
 
+    call endof_msd( msd1 )
     call endof_vcorr( vcorr )
 
-    !do step=1, msd1%nhistmax
-    !    write(*,*) 1.d-2 * (step-1) * msd1%ndt, msd1%msd(step), msd1%alpha2(step)
-    !end do
-    do step=1, vcorr%nhistmax
-        write(*,*) 1.d-2 * (step-1) * vcorr%ndt, vcorr%vcorr(step)
-    end do
+    open(11, file="msd.dat")
+        do step=1, msd1%nhist
+           write(11,*) 1.d-2 * (step-1) * msd1%ndt, msd1%msd(step), msd1%fkt(step), msd1%alpha2(step)
+        end do
+    close(11)
+
+    open(11, file="vcorr.dat")
+        do step=1, vcorr%nhist
+            write(11,*) 1.d-2 * (step-1) * vcorr%ndt, vcorr%vcorr(step)
+        end do
+    close(11)
 contains
 
     subroutine testvar
         implicit none
 
-        sets%natom = 128
+        sets%natom = 64
         sets%phi = 0.84d0
         sets%seed = 202
     end subroutine testvar
