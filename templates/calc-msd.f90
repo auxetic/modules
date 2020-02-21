@@ -24,8 +24,9 @@ program main
     call pre_nvt( con )
 
     ! msd
-    call init_msd( con, msd1, 500, 200, 1.d-2, 7.2d0 )
-    call init_vcorr( con, vcorr, 10, 200 )
+    call init_msd( con, msd1, 100,  50, 1.d-2, 7.2d0 )
+    call init_msd( con, msd2, 5000, 50, 1.d-2, 7.2d0 )
+    ! call init_vcorr( con, vcorr, 10, 200 )
 
     ! main
     do step=1, 10000
@@ -33,34 +34,41 @@ program main
         call md_nvt( con, nb )
     end do
 
-    do step=1, 200000
+    do step=1, 2500000
 
         if ( check_list( nb, con ) ) call make_list( nb, con )
 
         call md_nvt( con, nb )
 
-        if ( mod( step, 10000 ) == 0 ) write(*,*) step
+        if ( mod( step, 25000 ) == 0 ) write(*,*) step, " / ", 2500000
         call calc_msd( con, msd1 )
-        call calc_vcorr( con, vcorr )
+        call calc_msd( con, msd2 )
+        ! call calc_vcorr( con, vcorr )
 
     end do
 
     ! call save_config_to( con, "./con.dat" )
 
     call endof_msd( msd1 )
-    call endof_vcorr( vcorr )
+    call endof_msd( msd2 )
+    ! call endof_vcorr( vcorr )
 
-    open(11, file="msd.dat")
+    open(11, file="msd-short.dat")
         do step=1, msd1%nhist
            write(11,*) 1.d-2 * (step-1) * msd1%ndt, msd1%msd(step), msd1%fkt(step), msd1%alpha2(step)
         end do
     close(11)
-
-    open(11, file="vcorr.dat")
-        do step=1, vcorr%nhist
-            write(11,*) 1.d-2 * (step-1) * vcorr%ndt, vcorr%vcorr(step)
+    open(11, file="msd-long.dat")
+        do step=1, msd2%nhist
+           write(11,*) 1.d-2 * (step-1) * msd2%ndt, msd2%msd(step), msd2%fkt(step), msd2%alpha2(step)
         end do
     close(11)
+
+    ! open(11, file="vcorr.dat")
+    !     do step=1, vcorr%nhist
+    !         write(11,*) 1.d-2 * (step-1) * vcorr%ndt, vcorr%vcorr(step)
+    !     end do
+    ! close(11)
 contains
 
     subroutine testvar

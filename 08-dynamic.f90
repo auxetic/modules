@@ -90,9 +90,9 @@ contains
         type(msd_t), intent(inout) :: tmsd
 
         ! local
-        integer :: idx
+        integer :: t0, idx
         integer :: i
-        real(8), dimension(con%natom) :: thi, td
+        real(8), dimension(con%natom) :: rt0, td
 
         associate(                       &
             ra        => con%ra,         &
@@ -128,25 +128,41 @@ contains
 
             ! store config in "history data"
             histdata(:, histidx) = ra(1, :)
-            thi = ra(1, :)
 
             if ( calc_flag ) then
 
                 cumcount = cumcount + 1
 
+                t0  = mod(histidx, nhist) + 1
+                rt0 = histdata(:,t0)
+
                 do i=1, nhist
 
-                    ! if histidx >= i; idx = histidx - i + 1
-                    ! if histidx <  i; idx = histidx - i + 1 + nhist
-                    ! 1  2  3  4  5 !
-                    !    hi         !
-                    !    i          !  idx = 1
-                    !          i    !  idx = 4
-                    ! i             !  idx = 5
-                    idx = histidx-i+1
+                    ! deprecated
+                    ! ! Index
+                    ! ! if histidx >= i; idx = histidx - i + 1
+                    ! ! if histidx <  i; idx = histidx - i + 1 + nhist
+                    ! ! 1  2  3  4  5 !  histdata
+                    ! !    hi         !  histidx
+                    ! !    i          !  idx = 1
+                    ! !          i    !  idx = 4
+                    ! ! i             !  idx = 5
+                    ! ! idx = histidx-i+1
+                    ! ! if ( idx <= 0 ) idx = idx + nhist
+
+                    ! Index
+                    ! t0 is the next number of histidx, and it is the oldest data in histdata
+                    ! 1  2  3  4  5 ! histdata
+                    !    hi         ! histidx
+                    !       t0      ! t0
+                    !    i          ! idx = 5
+                    !       i       ! idx = 1
+                    !          i    ! idx = 2
+                    idx = i - t0 + 1
                     if ( idx <= 0 ) idx = idx + nhist
 
-                    td = thi - histdata(:, i)
+                    td = histdata(:, i) - rt0
+
                     if ( msd_flag ) then
                         msd(idx)    = msd(idx)    + sum( td**2 )
                         alpha2(idx) = alpha2(idx) + sum( td**4 )
