@@ -27,10 +27,10 @@ contains
 
         associate( natom => tcon%natom )
 
-            if( .not. allocated(radisorder) ) allocate( radisorder(free,natom) )
+            if( .not. allocated(tradisorder) ) allocate( tradisorder(free,natom) )
 
             do i=1, natom
-                radisorder(:,i) = randuvec(free)
+                tradisorder(:,i) = randuvec(free)
             end do
 
         end associate
