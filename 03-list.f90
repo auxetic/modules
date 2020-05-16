@@ -469,7 +469,8 @@ contains
             if ( lclist%nbi(i) == 0 ) then
                 flag(i) = 1
             elseif ( lclist%nbi(i) <= (free-1) ) then
-                write(*,*) "There exist unstable particle(s)"
+                write(*,*) "Warning: The coordination number of a certain particle is less than 2, please reconsider whether your model is correct."
+                ! If you are sure that's okay, please delete the next line and recompile your project.
                 stop
             end if
         end do
