@@ -22,13 +22,33 @@ contains
         integer :: seed
 
         ! local
-        integer :: n
+        integer :: n, i
+        integer(8) :: tmp
         integer, allocatable, dimension(:) :: seed_array
 
         call random_seed(size=n)
         allocate( seed_array(n) )
-        seed_array = seed
+
+        tmp = int(seed,8) * 1000_8
+        do i=1, n
+            seed_array(i) = lcg(tmp)
+        end do
+
         call random_seed(put=seed_array)
+
+    contains
+        function lcg(s)
+            implicit none
+            integer :: lcg
+            integer(8) :: s
+            if (s == 0) then
+                s = 104729
+            else
+                s = mod(s, 4294967296_8)
+            end if
+            s = mod(s * 279470273_8, 4294967291_8)
+            lcg = int(mod(s, int(huge(0), 8)), kind(0))
+        end function lcg
     end subroutine
 
     function randperm(n) result(redata)
